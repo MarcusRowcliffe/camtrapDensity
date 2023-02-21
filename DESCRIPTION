@@ -11,12 +11,14 @@ Description: Currently provides functions for working with camtrapDP format data
 License: none
 Encoding: UTF-8
 Imports:
-    dplyr,
-    tidyr,
-    ggplot2,
     activity,
     camtraptor,
     Distance,
-    gtools
+    dplyr,
+    ggplot2,
+    gtools,
+    insol,
+    jpeg,
+    tidyr
 LazyData: true
 RoxygenNote: 7.2.1

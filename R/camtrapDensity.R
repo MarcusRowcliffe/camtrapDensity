@@ -188,7 +188,7 @@ check_deployment_models <- function(package){
   if("useDeployment" %in% names(package$data$observations))
     package$data$observations <- select(package$data$observations, -useDeployment)
   package$data$observations <- package$data$observations %>%
-    left_join(depdat, by="deploymentID")
+    dplyr::left_join(depdat, by="deploymentID")
 
   package$data$deployments$useDeployment <- depdat$useDeployment
   package
@@ -428,7 +428,7 @@ get_rem_data <- function(package, species=NULL,
       dplyr::summarise(stratumID = unique(stratumID), .groups="keep")
     if(any(table(str$locationName) > 1))
       stop("Some locations appear in more than one stratum in the deployments data") else
-        res <- left_join(res, str, by="locationName")
+        res <- dplyr::left_join(res, str, by="locationName")
   }
   res$effort_unit <- unit
   res$species <- species
@@ -842,8 +842,8 @@ rem <- function(parameters){
 #'   \code{\link{fit_detmodel}} with \code{unit} argument "radian" or "degree".
 #' @param speed_model A speed model fitted using \code{fit_speedmodel}.
 #' @param activity_model An activity model fitted using
-#'   \code{\link[activity]{fitact}} or \code{\link{fit_actmodel)).
-#' @param strata A dataframe of stratum areas, passed to `get_trap_rate()`.
+#'   \code{\link[activity]{fitact}} or \code{\link{fit_actmodel}}.
+#' @param strata A dataframe of stratum areas, passed to \code{\link{get_trap_rate}}.
 #' @param reps Number of bootstrap replicates for error estimation.
 #' @return A dataframe containing estimates and their errors for density and
 #'   all contributing parameters.
