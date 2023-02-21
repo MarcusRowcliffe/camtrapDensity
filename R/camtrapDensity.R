@@ -5,9 +5,12 @@
 #' for checking errors in specification of deployment start and end dates.
 #'
 #' @param package Camera trap data package object, as returned by
-#'   `read_camtrap_dp()`.
+#'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @examples
-#' plot_deployments(package)
+#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   plot_deployment_schedule(pkg)
+#' @export
+#'
 plot_deployment_schedule <- function(package){
   depdat <- package$data$deployments
   obsdat <- package$data$observations
@@ -34,20 +37,24 @@ plot_deployment_schedule <- function(package){
 #' Subset a camera trap datapackage by deployment
 #'
 #' Select a subset of deployments from a datapackage defined by
-#' a choice based on columns in the deployments table
+#' a choice based on columns in the deployments table.
 #'
 #' @param package Camera trap data package object, as returned by
-#'   `read_camtrap_dp()`.
-#' @param choice A logical expression using columns name from the
+#'   \code{\link[camtraptor]{read_camtrap_dp}}.
+#' @param choice A logical expression using column names from the
 #'  deployments table.
-#' @return As for camtraptor::read_camtrap_dp, with all datatables
-#'  reduced according to the choice criteria at the deployment level.
+#' @return As for \code{\link[camtraptor]{read_camtrap_dp}}, with all
+#'  data tables reduced according to the choice criteria at the deployment
+#'  level.
 #' @examples
-#' # subset excluding two locations and including only 1st half of 2022
-#' subpackage <- subset_deployments(package,
-#'                                  !locationName %in% c("N23", "S18") &
-#'                                   start > as.POSIXct("2022-01-01", tz="UTC") &
-#'                                   end < as.POSIXct("2022-06-01", tz="UTC"))
+#' # subset excluding a location and including only October 2017
+#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   subpkg <- subset_deployments(pkg,
+#'                                locationName != "S01" &
+#'                                start > as.POSIXct("2017-10-01", tz="UTC") &
+#'                                end < as.POSIXct("2017-10-31", tz="UTC"))
+#' @export
+#'
 subset_deployments <- function(package, choice){
   out <- package
   out$data$deployments <- dplyr::filter(out$data$deployments, {{choice}})
@@ -67,20 +74,22 @@ subset_deployments <- function(package, choice){
 #' and the ID of the deployment to correct.
 #'
 #' @param package Camera trap data package object, as returned by
-#'   `read_camtrap_dp()`.
+#'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @param deploymentID A character value giving the deployment identifier,
 #'  to be matched in package$data$deployments$deploymentID.
 #' @param wrongTime A character or POSIX reference date-time recorded wrongly
 #'  by the camera.
 #' @param rightTime A character or POSIX value giving the correct date-time
 #'  when the reference time was recorded.
-#' @return As for camtraptor::read_camtrap_dp, with all date-times corrected
-#'  by the difference between rightTime and wrongTime.
+#' @return As for    \code{\link[camtraptor]{read_camtrap_dp}}, with all
+#'  date-times corrected by the difference between rightTime and wrongTime.
 #' @examples
-#' cpkg <- correct_time(package,
-#'                      deploymentID = "022406d5-96a8-4192-a8d2-f86eab55df57",
-#'                      wrongTime = "2017-01-01 00:00:00",
-#'                      rightTime = "2018-09-01 11:04:00")
+#' pkg_corrected <- correct_time(pkg,
+#'                               deploymentID = "0d620d0e-5da8-42e6-bcf2-56c11fb3d08e",
+#'                               wrongTime = "2017-01-01 00:00:00",
+#'                               rightTime = "2018-09-01 11:04:00")
+#' @export
+#'
 correct_time <- function(package, deploymentID, wrongTime, rightTime){
   tdiff <- as.POSIXct(rightTime, tz="UTC") - as.POSIXct(wrongTime, tz="UTC")
   package$data$deployments <- dplyr::mutate(package$data$deployments,
@@ -99,14 +108,18 @@ correct_time <- function(package, deploymentID, wrongTime, rightTime){
 #' and allows the user to interactively select one.
 #'
 #' @param package Camera trap data package object, as returned by
-#'   `read_camtrap_dp()`.
+#'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @return A character string, scientific species name.
+#' @examples
+#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   species <- select_species(pkg)
 #' @export
+#'
 select_species <- function(package){
   obs <- package$data$observations
   n <- table(obs$scientificName)
   tab <-  package %>%
-    get_species() %>%
+    camtraptor::get_species() %>%
     dplyr::select(contains("Name")) %>%
     dplyr::filter(scientificName %in% names(n))
   tab$n_observations <- n
@@ -135,10 +148,14 @@ select_species <- function(package){
 #' users to record interactively whether each deployment is reliable.
 #'
 #' @param package Camera trap data package object, as returned by
-#'   `read_camtrap_dp()`.
-#' @return The original package with logical column `useDeployment`
+#'   \code{\link[camtraptor]{read_camtrap_dp}}.
+#' @return The original package with logical column \code{useDeployment}`
 #'  added to deployments and observations data.
+#' @examples
+#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   pkg_checked <- check_deployment_models(pkg)
 #' @export
+#'
 check_deployment_models <- function(package){
   plot_folder <- file.path(package$directory, "positioning_plots")
   if(!dir.exists(plot_folder)) stop("The specified folder does not exist.")
@@ -156,9 +173,10 @@ check_deployment_models <- function(package){
     if(dep %in% names(plots)){
       img <- plots[[dep]]
       imdim <- dim(img)
-      p <- ggplot() + annotation_raster(img, 1, imdim[2], 1, imdim[1]) +
-        xlim(1, imdim[2]) + ylim(1, imdim[1]) +
-        theme_void() + ggtitle(depdat$locationName[i])
+      p <- ggplot2::ggplot() +
+        ggplot2::annotation_raster(img, 1, imdim[2], 1, imdim[1]) +
+        ggplot2::xlim(1, imdim[2]) + ggplot2::ylim(1, imdim[1]) +
+        ggplot2::theme_void() + ggplot2::ggtitle(depdat$locationName[i])
       print(p)
       answer <- NA
       while(is.na(answer) || !answer %in% c("y", "n"))
@@ -182,14 +200,19 @@ check_deployment_models <- function(package){
 #' from a data package.
 #'
 #' @param package Camera trap data package object, as returned by
-#'   `read_camtrap_dp()`.
+#'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @param species A character string indicating species subset to analyse;
 #'   if NULL runs select_species to get user input.
 #' @return List with elements:
-#'  - speed: a one row dataframe containing mean (estimate) and standard error
-#'    (se) speed while active
-#'  - data: a numeric vector of the data from which the estimate is derived
+#'  - \code{speed}: a one row dataframe containing columns \code{estimate}
+#'    (mean) and \code{se} (standard error) speed while active.
+#'  - \code{data}: a numeric vector of the data from which the estimate is derived
+#' @examples
+#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   speed_model <- fit_speedmodel(pkg)
+#'   speed_model$speed
 #' @export
+#'
 fit_speedmodel <- function(package,
                            species=NULL,
                            distUnit=c("m", "km", "cm"),
@@ -216,15 +239,20 @@ fit_speedmodel <- function(package,
 #' level (proportion of time spent active).
 #'
 #' @param package Camera trap data package object, as returned by
-#'   `read_camtrap_dp()`.
+#'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @param species A character string indicating species subset to analyse;
 #'   if NULL runs select_species to get user input.
 #' @param obsdef Observation definition, either individual or sequence.
 #' @param reps Number of bootstrap replicates to run.
-#' @param ... Arguments passed to fitact.
+#' @param ... Arguments passed to \code{\link[activity]{fitact}}.
 #' @return An `actmod` list.
-#' @seealso \code{\link{activity::fitact}}
+#' @seealso \code{\link[activity]{fitact}}
+#' @examples
+#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   act_model <- fit_actmodel(pkg, reps=100)
+#'   act_model@@act
 #' @export
+#'
 fit_actmodel <- function(package,
                          species=NULL,
                          reps=999,
@@ -268,17 +296,27 @@ fit_actmodel <- function(package,
 #' @param formula A two sided formula relating radius or angle data
 #'   to covariates.
 #' @param package Camera trap data package object, as returned by
-#'   `read_camtrap_dp()`.
+#'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @param species A character string indicating species subset to analyse;
 #'   if NULL runs select_species to get user input.
-#' @param ... Arguments passed to ds.
-#' @return A `ddf` detection function model list, with additional elements:
-#'   `edd`, a vector with estimated and standard error effective detection
-#'   distance, or the `newdata` dataframe with EDD estimate and se added;
-#'   `proportion_used`, the proportion of the observations used to fit the
-#'   detection function.
-#' @seealso \code{\link{Distance::ds}}
+#' @param ... Arguments passed to \code{\link[Distance]{ds}}.
+#' @return A \code{ddf} detection function model list, with additional elements:
+#'   \code{edd}, a vector with estimated and standard error effective detection
+#'     distance, or the \code{newdata} dataframe with EDD estimate and se
+#'     columns added;
+#'   \code{proportion_used}, the proportion of the observations used to fit the
+#'     detection function in the case of truncation.
+#' @details The type of detection function (line or point) is determined by
+#'   the \code{unit} argument.
+#' @seealso \code{\link[Distance]{ds}}
+#' @examples
+#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   radius_model <- fit_detmodel(radius~1, pkg, order=0)
+#'   angle_model <- fit_detmodel(angle~1, pkg, order=0)
+#'   radius_model$edd
+#'   angle_model$edd
 #' @export
+#'
 fit_detmodel <- function(formula,
                          package,
                          species=NULL,
@@ -320,7 +358,7 @@ fit_detmodel <- function(formula,
   # model fitting
   type <- if(unit %in% c("m", "km", "cm")) "point" else "line"
   args <- c(data=list(data), formula=formula[-2], transect=type, list(...))
-  mod <- suppressWarnings(suppressMessages(do.call(ds, args)$ddf))
+  mod <- suppressWarnings(suppressMessages(do.call(Distance::ds, args)$ddf))
 
   # esw prediction
   if(length(covars)==0)
@@ -352,27 +390,33 @@ fit_detmodel <- function(formula,
 #' camera location in a camtrap-dp data package.
 #'
 #' @param package Camera trap data package object, as returned by
-#'   `read_camtrap_dp()`.
+#'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @param species A character string indicating species subset to extract
 #'   data for; if NULL runs select_species to get user input.
 #' @param unit The time unit in which to return camera effort.
 #' @return A tibble with columns:
-#'   - locationName: name of the camera location
-#'   - effort: the camera time for the location
-#'   - unit: the effort time unit
-#'   - scientificName: the scientific name of the species data extracted
-#'   - n: the observation counts
+#'   - \code{locationName}: name of the camera location
+#'   - \code{effort}: the camera time for the location
+#'   - \code{unit}: the effort time unit
+#'   - \code{scientificName}: the scientific name of the species data extracted
+#'   - \code{n}: the observation counts
+#'   - \code{stratumID}: stratum identifier (only if this column is present in
+#'     \code{package$data$deployments})
+#' @examples
+#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   remdata <- get_rem_data(pkg)
 #' @export
+#'
 get_rem_data <- function(package, species=NULL,
                          unit=c("day", "hour", "minute", "second")){
   unit <- match.arg(unit)
   if(is.null(species)) species <- select_species(package)
   dep <- package$data$deployments
   eff <- package %>%
-    get_effort(unit=unit) %>%
+    camtraptor::get_effort(unit=unit) %>%
     dplyr::select(deploymentID, effort)
   res <- package %>%
-    get_n_individuals(species=species) %>%
+    camtraptor::get_n_individuals(species=species) %>%
     suppressMessages() %>%
     dplyr::left_join(dep, by="deploymentID") %>%
     dplyr::left_join(eff, by="deploymentID") %>%
@@ -395,20 +439,25 @@ get_rem_data <- function(package, species=NULL,
 #' Calculates average trap rate and its bootstrapped error from a table of
 #' per-location observation counts and camera time.
 #'
-#' @param data A dataframe containing (at least) columns `n` and `effort`, as
-#'   returned by get_rem_data; if `strata` supplied for stratified calculation,
-#'   must also have column stratumID.
-#' @param strata A dataframe with one row per stratum, and columns `stratumID`
-#'   and `area`.
-#' @param reps The number of boostrap replicates to run.
+#' @param data A dataframe containing (at least) columns \code{n} and
+#'   \code{effort}, as returned by \code{\link{get_rem_data}}; if \code{strata}
+#'   supplied for stratified calculation, must also have column \code{stratumID}.
+#' @param strata A dataframe with one row per stratum, and columns
+#'   \code{stratumID} and \code{area}.
+#' @param reps The number of bootstrap replicates to run.
 #' @return A dataframe with columns:
-#'   - `estimate`: average trap rate
-#'   - `se`: standard error
-#'   - `cv`: proportional coefficient of variation
-#'   - `lcl95`, `ucl95`: lower and upper 95% confidence limits
-#'   - `n`: sample size (number of locations)
-#'   - `unit`: the unit of the estimate
+#'   - \code{estimate}: average trap rate
+#'   - \code{se}: standard error
+#'   - \code{cv}: proportional coefficient of variation
+#'   - \code{lcl95}, \code{ucl95}: lower and upper 95% confidence limits
+#'   - \code{n}: sample size (number of locations)
+#'   - \code{unit}: the unit of the estimate
+#' @examples
+#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   remdata <- get_rem_data(pkg)
+#'   get_trap_rate(remdata)
 #' @export
+#'
 get_trap_rate <- function(data, strata=NULL, reps=999){
 
   traprate <- function(data){
@@ -463,12 +512,14 @@ get_trap_rate <- function(data, strata=NULL, reps=999){
 #' Calculates approximate log-normal confidence intervals given an estimate
 #' and its standard error.
 #'
-#' @param estimate A numeric estimate value
-#' @param se Standard error
-#' @param speed_model A speed model fitted using fit_speedmodel
-#' @return A dataframe with a row per estimate input, and columns `lcl` and
-#'  `ucl` (unit) lower and upper confidence limits.
+#' @param estimate Numeric estimate value(s)
+#' @param se Standard error(s) of the estimate
+#' @return A dataframe with a row per estimate input, and columns \code{lcl}
+#'   and \code{ucl} (lower and upper confidence limits).
+#' @examples
+#'   lnorm_confint(10.13, 3.57)
 #' @export
+#'
 lnorm_confint <- function(estimate, se, percent=95){
   if(length(estimate) != length(se))
     stop("estimate and se must have the same number of values")
@@ -483,38 +534,47 @@ lnorm_confint <- function(estimate, se, percent=95){
 #' detection angle, speed and activity level.
 #'
 #' @param package Camera trap data package object, as returned by
-#'   `read_camtrap_dp()`.
-#' @param radius_model A detection radius model fitted using fit_detmodel
-#' @param angle_model A detection angle model fitted using fit_detmodel
-#' @param speed_model A speed model fitted using fit_speedmodel
-#' @param speed_model An activity  model fitted using fit_actmodel
-#' @param strata A dataframe of stratum information passed to `get_trap_rate`
+#'   \code{\link[camtraptor]{read_camtrap_dp}}.
+#' @param radius_model A detection radius model fitted using \code{\link{fit_detmodel}}
+#' @param angle_model A detection angle model fitted using \code{\link{fit_detmodel}}
+#' @param speed_model A speed model fitted using \code{\link{fit_speedmodel}}
+#' @param activity_model An activity  model fitted using \code{\link{fit_actmodel}}
+#' @param species A character string indicating species subset to analyse;
+#'   if NULL runs select_species to get user input.
+#' @param strata A dataframe of stratum information passed to \code{\link{get_trap_rate}}
 #' @param reps Number of bootstrap replicates for estimating trap rate error
-#'   (see `get_trap_rate`)
-#' @param speed_model An activity  model fitted using fit_actmodel
+#'   (see \code{\link{get_trap_rate}})
 #' @return A dataframe of unit-harmonised parameter estimates with seven rows:
-#'   - `radius`: detection radius
-#'   - `angle`: detection angle
-#'   - `active_speed`: speed while active
-#'   - `ativity_level`: proportion of time spent active
-#'   - `overall_speed`: long-term average speed (day range) - the product of
-#'                      `active_speed` and `activity_level`
-#'   - `trap_rate`: number of camera trap records per unit time
-#'   - `density`: number of individual animals per unit area
+#'   - \code{radius}: detection radius
+#'   - \code{angle}: detection angle
+#'   - \code{active_speed}: speed while active
+#'   - \code{activity_level}: proportion of time spent active
+#'   - \code{overall_speed}: long-term average speed (day range) - the product
+#'     of \code{active_speed} and \code{activity_level}
+#'   - \code{trap_rate}: number of camera trap records per unit time
 #'  and seven columns:
-#'   - `estimate`: parameter estimates
-#'   - `se`: standard error
-#'   - `cv`: proportional coefficient of variation
-#'   - `lcl95`, `ucl95`: lower and upper 95% confidence limits
-#'   - `n`: sample size (number of camera locations)
-#'   - `unit`: the unit of the estimate
+#'   - \code{estimate}: parameter estimates
+#'   - \code{se}: standard error
+#'   - \code{cv}: proportional coefficient of variation
+#'   - \code{lcl95}, \code{ucl95}: lower and upper 95% confidence limits
+#'   - \code{n}: sample size
+#'   - \code{unit}: the unit of the estimate
+#' @examples
+#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   sp <- "Vulpes vulpes"
+#'   radmod <- fit_detmodel(radius~1, pkg, species=sp, order=0)
+#'   angmod <- fit_detmodel(angle~1, pkg, species=sp, unit="radian", order=0)
+#'   spdmod <- fit_speedmodel(pkg, species=sp)
+#'   actmod <- fit_actmodel(pkg, species=sp, reps=100)
+#'   get_parameter_table(pkg, radmod, angmod, spdmod, actmod, sp)
 #' @export
+#'
 get_parameter_table <- function(package,
-                                species=NULL,
                                 radius_model,
                                 angle_model,
                                 speed_model,
                                 activity_model,
+                                species=NULL,
                                 strata = NULL,
                                 reps = 999){
   if(is.null(species)) species <- select_species(package)
@@ -564,11 +624,16 @@ get_parameter_table <- function(package,
 #'
 #' @param unitIN A text value giving the unit of the input; must be one of
 #'   "cm", "m", "km" for distances, "second", "minute", "hour", "day" for
-#'   times, "radian" "degree for angles, or "n/ha", "n/km2" "n/100km2" for
+#'   times, "radian" "degree" for angles, or "n/ha", "n/km2" "n/100km2" for
 #'   density.
-#' @param unitOUT The same for output; must be of the same type as unitIN.
+#' @param unitOUT The same for output; must be of the same type (distance,
+#'   time or density) as \code{unitIN}.
 #' @return A number giving the amount by which to multipy input values
 #'   to arrive a unit-converted output.
+#' @examples
+#'   get_multiplier("m", "km")
+#' @export
+#'
 get_multiplier <- function(unitIN, unitOUT){
   dunits <- c("cm", "m", "km")
   dmult <- c(1, 1e2, 1e5)
@@ -611,16 +676,30 @@ get_multiplier <- function(unitIN, unitOUT){
 #' Changes the units of parameters from their current setting to new
 #' user-defined units.
 #'
-#' @param param An REM parameter dataframe  created with \code{\link{get_parameter_table}}.
-#'   Must contain columns `estimate`, `se`, `lcl95`, `ucl95` and `unit`, and  at
-#'   least one row named from `radius`, `angle`, `active_speed`, `overall_speed`.
-#' @param radius_unit A character string giving the units of radius.
-#' @param angle_unit A character string giving the units of angle.
-#' @param active_speed_unit A character string giving the units of speed while active.
-#' @param overall_speed_unit A character string giving the units of day range.
-#' @return A replica of input dataframe `param` with `estimate`, `se` and
-#'   confidence limit values converted to input units. See \code{\link{get_multiplier}}
-#'   for allowable unit names.
+#' @param param An REM parameter dataframe as created with
+#'   \code{\link{get_parameter_table}}. Must contain columns \code{estimate},
+#'   \code{se}, \code{lcl95}, \code{ucl95} and \code{unit}, and at least one
+#'   row named from \code{radius}, \code{angle}, \code{active_speed},
+#'   \code{overall_speed}.
+#' @param radius_unit A character string giving the output unit of radius.
+#' @param angle_unit A character string giving the output unit of angle.
+#' @param active_speed_unit A character string giving the output unit of
+#'   speed while active.
+#' @param overall_speed_unit A character string giving the output unit of
+#'   day range.
+#' @param density_unit A character string giving the output unit of density.
+#' @return A replica of input dataframe \code{param} with \code{estimate},
+#'   \code{se} and confidence limit values converted to output units.
+#' @examples
+#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   sp <- "Vulpes vulpes"
+#'   radmod <- fit_detmodel(radius~1, pkg, species=sp, order=0)
+#'   angmod <- fit_detmodel(angle~1, pkg, species=sp, unit="radian", order=0)
+#'   spdmod <- fit_speedmodel(pkg, species=sp)
+#'   actmod <- fit_actmodel(pkg, species=sp, reps=100)
+#'   param <- get_parameter_table(pkg, radmod, angmod, spdmod, actmod, sp)
+#'   convert_units(param, radius_unit="m", angle_unit="degree")
+#' @export
 convert_units <- function(param,
                           radius_unit=c("km", "m", "cm"),
                           angle_unit=c("radian", "degree"),
@@ -687,18 +766,28 @@ convert_units <- function(param,
 #'
 #' Estimates REM density given a dataframe of parameters and their errors.
 #'
-#' @param parameters A dataframe containing REM parameter estimates with rows:
-#'   - `trap_rate`:
-#'   - `radius`: effective detection radius
-#'   - `angle`: effective detection angle
-#'   - `overall_speed`: average animal speed (day range)
-#'   - `trap_rate`: animal observations per unit time
+#' @param parameters A dataframe containing REM parameter estimates with
+#'   (at least) rows:
+#'   - \code{radius}: effective detection radius
+#'   - \code{angle}: effective detection angle
+#'   - \code{overall_speed}: average animal speed (day range)
+#'   - \code{trap_rate}: animal observations per unit time
 #'  and columns:
-#'   - `estimate`: numeric parameter estimate
-#'   - `se`: numeric parameter standard error
-#'   - `unit`: character parameter units (see `convert_units` for allowable values)
-#' @return A dataframe with the original parameters plus estimated density and
+#'   - \code{estimate}: numeric parameter estimate
+#'   - \code{se}: numeric parameter standard error
+#'   - \code{unit}: character parameter units (see \code{\link{convert_units}}
+#'     for allowable values)
+#' @return A dataframe with the input parameters plus estimated density and
 #'  its errors.
+#' @examples
+#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   sp <- "Vulpes vulpes"
+#'   radmod <- fit_detmodel(radius~1, pkg, species=sp, order=0)
+#'   angmod <- fit_detmodel(angle~1, pkg, species=sp, unit="radian", order=0)
+#'   spdmod <- fit_speedmodel(pkg, species=sp)
+#'   actmod <- fit_actmodel(pkg, species=sp, reps=100)
+#'   param <- get_parameter_table(pkg, radmod, angmod, spdmod, actmod, sp)
+#'   rem(param)
 #' @export
 rem <- function(parameters){
   required_rows <- c("trap_rate", "overall_speed", "radius", "angle")
@@ -732,34 +821,52 @@ rem <- function(parameters){
 
 #' Integrated random encounter model density estimate
 #'
-#' Estimates animal density for a given species given a camtrap DP datapackage.
+#' Estimates animal density for a given species given a camtrapDP datapackage.
 #' Models for detection radius and angle, speed and/or activity level can be
 #' fitted externally and provided as arguments, or are fitted internally if not
-#' provided. Input units are assumed to be distance in m and time in seconds.
+#' provided (\code{NULL} default). Input units are assumed to be distance in m
+#' and time in seconds.
 #'
 #' @param package Camera trap data package object, as returned by
-#'   `read_camtrap_dp()`.
+#'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @param check_deployments Logical indicating whether to check deployment
-#' calibration model diagnostic plots. If `TRUE` (default) runs
-#' `check_deployment_models`; radius, angle and speed data from any excluded
-#' deployments are then dropped from analysis. If `FALSE` all data are used.
+#'   calibration model diagnostic plots. If \code{TRUE} (default) runs
+#'   \code{check_deployment_models}; radius, angle and speed data from any
+#'   excluded deployments are then dropped from analysis. If \code{FALSE}
+#'   all data are used.
 #' @param species A character string indicating species subset to analyse;
-#'   if NULL runs select_species to get user input.
+#'   if NULL runs \code{\link{select_species}} to get user input.
 #' @param radius_model A detection function model for radii fitted using
-#' `fitdf` or `fit_detmodel` with argument `transect="point"`; fitted
-#' internally if `NULL`.
+#'   \code{\link{fit_detmodel}}.
 #' @param angle_model A detection function model for angles fitted using
-#' `fitdf` or `fit_detmodel`; fitted internally if `NULL`.
-#' @param speed_model A named vector with elements `estimate` and `se`
-#' (giving mean and standard error of speed), as derived from `fit_speedmodel`;
-#' fitted internally if `NULL`.
-#' @param activity_model An activity model fitted using `activity::fitact` or
-#' `fit_actmodel`; fitted internally if `NULL`.
+#'   \code{\link{fit_detmodel}} with \code{unit} argument "radian" or "degree".
+#' @param speed_model A speed model fitted using \code{fit_speedmodel}.
+#' @param activity_model An activity model fitted using
+#'   \code{\link[activity]{fitact}} or \code{\link{fit_actmodel)).
 #' @param strata A dataframe of stratum areas, passed to `get_trap_rate()`.
 #' @param reps Number of bootstrap replicates for error estimation.
-#' @return A dataframe with .
-#' @seealso \code{\link{Distance::ds}}
+#' @return A dataframe containing estimates and their errors for density and
+#'   all contributing parameters.
+#' @examples
+#'   # Load data
+#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   # Sense check deployment schedules
+#'   plot_deployment_schedule(pkg)
+#'   # Sense check deployment calibration model diagnostic plots
+#'   pkg_checked <- check_deployment_models(pkg)
+#'
+#'   # Fully automated analysis (reps reduced for to limit run time)
+#'   res <- rem_estimate(pkg_checked, check_deployments=FALSE, reps=100)
+#'   res$estimates
+#'
+#'   # Analysis with one parameter model fitted separately
+#'   sp <- "Vulpes vulpes"
+#'   radmod <- fit_detmodel(radius~1, pkg_checked, species=sp, truncation=15, order=0)
+#'   res <- rem_estimate(pkg_checked, check_deployments = FALSE, species = sp,
+#'                       radius_model = radmod, reps=100)
+#'   res$estimates
 #' @export
+#'
 rem_estimate <- function(package,
                          check_deployments=TRUE,
                          species=NULL,
@@ -789,11 +896,11 @@ rem_estimate <- function(package,
     activity_model <- fit_actmodel(package, species, reps)
 
   parameters <- get_parameter_table(package,
-                                    species,
                                     radius_model,
                                     angle_model,
                                     speed_model,
                                     activity_model,
+                                    species,
                                     strata,
                                     reps)
 
