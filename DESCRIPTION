@@ -6,14 +6,14 @@ Author: Marcus Rowcliffe
 Maintainer: Marcus Rowcliffe <marcus.rowcliffe@ioz.ac.uk>
 Description: Currently provides functions for working with camtrapDP format data
     exported from Agouti - checking deployment calibration diagnostic plots,
-    correcting mis-specified date-time data at specific deployments, running 
-    REM density analysis.
+    filtering deployments, correcting mis-specified date-time data at specific 
+    deployments, running REM density analysis.
 License: none
 Encoding: UTF-8
-Depends:
-    methods
 Imports:
-    tidyverse,
+    dplyr,
+    tidyr,
+    ggplot2,
     activity,
     camtraptor,
     Distance,
