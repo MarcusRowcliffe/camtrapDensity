@@ -1,9 +1,9 @@
 #' Plot a deployment Gantt chart
 #'
-#' Plots a Gantt chart illustrating deployment times (black lines) and 
-#' the occurrence of observations within those deployments (red bars). Useful 
+#' Plots a Gantt chart illustrating deployment times (black lines) and
+#' the occurrence of observations within those deployments (red bars). Useful
 #' for checking errors in specification of deployment start and end dates.
-#' 
+#'
 #' @param package Camera trap data package object, as returned by
 #'   `read_camtrap_dp()`.
 #' @examples
@@ -22,9 +22,9 @@ plot_deployment_schedule <- function(package){
   for(i in 1:n){
     dep <- depdat$deploymentID[i]
     obs <- subset(obsdat, deploymentID==dep)$timestamp
-    lines(rep(i, 2), rng + difftime(rng[2], rng[1]) * c(-0.05, 0.05), 
+    lines(rep(i, 2), rng + difftime(rng[2], rng[1]) * c(-0.05, 0.05),
           col="grey90")
-    points(rep(i+0.1, length(obs)), obs, pch="-", 
+    points(rep(i+0.1, length(obs)), obs, pch="-",
            col="red")
     lines(rep(i-0.1, 2), depdat[i, c("start", "end")],
           lwd=2)
@@ -33,20 +33,20 @@ plot_deployment_schedule <- function(package){
 
 #' Subset a camera trap datapackage by deployment
 #'
-#' Select a subset of deployments from a datapackage defined by 
+#' Select a subset of deployments from a datapackage defined by
 #' a choice based on columns in the deployments table
-#' 
+#'
 #' @param package Camera trap data package object, as returned by
 #'   `read_camtrap_dp()`.
-#' @param choice A logical expression using columns name from the 
+#' @param choice A logical expression using columns name from the
 #'  deployments table.
 #' @return As for camtraptor::read_camtrap_dp, with all datatables
 #'  reduced according to the choice criteria at the deployment level.
 #' @examples
 #' # subset excluding two locations and including only 1st half of 2022
 #' subpackage <- subset_deployments(package,
-#'                                  !locationName %in% c("N23", "S18") & 
-#'                                   start > as.POSIXct("2022-01-01", tz="UTC") & 
+#'                                  !locationName %in% c("N23", "S18") &
+#'                                   start > as.POSIXct("2022-01-01", tz="UTC") &
 #'                                   end < as.POSIXct("2022-06-01", tz="UTC"))
 subset_deployments <- function(package, choice){
   out <- package
@@ -61,11 +61,11 @@ subset_deployments <- function(package, choice){
 
 #' Correct times for a given deployment in a camera trap datapackage
 #'
-#' When a camera trap starts with the wrong time stamp, times 
+#' When a camera trap starts with the wrong time stamp, times
 #' in all datapackage tables can be corrected given a reference time
 #' recorded by the camera, the correct time for this reference time
 #' and the ID of the deployment to correct.
-#' 
+#'
 #' @param package Camera trap data package object, as returned by
 #'   `read_camtrap_dp()`.
 #' @param deploymentID A character value giving the deployment identifier,
@@ -101,26 +101,25 @@ correct_time <- function(package, deploymentID, wrongTime, rightTime){
 #' @param package Camera trap data package object, as returned by
 #'   `read_camtrap_dp()`.
 #' @return A character string, scientific species name.
-#' @family density estimation functions
 #' @export
 select_species <- function(package){
   obs <- package$data$observations
   n <- table(obs$scientificName)
-  tab <-  package %>% 
-    get_species() %>% 
+  tab <-  package %>%
+    get_species() %>%
     dplyr::select(contains("Name")) %>%
     dplyr::filter(scientificName %in% names(n))
   tab$n_observations <- n
-  if("useDeployment" %in% names(obs)) 
+  if("useDeployment" %in% names(obs))
     obs[!obs$useDeployment, c("speed", "radius", "angle")] <- NA
   tab$n_speeds <- with(obs, tapply(speed, scientificName, function(x)
     sum(x>0.1 & x<10 & !is.na(x))))
-  tab$n_radii <- with(obs, tapply(radius, scientificName, function(x) 
+  tab$n_radii <- with(obs, tapply(radius, scientificName, function(x)
     sum(x<10 & !is.na(x))))
   tab$n_angles <- with(obs, tapply(angle, scientificName, function(x)
     sum(!is.na(x))))
-  
-  
+
+
   print.data.frame(tab)
   i <- NA
   while(is.na(i) || i<1 || i>nrow(tab))
@@ -131,15 +130,14 @@ select_species <- function(package){
 }
 
 #' Check deployment calibration model diagnostic plots
-#' 
-#' Displays deployment calibration model diagnostic plots and allows 
+#'
+#' Displays deployment calibration model diagnostic plots and allows
 #' users to record interactively whether each deployment is reliable.
-#' 
+#'
 #' @param package Camera trap data package object, as returned by
 #'   `read_camtrap_dp()`.
 #' @return The original package with logical column `useDeployment`
 #'  added to deployments and observations data.
-#' @family density estimation functions
 #' @export
 check_deployment_models <- function(package){
   plot_folder <- file.path(package$directory, "positioning_plots")
@@ -148,17 +146,17 @@ check_deployment_models <- function(package){
   plots <- file.path(plot_dirs, "ratio.jpeg") %>%
     lapply(jpeg::readJPEG)
   names(plots) <- basename(plot_dirs)
-  
+
   depdat <- package$data$deployments %>%
     dplyr::select(deploymentID, locationName)
   depdat$useDeployment <- FALSE
-  
+
   for(i in 1:nrow(depdat)){
     dep <- depdat$deploymentID[i]
     if(dep %in% names(plots)){
       img <- plots[[dep]]
       imdim <- dim(img)
-      p <- ggplot() + annotation_raster(img, 1, imdim[2], 1, imdim[1]) + 
+      p <- ggplot() + annotation_raster(img, 1, imdim[2], 1, imdim[1]) +
         xlim(1, imdim[2]) + ylim(1, imdim[1]) +
         theme_void() + ggtitle(depdat$locationName[i])
       print(p)
@@ -168,12 +166,12 @@ check_deployment_models <- function(package){
       if(answer=="y") depdat$useDeployment[i] <- TRUE
     }
   }
-  
+
   if("useDeployment" %in% names(package$data$observations))
     package$data$observations <- select(package$data$observations, -useDeployment)
   package$data$observations <- package$data$observations %>%
     left_join(depdat, by="deploymentID")
-  
+
   package$data$deployments$useDeployment <- depdat$useDeployment
   package
 }
@@ -188,18 +186,17 @@ check_deployment_models <- function(package){
 #' @param species A character string indicating species subset to analyse;
 #'   if NULL runs select_species to get user input.
 #' @return List with elements:
-#'  - speed: a one row dataframe containing mean (estimate) and standard error 
+#'  - speed: a one row dataframe containing mean (estimate) and standard error
 #'    (se) speed while active
 #'  - data: a numeric vector of the data from which the estimate is derived
-#' @family density estimation functions
 #' @export
-fit_speedmodel <- function(package, 
-                           species=NULL, 
+fit_speedmodel <- function(package,
+                           species=NULL,
                            distUnit=c("m", "km", "cm"),
                            timeUnit=c("second", "minute", "hour", "day")){
   distUnit <- match.arg(distUnit)
   timeUnit <- match.arg(timeUnit)
-  
+
   if(is.null(species)) species <- select_species(package)
   obs <- package$data$observations %>%
     subset(scientificName==species & speed > 0.01 & speed < 10 & !is.na(speed))
@@ -207,7 +204,7 @@ fit_speedmodel <- function(package,
   if(nrow(obs) == 0) stop("There are no usable speed data")
   mn <- 1/mean(1/obs$speed, na.rm=FALSE)
   se <- mn^2 * sqrt(var(1/obs$speed, na.rm=FALSE)/nrow(obs))
-  list(speed=data.frame(estimate=mn, se=se), 
+  list(speed=data.frame(estimate=mn, se=se),
        data=obs$speed,
        distUnit=distUnit,
        timeUnit=timeUnit)
@@ -215,22 +212,21 @@ fit_speedmodel <- function(package,
 
 #' Fit an activity model
 #'
-#' Fits an activity model to data package data and estimates activity 
+#' Fits an activity model to data package data and estimates activity
 #' level (proportion of time spent active).
 #'
 #' @param package Camera trap data package object, as returned by
 #'   `read_camtrap_dp()`.
-#' @param species A character string indicating species subset to analyse; 
+#' @param species A character string indicating species subset to analyse;
 #'   if NULL runs select_species to get user input.
 #' @param obsdef Observation definition, either individual or sequence.
 #' @param reps Number of bootstrap replicates to run.
 #' @param ... Arguments passed to fitact.
 #' @return An `actmod` list.
 #' @seealso \code{\link{activity::fitact}}
-#' @family density estimation functions
 #' @export
-fit_actmodel <- function(package, 
-                         species=NULL, 
+fit_actmodel <- function(package,
+                         species=NULL,
                          reps=999,
                          obsdef=c("individual", "sequence"),
                          ...){
@@ -245,12 +241,12 @@ fit_actmodel <- function(package,
               sequence = !duplicated(obs$sequenceID))
   obs <- obs[i, ]
 
-  if(nrow(obs)>1){ 
+  if(nrow(obs)>1){
     obs <- deps %>%
       dplyr::select(deploymentID, latitude, longitude) %>%
       dplyr::right_join(obs, by="deploymentID") %>%
       dplyr::select(-count)
-    suntimes <- insol::daylength(obs$latitude, obs$longitude, 
+    suntimes <- insol::daylength(obs$latitude, obs$longitude,
                                  insol::JD(obs$timestamp), 0)
     timeshift <- pi - mean(suntimes[, 1] + suntimes[,3]/2) * pi/12
     obs$solartime <- obs %>%
@@ -265,33 +261,32 @@ fit_actmodel <- function(package,
 }
 
 #' Fit a detection function model
-#' 
-#' Fits a detection function to a data package and estimates effective 
+#'
+#' Fits a detection function to a data package and estimates effective
 #' detection distance (EDD).
-#' 
-#' @param formula A two sided formula relating radius or angle data 
+#'
+#' @param formula A two sided formula relating radius or angle data
 #'   to covariates.
 #' @param package Camera trap data package object, as returned by
 #'   `read_camtrap_dp()`.
-#' @param species A character string indicating species subset to analyse; 
+#' @param species A character string indicating species subset to analyse;
 #'   if NULL runs select_species to get user input.
 #' @param ... Arguments passed to ds.
 #' @return A `ddf` detection function model list, with additional elements:
-#'   `edd`, a vector with estimated and standard error effective detection 
+#'   `edd`, a vector with estimated and standard error effective detection
 #'   distance, or the `newdata` dataframe with EDD estimate and se added;
-#'   `proportion_used`, the proportion of the observations used to fit the 
+#'   `proportion_used`, the proportion of the observations used to fit the
 #'   detection function.
 #' @seealso \code{\link{Distance::ds}}
-#' @family density estimation functions
 #' @export
-fit_detmodel <- function(formula, 
-                         package, 
-                         species=NULL, 
+fit_detmodel <- function(formula,
+                         package,
+                         species=NULL,
                          newdata=NULL,
                          unit=c("m", "km", "cm", "degree", "radian"),
                          ...){
   unit <- match.arg(unit)
-  
+
   # get and check model variables
   allvars <- all.vars(formula)
   depvar <- allvars[1]
@@ -299,7 +294,7 @@ fit_detmodel <- function(formula,
   data <- package$data$observations
   if(!all(allvars %in% names(data))) stop("Can't find all model variables in data")
   if("distance" %in% covars) stop("Cannot use \"distance\" as a covariate name - rename and try again")
-  
+
   # set up data
   if(is.null(species)) species <- select_species(package)
   data <- data %>%
@@ -309,7 +304,7 @@ fit_detmodel <- function(formula,
     as.data.frame()
   if("useDeployment" %in% names(data)) data <- subset(data, useDeployment)
   if(nrow(data) == 0) stop("There are no usable position data")
-  
+
   classes <- dplyr::summarise_all(data, class)
   if(classes[depvar]=="numeric"){
     data <- data %>%
@@ -321,18 +316,18 @@ fit_detmodel <- function(formula,
     data$distend <- unlist(lapply(cats, function(x) as.numeric(x[2])))
     data$distance <- (data$distbegin + data$distend) / 2
   }
-  
+
   # model fitting
   type <- if(unit %in% c("m", "km", "cm")) "point" else "line"
   args <- c(data=list(data), formula=formula[-2], transect=type, list(...))
   mod <- suppressWarnings(suppressMessages(do.call(ds, args)$ddf))
-  
+
   # esw prediction
-  if(length(covars)==0) 
+  if(length(covars)==0)
     newdata <- data.frame(x=0) else{
       if(is.null(newdata)){
         newdata <- data %>% dplyr::select(all_of(covars)) %>%
-          lapply(function(x) 
+          lapply(function(x)
             if(is.numeric(x)) mean(x, na.rm=T) else sort(unique(x)))  %>%
           expand.grid()
       } else{
@@ -355,7 +350,7 @@ fit_detmodel <- function(formula,
 #'
 #' Extracts a data table of observation counts and effort for each
 #' camera location in a camtrap-dp data package.
-#' 
+#'
 #' @param package Camera trap data package object, as returned by
 #'   `read_camtrap_dp()`.
 #' @param species A character string indicating species subset to extract
@@ -367,9 +362,8 @@ fit_detmodel <- function(formula,
 #'   - unit: the effort time unit
 #'   - scientificName: the scientific name of the species data extracted
 #'   - n: the observation counts
-#' @family density estimation functions
 #' @export
-get_rem_data <- function(package, species=NULL, 
+get_rem_data <- function(package, species=NULL,
                          unit=c("day", "hour", "minute", "second")){
   unit <- match.arg(unit)
   if(is.null(species)) species <- select_species(package)
@@ -400,7 +394,7 @@ get_rem_data <- function(package, species=NULL,
 #'
 #' Calculates average trap rate and its bootstrapped error from a table of
 #' per-location observation counts and camera time.
-#' 
+#'
 #' @param data A dataframe containing (at least) columns `n` and `effort`, as
 #'   returned by get_rem_data; if `strata` supplied for stratified calculation,
 #'   must also have column stratumID.
@@ -414,10 +408,9 @@ get_rem_data <- function(package, species=NULL,
 #'   - `lcl95`, `ucl95`: lower and upper 95% confidence limits
 #'   - `n`: sample size (number of locations)
 #'   - `unit`: the unit of the estimate
-#' @family density estimation functions
 #' @export
 get_trap_rate <- function(data, strata=NULL, reps=999){
-  
+
   traprate <- function(data){
     if(is.null(strata)){
       sum(data$n) / sum(data$effort)
@@ -429,16 +422,16 @@ get_trap_rate <- function(data, strata=NULL, reps=999){
       sum(local_density * strata$area) / sum(strata$area)
     }
   }
-  
+
   sampled_traprate <- function(){
-    i <- if(is.null(strata)) 
+    i <- if(is.null(strata))
       sample(1:nrow(data), replace=TRUE) else
         as.vector(sapply(strata$stratumID, function(stratum){
           sample(which(data$stratumID==stratum), replace=TRUE)
         }))
     traprate(data[i, ])
   }
-  
+
   if(!all(c("effort", "n") %in% names(data)))
     stop("data must contain (at least) columns effort and observations")
   if(!is.null(strata)){
@@ -446,16 +439,16 @@ get_trap_rate <- function(data, strata=NULL, reps=999){
       stop("data must contain column stratumID for stratified analysis")
     if(!all(c("stratumID", "area") %in% names(strata)))
       stop("strata must contain columns stratumID and area")
-    if(!all(data$stratumID %in% strata$stratumID)) 
+    if(!all(data$stratumID %in% strata$stratumID))
       stop("Not all strata in data are present in strata")
-  }  
-  
+  }
+
   tr_sample <- replicate(reps, sampled_traprate())
   est <- traprate(data)
   se <- sd(tr_sample)
   cv <- se/est
   ci <- unname(quantile(tr_sample, c(0.025, 0.975)))
-  data.frame(estimate = est, 
+  data.frame(estimate = est,
              se = se,
              cv = cv,
              lcl95 = ci[1],
@@ -466,19 +459,18 @@ get_trap_rate <- function(data, strata=NULL, reps=999){
 }
 
 #' Log-normal confidence interval
-#' 
-#' Calculates approximate log-normal confidence intervals given an estimate 
+#'
+#' Calculates approximate log-normal confidence intervals given an estimate
 #' and its standard error.
-#' 
+#'
 #' @param estimate A numeric estimate value
 #' @param se Standard error
 #' @param speed_model A speed model fitted using fit_speedmodel
 #' @return A dataframe with a row per estimate input, and columns `lcl` and
 #'  `ucl` (unit) lower and upper confidence limits.
-#' @family density estimation functions
 #' @export
 lnorm_confint <- function(estimate, se, percent=95){
-  if(length(estimate) != length(se)) 
+  if(length(estimate) != length(se))
     stop("estimate and se must have the same number of values")
   z <- qt((1 - percent/100) / 2, Inf, lower.tail = FALSE)
   w <- exp(z * sqrt(log(1 + (se/estimate)^2)))
@@ -486,10 +478,10 @@ lnorm_confint <- function(estimate, se, percent=95){
 }
 
 #' Create a parameter table from a set of models
-#' 
-#' Creates a table of REM parameters taken from models for detection radius, 
-#' detection angle, speed and activity level. 
-#' 
+#'
+#' Creates a table of REM parameters taken from models for detection radius,
+#' detection angle, speed and activity level.
+#'
 #' @param package Camera trap data package object, as returned by
 #'   `read_camtrap_dp()`.
 #' @param radius_model A detection radius model fitted using fit_detmodel
@@ -498,39 +490,38 @@ lnorm_confint <- function(estimate, se, percent=95){
 #' @param speed_model An activity  model fitted using fit_actmodel
 #' @param strata A dataframe of stratum information passed to `get_trap_rate`
 #' @param reps Number of bootstrap replicates for estimating trap rate error
-#'   (see `get_trap_rate`) 
+#'   (see `get_trap_rate`)
 #' @param speed_model An activity  model fitted using fit_actmodel
 #' @return A dataframe of unit-harmonised parameter estimates with seven rows:
 #'   - `radius`: detection radius
 #'   - `angle`: detection angle
 #'   - `active_speed`: speed while active
 #'   - `ativity_level`: proportion of time spent active
-#'   - `overall_speed`: long-term average speed (day range) - the product of 
+#'   - `overall_speed`: long-term average speed (day range) - the product of
 #'                      `active_speed` and `activity_level`
 #'   - `trap_rate`: number of camera trap records per unit time
 #'   - `density`: number of individual animals per unit area
-#'  and seven columns: 
+#'  and seven columns:
 #'   - `estimate`: parameter estimates
 #'   - `se`: standard error
 #'   - `cv`: proportional coefficient of variation
 #'   - `lcl95`, `ucl95`: lower and upper 95% confidence limits
 #'   - `n`: sample size (number of camera locations)
 #'   - `unit`: the unit of the estimate
-#' @family density estimation functions
 #' @export
 get_parameter_table <- function(package,
                                 species=NULL,
-                                radius_model, 
-                                angle_model, 
-                                speed_model, 
+                                radius_model,
+                                angle_model,
+                                speed_model,
                                 activity_model,
                                 strata = NULL,
                                 reps = 999){
   if(is.null(species)) species <- select_species(package)
   # Get parameters and SEs
-  res <- data.frame(rbind(radius_model$edd, 
+  res <- data.frame(rbind(radius_model$edd,
                           angle_model$edd * 2,
-                          speed_model$speed, 
+                          speed_model$speed,
                           activity_model@act[1:2]))
   # Calculate overall speed (day range) and its SE
   ospd <- res[3,1] * res[4,1]
@@ -551,10 +542,10 @@ get_parameter_table <- function(package,
                 speed_unit,
                 "none",
                 speed_unit)
-  rownames(res) <- c("radius", 
-                     "angle", 
-                     "active_speed", 
-                     "activity_level", 
+  rownames(res) <- c("radius",
+                     "angle",
+                     "active_speed",
+                     "activity_level",
                      "overall_speed")
   # Add trap rate data, including correction for truncation of radius model
   data <- get_rem_data(package, species)
@@ -562,18 +553,18 @@ get_parameter_table <- function(package,
   j <- c("estimate", "se", "lcl95", "ucl95")
   traprate[, j] <- traprate[, j] * radius_model$proportion_used
   res <- rbind(res, traprate)
-  
+
   convert_units(res)
 }
 
 #' Get a unit multiplier
-#' 
+#'
 #' Returns a multiplier to convert a value from one unit to another in
 #' one of three types: distance, time and angle.
 #'
 #' @param unitIN A text value giving the unit of the input; must be one of
-#'   "cm", "m", "km" for distances, "second", "minute", "hour", "day" for 
-#'   times, "radian" "degree for angles, or "n/ha", "n/km2" "n/100km2" for 
+#'   "cm", "m", "km" for distances, "second", "minute", "hour", "day" for
+#'   times, "radian" "degree for angles, or "n/ha", "n/km2" "n/100km2" for
 #'   density.
 #' @param unitOUT The same for output; must be of the same type as unitIN.
 #' @return A number giving the amount by which to multipy input values
@@ -608,7 +599,7 @@ get_multiplier <- function(unitIN, unitOUT){
           n <- length(areaUnits)
         } else
           stop("Units not of the same type or not recognised")
-  
+
   tab <- data.frame(from = rep(u, each=n),
                     to = rep(u, n),
                     mult = rep(m, each=n) / rep(m, n))
@@ -616,19 +607,19 @@ get_multiplier <- function(unitIN, unitOUT){
 }
 
 #' Change the units of an REM parameter table
-#' 
-#' Changes the units of parameters from their current setting to new 
+#'
+#' Changes the units of parameters from their current setting to new
 #' user-defined units.
-#' 
-#' @param param An REM parameter dataframe  created with `get_parameter_table`.#
+#'
+#' @param param An REM parameter dataframe  created with \code{\link{get_parameter_table}}.
 #'   Must contain columns `estimate`, `se`, `lcl95`, `ucl95` and `unit`, and  at
 #'   least one row named from `radius`, `angle`, `active_speed`, `overall_speed`.
-#' @param radius_unit A character string giving the units of radius. 
-#' @param angle_unit A character string giving the units of angle. 
-#' @param active_speed_unit A character string giving the units of speed while active. 
-#' @param overall_speed_unit A character string giving the units of day range. 
-#' @return A replica of input dataframe `param` with `estimate`, `se` and 
-#'   confidence limit values converted to input units. See `get_multiplier`
+#' @param radius_unit A character string giving the units of radius.
+#' @param angle_unit A character string giving the units of angle.
+#' @param active_speed_unit A character string giving the units of speed while active.
+#' @param overall_speed_unit A character string giving the units of day range.
+#' @return A replica of input dataframe `param` with `estimate`, `se` and
+#'   confidence limit values converted to input units. See \code{\link{get_multiplier}}
 #'   for allowable unit names.
 convert_units <- function(param,
                           radius_unit=c("km", "m", "cm"),
@@ -643,21 +634,21 @@ convert_units <- function(param,
   overall_speed_unit <- match.arg(overall_speed_unit)
   trap_rate_unit <- match.arg(trap_rate_unit)
   density_unit <- match.arg(density_unit)
-  
+
   j <- c("estimate", "se", "lcl95", "ucl95")
-  
+
   if("radius" %in% rownames(param)){
     m <- get_multiplier(param["radius", "unit"], radius_unit)
     param["radius", j] <- param["radius", j] * m
     param["radius", "unit"] <- radius_unit
   }
-  
+
   if("angle" %in% rownames(param)){
     m <- get_multiplier(param["angle", "unit"], angle_unit)
     param["angle", j] <- param["angle", j] * m
     param["angle", "unit"] <- angle_unit
   }
-  
+
   if("active_speed" %in% rownames(param)){
     unit_from <- unlist(strsplit(param["active_speed", "unit"], "/"))
     unit_to <- unlist(strsplit(active_speed_unit, "/"))
@@ -666,7 +657,7 @@ convert_units <- function(param,
     param["active_speed", j] <- param["active_speed", j] * dm / tm
     param["active_speed", "unit"] <- paste(unit_to, collapse="/")
   }
-  
+
   if("overall_speed" %in% rownames(param)){
     unit_from <- unlist(strsplit(param["overall_speed", "unit"], "/"))
     unit_to <- unlist(strsplit(overall_speed_unit, "/"))
@@ -675,20 +666,20 @@ convert_units <- function(param,
     param["overall_speed", j] <- param["overall_speed", j] * dm / tm
     param["overall_speed", "unit"] <- paste(unit_to, collapse="/")
   }
-  
+
   if("trap_rate" %in% rownames(param)){
     unit_from <- unlist(strsplit(param["trap_rate", "unit"], "/"))[2]
     m <- get_multiplier(unit_from, trap_rate_unit)
     param["trap_rate", j] <- param["trap_rate", j] / m
     param["trap_rate", "unit"] <- paste0("n/", trap_rate_unit)
   }
-  
+
   if("density" %in% rownames(param)){
     m <- get_multiplier(param["density", "unit"], density_unit)
     param["density", j] <- param["density", j] / m
     param["density", "unit"] <- density_unit
   }
-  
+
   param
 }
 
@@ -697,7 +688,7 @@ convert_units <- function(param,
 #' Estimates REM density given a dataframe of parameters and their errors.
 #'
 #' @param parameters A dataframe containing REM parameter estimates with rows:
-#'   - `trap_rate`: 
+#'   - `trap_rate`:
 #'   - `radius`: effective detection radius
 #'   - `angle`: effective detection angle
 #'   - `overall_speed`: average animal speed (day range)
@@ -706,32 +697,31 @@ convert_units <- function(param,
 #'   - `estimate`: numeric parameter estimate
 #'   - `se`: numeric parameter standard error
 #'   - `unit`: character parameter units (see `convert_units` for allowable values)
-#' @return A dataframe with the original parameters plus estimated density and 
+#' @return A dataframe with the original parameters plus estimated density and
 #'  its errors.
-#' @family density estimation functions
 #' @export
 rem <- function(parameters){
   required_rows <- c("trap_rate", "overall_speed", "radius", "angle")
   required_cols <- c("estimate", "se", "unit")
-  
-  if(!all(required_rows %in% rownames(parameters)) | 
+
+  if(!all(required_rows %in% rownames(parameters)) |
      !all(required_cols %in% colnames(parameters)))
-    stop(paste("parameters must have (at least) row names:", 
+    stop(paste("parameters must have (at least) row names:",
                paste(required_rows, collapse=", "),
-               ";\nand (at least) column names:", 
+               ";\nand (at least) column names:",
                paste(required_cols, collapse=", ")))
-  
+
   param <- convert_units(parameters)
-  
+
   Es <- (param[required_rows, "estimate"] + c(0,0,0,2)) ^ c(1,-1,-1,-1)
   density <- pi * prod(Es)
   CVs <- param[required_rows, "cv"]
   CVs[4] <- param["angle", "se"] / Es[4]
-  
+
   density_CV <- sqrt(sum(CVs^2))
   density_SE <- density_CV * density
   density_CI <- unname(lnorm_confint(density, density_SE))
-  rbind(parameters, density=c(density, 
+  rbind(parameters, density=c(density,
                               density_SE,
                               density_CV,
                               density_CI[1],
@@ -741,35 +731,34 @@ rem <- function(parameters){
 }
 
 #' Integrated random encounter model density estimate
-#' 
+#'
 #' Estimates animal density for a given species given a camtrap DP datapackage.
-#' Models for detection radius and angle, speed and/or activity level can be 
-#' fitted externally and provided as arguments, or are fitted internally if not 
+#' Models for detection radius and angle, speed and/or activity level can be
+#' fitted externally and provided as arguments, or are fitted internally if not
 #' provided. Input units are assumed to be distance in m and time in seconds.
-#' 
+#'
 #' @param package Camera trap data package object, as returned by
 #'   `read_camtrap_dp()`.
 #' @param check_deployments Logical indicating whether to check deployment
-#' calibration model diagnostic plots. If `TRUE` (default) runs 
-#' `check_deployment_models`; radius, angle and speed data from any excluded 
+#' calibration model diagnostic plots. If `TRUE` (default) runs
+#' `check_deployment_models`; radius, angle and speed data from any excluded
 #' deployments are then dropped from analysis. If `FALSE` all data are used.
-#' @param species A character string indicating species subset to analyse; 
+#' @param species A character string indicating species subset to analyse;
 #'   if NULL runs select_species to get user input.
-#' @param radius_model A detection function model for radii fitted using 
-#' `fitdf` or `fit_detmodel` with argument `transect="point"`; fitted 
+#' @param radius_model A detection function model for radii fitted using
+#' `fitdf` or `fit_detmodel` with argument `transect="point"`; fitted
 #' internally if `NULL`.
-#' @param angle_model A detection function model for angles fitted using 
+#' @param angle_model A detection function model for angles fitted using
 #' `fitdf` or `fit_detmodel`; fitted internally if `NULL`.
 #' @param speed_model A named vector with elements `estimate` and `se`
-#' (giving mean and standard error of speed), as derived from `fit_speedmodel`; 
+#' (giving mean and standard error of speed), as derived from `fit_speedmodel`;
 #' fitted internally if `NULL`.
 #' @param activity_model An activity model fitted using `activity::fitact` or
 #' `fit_actmodel`; fitted internally if `NULL`.
 #' @param strata A dataframe of stratum areas, passed to `get_trap_rate()`.
-#' @param reps Number of bootstrap replicates for error estimation. 
+#' @param reps Number of bootstrap replicates for error estimation.
 #' @return A dataframe with .
 #' @seealso \code{\link{Distance::ds}}
-#' @family density estimation functions
 #' @export
 rem_estimate <- function(package,
                          check_deployments=TRUE,
@@ -780,42 +769,42 @@ rem_estimate <- function(package,
                          activity_model=NULL,
                          strata=NULL,
                          reps=999){
-  
+
   if(check_deployments) package <- check_deployment_models(package)
   if(is.null(species)) species <- select_species(package)
   message(paste("Analysing", species))
-  
-  if(is.null(radius_model)) 
+
+  if(is.null(radius_model))
     radius_model <- fit_detmodel(radius~1, package, species,
                                  order=0, truncation=12)
-  
+
   if(is.null(angle_model))
-    angle_model <- fit_detmodel(angle~1, package, species, 
+    angle_model <- fit_detmodel(angle~1, package, species,
                                 order=0, unit="radian")
-  
+
   if(is.null(speed_model))
     speed_model <- fit_speedmodel(package, species)
-  
-  if(is.null(activity_model)) 
+
+  if(is.null(activity_model))
     activity_model <- fit_actmodel(package, species, reps)
-  
-  parameters <- get_parameter_table(package, 
+
+  parameters <- get_parameter_table(package,
                                     species,
-                                    radius_model, 
-                                    angle_model, 
-                                    speed_model, 
+                                    radius_model,
+                                    angle_model,
+                                    speed_model,
                                     activity_model,
                                     strata,
                                     reps)
-  
-  estimates <- rem(parameters) %>% 
+
+  estimates <- rem(parameters) %>%
     convert_units(radius_unit = "m",
                   angle_unit = "degree",
                   active_speed_unit = "km/hour",
                   overall_speed_unit = "km/day")
-    
+
   list(species=species, data=data, estimates=estimates,
-       speed_model=speed_model, activity_model=activity_model, 
+       speed_model=speed_model, activity_model=activity_model,
        radius_model=radius_model, angle_model=angle_model)
 }
 
