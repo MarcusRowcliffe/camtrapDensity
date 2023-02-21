@@ -1,0 +1,137 @@
+{
+  "name": "rem-test-20221212104856",
+  "id": "4049e89f-4b11-442e-85c2-a8a5e8410f82",
+  "profile": "https://raw.githubusercontent.com/tdwg/camtrap-dp/0.1.6/camtrap-dp-profile.json",
+  "created": "2022-12-12T10:48:56Z",
+  "sources": [
+    {
+      "title": "Agouti",
+      "path": "https://www.agouti.eu",
+      "email": "agouti@wur.nl"
+    }
+  ],
+  "contributors": [
+    {
+      "title": "Agouti Admins",
+      "email": "agouti@wur.nl",
+      "role": "maintainer"
+    },
+    {
+      "title": "Marcus Rowcliffe",
+      "email": "marcus.rowcliffe@ioz.ac.uk",
+      "role": "author"
+    }
+  ],
+  "organizations": [
+    {}
+  ],
+  "project": {
+    "id": "0fabb25e-623f-4c5f-a977-b39786c15f6d",
+    "title": "REM test",
+    "captureMethod": [
+      "motion detection"
+    ],
+    "animalTypes": [
+      "unmarked"
+    ],
+    "classificationLevel": "sequence",
+    "sequenceInterval": 120
+  },
+  "spatial": {
+    "type": "Feature",
+    "bbox": [
+      -0.15389,
+      51.53374,
+      -0.14977,
+      51.53643
+    ],
+    "properties": {},
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            -0.15389,
+            51.53374
+          ],
+          [
+            -0.14977,
+            51.53374
+          ],
+          [
+            -0.14977,
+            51.53643
+          ],
+          [
+            -0.15389,
+            51.53643
+          ],
+          [
+            -0.15389,
+            51.53374
+          ]
+        ]
+      ]
+    }
+  },
+  "temporal": {
+    "start": "2017-10-02",
+    "end": "2017-10-28"
+  },
+  "taxonomic": [
+    {
+      "taxonID": "3B2C2",
+      "taxonIDReference": "https://www.checklistbank.org/dataset/3LR",
+      "scientificName": "Erinaceus europaeus",
+      "taxonRank": "species",
+      "vernacularNames": {
+        "en": "European hedgehog",
+        "nl": "egel"
+      }
+    },
+    {
+      "taxonID": "5BSG3",
+      "taxonIDReference": "https://www.checklistbank.org/dataset/3LR",
+      "scientificName": "Vulpes vulpes",
+      "taxonRank": "species",
+      "vernacularNames": {
+        "en": "red fox",
+        "nl": "vos"
+      }
+    }
+  ],
+  "platform": {
+    "title": "Agouti",
+    "path": "https://agouti.eu",
+    "packageID": "4049e89f-4b11-442e-85c2-a8a5e8410f82"
+  },
+  "resources": [
+    {
+      "name": "deployments",
+      "path": "deployments.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "schema": "https://raw.githubusercontent.com/tdwg/camtrap-dp/0.1.6/deployments-table-schema.json"
+    },
+    {
+      "name": "media",
+      "path": "media.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "schema": "https://raw.githubusercontent.com/tdwg/camtrap-dp/0.1.6/media-table-schema.json"
+    },
+    {
+      "name": "observations",
+      "path": "observations.csv",
+      "profile": "tabular-data-resource",
+      "format": "csv",
+      "mediatype": "text/csv",
+      "encoding": "utf-8",
+      "schema": "https://raw.githubusercontent.com/tdwg/camtrap-dp/0.1.6/observations-table-schema.json"
+    }
+  ]
+}
