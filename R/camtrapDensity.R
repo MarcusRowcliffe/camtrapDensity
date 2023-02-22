@@ -272,7 +272,7 @@ fit_actmodel <- function(package,
   if(nrow(obs)>1){
     obs <- deps %>%
       dplyr::select(deploymentID, latitude, longitude) %>%
-      dplyr::right_join(obs, by="deploymentID") %>%
+      dplyr::right_join(obs, by="deploymentID", multiple="all") %>%
       dplyr::select(-count)
     suntimes <- insol::daylength(obs$latitude, obs$longitude,
                                  insol::JD(obs$timestamp), 0)
@@ -329,42 +329,42 @@ fit_detmodel <- function(formula,
   allvars <- all.vars(formula)
   depvar <- allvars[1]
   covars <- tail(allvars, -1)
-  data <- package$data$observations
-  if(!all(allvars %in% names(data))) stop("Can't find all model variables in data")
+  dat <- package$data$observations
+  if(!all(allvars %in% names(dat))) stop("Can't find all model variables in data")
   if("distance" %in% covars) stop("Cannot use \"distance\" as a covariate name - rename and try again")
 
   # set up data
   if(is.null(species)) species <- select_species(package)
-  data <- data %>%
+  dat <- dat %>%
     subset(scientificName==species) %>%
     dplyr::select(all_of(allvars)) %>%
     tidyr::drop_na() %>%
     as.data.frame()
-  if("useDeployment" %in% names(data)) data <- subset(data, useDeployment)
-  if(nrow(data) == 0) stop("There are no usable position data")
+  if("useDeployment" %in% names(dat)) dat <- subset(dat, useDeployment)
+  if(nrow(dat) == 0) stop("There are no usable position data")
 
-  classes <- dplyr::summarise_all(data, class)
+  classes <- dplyr::summarise_all(dat, class)
   if(classes[depvar]=="numeric"){
-    data <- data %>%
+    dat <- dat %>%
       dplyr::rename(distance=all_of(depvar)) %>%
       dplyr::mutate(distance=abs(distance))
   } else{
-    cats <- strsplit(as.character(dplyr::pull(data, depvar)), "-")
-    data$distbegin <- unlist(lapply(cats, function(x) as.numeric(x[1])))
-    data$distend <- unlist(lapply(cats, function(x) as.numeric(x[2])))
-    data$distance <- (data$distbegin + data$distend) / 2
+    cats <- strsplit(as.character(dplyr::pull(dat, depvar)), "-")
+    dat$distbegin <- unlist(lapply(cats, function(x) as.numeric(x[1])))
+    dat$distend <- unlist(lapply(cats, function(x) as.numeric(x[2])))
+    dat$distance <- (dat$distbegin + dat$distend) / 2
   }
 
   # model fitting
   type <- if(unit %in% c("m", "km", "cm")) "point" else "line"
-  args <- c(data=list(data), formula=formula[-2], transect=type, list(...))
+  args <- c(data=list(dat), formula=formula[-2], transect=type, list(...))
   mod <- suppressWarnings(suppressMessages(do.call(Distance::ds, args)$ddf))
 
   # esw prediction
   if(length(covars)==0)
     newdata <- data.frame(x=0) else{
       if(is.null(newdata)){
-        newdata <- data %>% dplyr::select(all_of(covars)) %>%
+        newdata <- dat %>% dplyr::select(all_of(covars)) %>%
           lapply(function(x)
             if(is.numeric(x)) mean(x, na.rm=T) else sort(unique(x)))  %>%
           expand.grid()
@@ -380,7 +380,7 @@ fit_detmodel <- function(formula,
   if(length(covars)>=1) ed <- cbind(newdata, ed)
   mod$edd <- ed
   mod$unit <- unit
-  mod$proportion_used <- nrow(mod$data) / nrow(data)
+  mod$proportion_used <- nrow(mod$data) / nrow(dat)
   mod
 }
 
@@ -404,10 +404,10 @@ fit_detmodel <- function(formula,
 #'     \code{package$data$deployments})
 #' @examples
 #'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-#'   remdata <- get_rem_data(pkg)
+#'   remdata <- get_traprate_data(pkg)
 #' @export
 #'
-get_rem_data <- function(package, species=NULL,
+get_traprate_data <- function(package, species=NULL,
                          unit=c("day", "hour", "minute", "second")){
   unit <- match.arg(unit)
   if(is.null(species)) species <- select_species(package)
@@ -439,9 +439,10 @@ get_rem_data <- function(package, species=NULL,
 #' Calculates average trap rate and its bootstrapped error from a table of
 #' per-location observation counts and camera time.
 #'
-#' @param data A dataframe containing (at least) columns \code{n} and
-#'   \code{effort}, as returned by \code{\link{get_rem_data}}; if \code{strata}
-#'   supplied for stratified calculation, must also have column \code{stratumID}.
+#' @param traprate_data A dataframe containing (at least) columns \code{n} and
+#'   \code{effort}, as returned by \code{\link{get_traprate_data}}; if
+#'   \code{strata} supplied for stratified calculation, must also have column
+#'   \code{stratumID}.
 #' @param strata A dataframe with one row per stratum, and columns
 #'   \code{stratumID} and \code{area}.
 #' @param reps The number of bootstrap replicates to run.
@@ -454,19 +455,19 @@ get_rem_data <- function(package, species=NULL,
 #'   - \code{unit}: the unit of the estimate
 #' @examples
 #'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-#'   remdata <- get_rem_data(pkg)
-#'   get_trap_rate(remdata)
+#'   trdata <- get_traprate_data(pkg)
+#'   get_trap_rate(trdata)
 #' @export
 #'
-get_trap_rate <- function(data, strata=NULL, reps=999){
+get_trap_rate <- function(traprate_data, strata=NULL, reps=999){
 
-  traprate <- function(data){
+  traprate <- function(dat){
     if(is.null(strata)){
-      sum(data$n) / sum(data$effort)
+      sum(dat$n) / sum(dat$effort)
     } else{
       local_density <- sapply(strata$stratumID, function(stratum){
-        i <- data$stratumID==stratum
-        sum(data$n[i]) / sum(data$effort[i])
+        i <- dat$stratumID==stratum
+        sum(dat$n[i]) / sum(dat$effort[i])
       })
       sum(local_density * strata$area) / sum(strata$area)
     }
@@ -474,26 +475,26 @@ get_trap_rate <- function(data, strata=NULL, reps=999){
 
   sampled_traprate <- function(){
     i <- if(is.null(strata))
-      sample(1:nrow(data), replace=TRUE) else
+      sample(1:nrow(traprate_data), replace=TRUE) else
         as.vector(sapply(strata$stratumID, function(stratum){
-          sample(which(data$stratumID==stratum), replace=TRUE)
+          sample(which(traprate_data$stratumID==stratum), replace=TRUE)
         }))
-    traprate(data[i, ])
+    traprate(traprate_data[i, ])
   }
 
-  if(!all(c("effort", "n") %in% names(data)))
-    stop("data must contain (at least) columns effort and observations")
+  if(!all(c("effort", "n") %in% names(traprate_data)))
+    stop("traprate_data must contain (at least) columns effort and observations")
   if(!is.null(strata)){
-    if(!"stratumID" %in% names(data))
-      stop("data must contain column stratumID for stratified analysis")
+    if(!"stratumID" %in% names(traprate_data))
+      stop("traprate_data must contain column stratumID for stratified analysis")
     if(!all(c("stratumID", "area") %in% names(strata)))
       stop("strata must contain columns stratumID and area")
-    if(!all(data$stratumID %in% strata$stratumID))
-      stop("Not all strata in data are present in strata")
+    if(!all(traprate_data$stratumID %in% strata$stratumID))
+      stop("Not all strata in traprate_data are present in strata")
   }
 
   tr_sample <- replicate(reps, sampled_traprate())
-  est <- traprate(data)
+  est <- traprate(traprate_data)
   se <- sd(tr_sample)
   cv <- se/est
   ci <- unname(quantile(tr_sample, c(0.025, 0.975)))
@@ -502,8 +503,8 @@ get_trap_rate <- function(data, strata=NULL, reps=999){
              cv = cv,
              lcl95 = ci[1],
              ucl95 = ci[2],
-             n = nrow(data),
-             unit = paste("n", data$effort_unit[1], sep="/"),
+             n = nrow(traprate_data),
+             unit = paste("n", traprate_data$effort_unit[1], sep="/"),
              row.names = "trap_rate")
 }
 
@@ -533,8 +534,8 @@ lnorm_confint <- function(estimate, se, percent=95){
 #' Creates a table of REM parameters taken from models for detection radius,
 #' detection angle, speed and activity level.
 #'
-#' @param package Camera trap data package object, as returned by
-#'   \code{\link[camtraptor]{read_camtrap_dp}}.
+#' @param traprate_data A dataframe of trap rate data (counts and effort), as
+#'   returned by \code{\link{get_traprate_data}}.
 #' @param radius_model A detection radius model fitted using \code{\link{fit_detmodel}}
 #' @param angle_model A detection angle model fitted using \code{\link{fit_detmodel}}
 #' @param speed_model A speed model fitted using \code{\link{fit_speedmodel}}
@@ -569,15 +570,14 @@ lnorm_confint <- function(estimate, se, percent=95){
 #'   get_parameter_table(pkg, radmod, angmod, spdmod, actmod, sp)
 #' @export
 #'
-get_parameter_table <- function(package,
+get_parameter_table <- function(traprate_data,
                                 radius_model,
                                 angle_model,
                                 speed_model,
                                 activity_model,
-                                species=NULL,
                                 strata = NULL,
                                 reps = 999){
-  if(is.null(species)) species <- select_species(package)
+
   # Get parameters and SEs
   res <- data.frame(rbind(radius_model$edd,
                           angle_model$edd * 2,
@@ -607,9 +607,8 @@ get_parameter_table <- function(package,
                      "active_speed",
                      "activity_level",
                      "overall_speed")
-  # Add trap rate data, including correction for truncation of radius model
-  data <- get_rem_data(package, species)
-  traprate <- get_trap_rate(data, strata, reps)
+  # Add trap rate, including correction for any truncation of radius model
+  traprate <- get_trap_rate(traprate_data, strata, reps)
   j <- c("estimate", "se", "lcl95", "ucl95")
   traprate[, j] <- traprate[, j] * radius_model$proportion_used
   res <- rbind(res, traprate)
@@ -895,12 +894,12 @@ rem_estimate <- function(package,
   if(is.null(activity_model))
     activity_model <- fit_actmodel(package, species, reps)
 
-  parameters <- get_parameter_table(package,
+  trdat <- get_traprate_data(package, species)
+  parameters <- get_parameter_table(trdat,
                                     radius_model,
                                     angle_model,
                                     speed_model,
                                     activity_model,
-                                    species,
                                     strata,
                                     reps)
 
@@ -910,7 +909,7 @@ rem_estimate <- function(package,
                   active_speed_unit = "km/hour",
                   overall_speed_unit = "km/day")
 
-  list(species=species, data=data, estimates=estimates,
+  list(species=species, data=trdat, estimates=estimates,
        speed_model=speed_model, activity_model=activity_model,
        radius_model=radius_model, angle_model=angle_model)
 }
