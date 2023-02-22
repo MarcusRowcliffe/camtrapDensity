@@ -10,14 +10,16 @@ lnorm_confint(estimate, se, percent = 95)
 \item{estimate}{Numeric estimate value(s)}
 
 \item{se}{Standard error(s) of the estimate}
+
+\item{percent}{Percentage confidence to calculate}
 }
 \value{
 A dataframe with a row per estimate input, and columns \code{lcl}
   and \code{ucl} (lower and upper confidence limits).
 }
 \description{
-Calculates approximate log-normal confidence intervals given an estimate
-and its standard error.
+Calculates approximate log-normal confidence intervals given estimates
+and their standard errors.
 }
 \examples{
   lnorm_confint(10.13, 3.57)

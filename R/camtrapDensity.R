@@ -510,11 +510,12 @@ get_trap_rate <- function(traprate_data, strata=NULL, reps=999){
 
 #' Log-normal confidence interval
 #'
-#' Calculates approximate log-normal confidence intervals given an estimate
-#' and its standard error.
+#' Calculates approximate log-normal confidence intervals given estimates
+#' and their standard errors.
 #'
 #' @param estimate Numeric estimate value(s)
 #' @param se Standard error(s) of the estimate
+#' @param percent Percentage confidence level
 #' @return A dataframe with a row per estimate input, and columns \code{lcl}
 #'   and \code{ucl} (lower and upper confidence limits).
 #' @examples
