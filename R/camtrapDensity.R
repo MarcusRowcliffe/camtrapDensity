@@ -2,7 +2,8 @@
 #'
 #' Plots a Gantt chart illustrating deployment times (black lines) and
 #' the occurrence of observations within those deployments (red bars). Useful
-#' for checking errors in specification of deployment start and end dates.
+#' for checking errors in specification of deployment start and end dates, and
+#' visualising spatiotemporal distribution of observations.
 #'
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
@@ -203,10 +204,14 @@ check_deployment_models <- function(package){
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @param species A character string indicating species subset to analyse;
 #'   if NULL runs select_species to get user input.
+#' @param distUnit A character string indicating distance unit of speed observations.
+#' @param timeUnit A character string indicating time unit of speed observations.
 #' @return List with elements:
-#'  - \code{speed}: a one row dataframe containing columns \code{estimate}
-#'    (mean) and \code{se} (standard error) speed while active.
-#'  - \code{data}: a numeric vector of the data from which the estimate is derived
+#' \itemize{
+#'   \item{\code{speed}: a one row dataframe containing columns \code{estimate}
+#'    (mean) and \code{se} (standard error) speed while active.}
+#'   \item{\code{data}: a numeric vector of the data from which the estimate is derived.}
+#'   }
 #' @examples
 #'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
 #'   speed_model <- fit_speedmodel(pkg)
@@ -392,16 +397,18 @@ fit_detmodel <- function(formula,
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @param species A character string indicating species subset to extract
-#'   data for; if NULL runs select_species to get user input.
+#'   data for; if NULL runs acode{select_species} to get user input.
 #' @param unit The time unit in which to return camera effort.
 #' @return A tibble with columns:
-#'   - \code{locationName}: name of the camera location
-#'   - \code{effort}: the camera time for the location
-#'   - \code{unit}: the effort time unit
-#'   - \code{scientificName}: the scientific name of the species data extracted
-#'   - \code{n}: the observation counts
-#'   - \code{stratumID}: stratum identifier (only if this column is present in
-#'     \code{package$data$deployments})
+#' \itemize{
+#'   \item{\code{locationName}: name of the camera location}
+#'   \item{\code{effort}: the camera time for the location}
+#'   \item{\code{unit}: the effort time unit}
+#'   \item{\code{scientificName}: the scientific name of the species data extracted}
+#'   \item{\code{n}: the observation counts}
+#'   \item{\code{stratumID}: stratum identifier (only if this column is present in
+#'     \code{package$data$deployments})}
+#' }
 #' @examples
 #'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
 #'   remdata <- get_traprate_data(pkg)
@@ -546,21 +553,25 @@ lnorm_confint <- function(estimate, se, percent=95){
 #' @param strata A dataframe of stratum information passed to \code{\link{get_trap_rate}}
 #' @param reps Number of bootstrap replicates for estimating trap rate error
 #'   (see \code{\link{get_trap_rate}})
-#' @return A dataframe of unit-harmonised parameter estimates with seven rows:
-#'   - \code{radius}: detection radius
-#'   - \code{angle}: detection angle
-#'   - \code{active_speed}: speed while active
-#'   - \code{activity_level}: proportion of time spent active
-#'   - \code{overall_speed}: long-term average speed (day range) - the product
-#'     of \code{active_speed} and \code{activity_level}
-#'   - \code{trap_rate}: number of camera trap records per unit time
-#'  and seven columns:
-#'   - \code{estimate}: parameter estimates
-#'   - \code{se}: standard error
-#'   - \code{cv}: proportional coefficient of variation
-#'   - \code{lcl95}, \code{ucl95}: lower and upper 95% confidence limits
-#'   - \code{n}: sample size
-#'   - \code{unit}: the unit of the estimate
+#' @return A dataframe of unit-harmonised parameter estimates with rows:
+#' \itemize{
+#'   \item{\code{radius}: detection radius}
+#'   \item{\code{angle}: detection angle}
+#'   \item{\code{active_speed}: speed while active}
+#'   \item{\code{activity_level}: proportion of time spent active}
+#'   \item{\code{overall_speed}: long-term average speed (day range) - the product
+#'     of \code{active_speed} and \code{activity_level}}
+#'   \item{\code{trap_rate}: number of camera trap records per unit time}
+#'  }
+#'  and columns
+#' \itemize{
+#'   \item{\code{estimate}: parameter estimates}
+#'   \item{\code{se}: standard error}
+#'   \item{\code{cv}: proportional coefficient of variation}
+#'   \item{\code{lcl95}, \code{ucl95}: lower and upper 95\% confidence limits}
+#'   \item{\code{n}: sample size}
+#'   \item{\code{unit}: the unit of the estimate}
+#' }
 #' @examples
 #'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
 #'   sp <- "Vulpes vulpes"
@@ -626,9 +637,9 @@ get_parameter_table <- function(traprate_data,
 #'   "cm", "m", "km" for distances, "second", "minute", "hour", "day" for
 #'   times, "radian" "degree" for angles, or "n/ha", "n/km2" "n/100km2" for
 #'   density.
-#' @param unitOUT The same for output; must be of the same type (distance,
+#' @param unitOUT As for \code{unitIN}; must be of the same type (distance,
 #'   time or density) as \code{unitIN}.
-#' @return A number giving the amount by which to multipy input values
+#' @return A number giving the amount by which to multiply input values
 #'   to arrive a unit-converted output.
 #' @examples
 #'   get_multiplier("m", "km")
@@ -767,16 +778,20 @@ convert_units <- function(param,
 #' Estimates REM density given a dataframe of parameters and their errors.
 #'
 #' @param parameters A dataframe containing REM parameter estimates with
-#'   (at least) rows:
-#'   - \code{radius}: effective detection radius
-#'   - \code{angle}: effective detection angle
-#'   - \code{overall_speed}: average animal speed (day range)
-#'   - \code{trap_rate}: animal observations per unit time
-#'  and columns:
-#'   - \code{estimate}: numeric parameter estimate
-#'   - \code{se}: numeric parameter standard error
-#'   - \code{unit}: character parameter units (see \code{\link{convert_units}}
-#'     for allowable values)
+#' (at least) rows:
+#' \itemize{
+#'   \item{\code{radius}: effective detection radius}
+#'   \item{\code{angle}: effective detection angle}
+#'   \item{\code{overall_speed}: average animal speed (day range)}
+#'   \item{\code{trap_rate}: animal observations per unit time}
+#' }
+#' and columns:
+#' \itemize{
+#'   \item{\code{estimate}: numeric parameter estimate}
+#'   \item{\code{se}: numeric parameter standard error}
+#'   \item{\code{unit}: character parameter units (see \code{\link{convert_units}}
+#'     for allowable values)}
+#' }
 #' @return A dataframe with the input parameters plus estimated density and
 #'  its errors.
 #' @examples
@@ -840,7 +855,7 @@ rem <- function(parameters){
 #'   \code{\link{fit_detmodel}}.
 #' @param angle_model A detection function model for angles fitted using
 #'   \code{\link{fit_detmodel}} with \code{unit} argument "radian" or "degree".
-#' @param speed_model A speed model fitted using \code{fit_speedmodel}.
+#' @param speed_model A speed model fitted using \code{\link{fit_speedmodel}}.
 #' @param activity_model An activity model fitted using
 #'   \code{\link[activity]{fitact}} or \code{\link{fit_actmodel}}.
 #' @param strata A dataframe of stratum areas, passed to \code{\link{get_trap_rate}}.

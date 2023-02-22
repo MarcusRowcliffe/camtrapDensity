@@ -13,7 +13,8 @@ plot_deployment_schedule(package)
 \description{
 Plots a Gantt chart illustrating deployment times (black lines) and
 the occurrence of observations within those deployments (red bars). Useful
-for checking errors in specification of deployment start and end dates.
+for checking errors in specification of deployment start and end dates, and
+visualising spatiotemporal distribution of observations.
 }
 \examples{
   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")

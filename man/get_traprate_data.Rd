@@ -15,19 +15,21 @@ get_traprate_data(
 \code{\link[camtraptor]{read_camtrap_dp}}.}
 
 \item{species}{A character string indicating species subset to extract
-data for; if NULL runs select_species to get user input.}
+data for; if NULL runs acode{select_species} to get user input.}
 
 \item{unit}{The time unit in which to return camera effort.}
 }
 \value{
 A tibble with columns:
-  - \code{locationName}: name of the camera location
-  - \code{effort}: the camera time for the location
-  - \code{unit}: the effort time unit
-  - \code{scientificName}: the scientific name of the species data extracted
-  - \code{n}: the observation counts
-  - \code{stratumID}: stratum identifier (only if this column is present in
-    \code{package$data$deployments})
+\itemize{
+  \item{\code{locationName}: name of the camera location}
+  \item{\code{effort}: the camera time for the location}
+  \item{\code{unit}: the effort time unit}
+  \item{\code{scientificName}: the scientific name of the species data extracted}
+  \item{\code{n}: the observation counts}
+  \item{\code{stratumID}: stratum identifier (only if this column is present in
+    \code{package$data$deployments})}
+}
 }
 \description{
 Extracts a data table of observation counts and effort for each

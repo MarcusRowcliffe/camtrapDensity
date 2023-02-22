@@ -35,7 +35,7 @@ if NULL runs \code{\link{select_species}} to get user input.}
 \item{angle_model}{A detection function model for angles fitted using
 \code{\link{fit_detmodel}} with \code{unit} argument "radian" or "degree".}
 
-\item{speed_model}{A speed model fitted using \code{fit_speedmodel}.}
+\item{speed_model}{A speed model fitted using \code{\link{fit_speedmodel}}.}
 
 \item{activity_model}{An activity model fitted using
 \code{\link[activity]{fitact}} or \code{\link{fit_actmodel}}.}

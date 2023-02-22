@@ -17,12 +17,18 @@ fit_speedmodel(
 
 \item{species}{A character string indicating species subset to analyse;
 if NULL runs select_species to get user input.}
+
+\item{distUnit}{A character string indicating distance unit of speed observations.}
+
+\item{timeUnit}{A character string indicating time unit of speed observations.}
 }
 \value{
 List with elements:
- - \code{speed}: a one row dataframe containing columns \code{estimate}
-   (mean) and \code{se} (standard error) speed while active.
- - \code{data}: a numeric vector of the data from which the estimate is derived
+\itemize{
+  \item{\code{speed}: a one row dataframe containing columns \code{estimate}
+   (mean) and \code{se} (standard error) speed while active.}
+  \item{\code{data}: a numeric vector of the data from which the estimate is derived.}
+  }
 }
 \description{
 Calculates harmonic mean and standard error of animal speed while active

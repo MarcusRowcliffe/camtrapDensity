@@ -11,7 +11,7 @@ lnorm_confint(estimate, se, percent = 95)
 
 \item{se}{Standard error(s) of the estimate}
 
-\item{percent}{Percentage confidence to calculate}
+\item{percent}{Percentage confidence level}
 }
 \value{
 A dataframe with a row per estimate input, and columns \code{lcl}

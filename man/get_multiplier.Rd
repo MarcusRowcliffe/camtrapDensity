@@ -12,11 +12,11 @@ get_multiplier(unitIN, unitOUT)
 times, "radian" "degree" for angles, or "n/ha", "n/km2" "n/100km2" for
 density.}
 
-\item{unitOUT}{The same for output; must be of the same type (distance,
+\item{unitOUT}{As for \code{unitIN}; must be of the same type (distance,
 time or density) as \code{unitIN}.}
 }
 \value{
-A number giving the amount by which to multipy input values
+A number giving the amount by which to multiply input values
   to arrive a unit-converted output.
 }
 \description{

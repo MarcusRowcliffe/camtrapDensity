@@ -35,21 +35,25 @@ returned by \code{\link{get_traprate_data}}.}
 if NULL runs select_species to get user input.}
 }
 \value{
-A dataframe of unit-harmonised parameter estimates with seven rows:
-  - \code{radius}: detection radius
-  - \code{angle}: detection angle
-  - \code{active_speed}: speed while active
-  - \code{activity_level}: proportion of time spent active
-  - \code{overall_speed}: long-term average speed (day range) - the product
-    of \code{active_speed} and \code{activity_level}
-  - \code{trap_rate}: number of camera trap records per unit time
- and seven columns:
-  - \code{estimate}: parameter estimates
-  - \code{se}: standard error
-  - \code{cv}: proportional coefficient of variation
-  - \code{lcl95}, \code{ucl95}: lower and upper 95% confidence limits
-  - \code{n}: sample size
-  - \code{unit}: the unit of the estimate
+A dataframe of unit-harmonised parameter estimates with rows:
+\itemize{
+  \item{\code{radius}: detection radius}
+  \item{\code{angle}: detection angle}
+  \item{\code{active_speed}: speed while active}
+  \item{\code{activity_level}: proportion of time spent active}
+  \item{\code{overall_speed}: long-term average speed (day range) - the product
+    of \code{active_speed} and \code{activity_level}}
+  \item{\code{trap_rate}: number of camera trap records per unit time}
+ }
+ and columns
+\itemize{
+  \item{\code{estimate}: parameter estimates}
+  \item{\code{se}: standard error}
+  \item{\code{cv}: proportional coefficient of variation}
+  \item{\code{lcl95}, \code{ucl95}: lower and upper 95\% confidence limits}
+  \item{\code{n}: sample size}
+  \item{\code{unit}: the unit of the estimate}
+}
 }
 \description{
 Creates a table of REM parameters taken from models for detection radius,

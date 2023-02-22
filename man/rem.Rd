@@ -8,16 +8,20 @@ rem(parameters)
 }
 \arguments{
 \item{parameters}{A dataframe containing REM parameter estimates with
- (at least) rows:
- - \code{radius}: effective detection radius
- - \code{angle}: effective detection angle
- - \code{overall_speed}: average animal speed (day range)
- - \code{trap_rate}: animal observations per unit time
+(at least) rows:
+\itemize{
+  \item{\code{radius}: effective detection radius}
+  \item{\code{angle}: effective detection angle}
+  \item{\code{overall_speed}: average animal speed (day range)}
+  \item{\code{trap_rate}: animal observations per unit time}
+}
 and columns:
- - \code{estimate}: numeric parameter estimate
- - \code{se}: numeric parameter standard error
- - \code{unit}: character parameter units (see \code{\link{convert_units}}
-   for allowable values)}
+\itemize{
+  \item{\code{estimate}: numeric parameter estimate}
+  \item{\code{se}: numeric parameter standard error}
+  \item{\code{unit}: character parameter units (see \code{\link{convert_units}}
+    for allowable values)}
+}}
 }
 \value{
 A dataframe with the input parameters plus estimated density and
