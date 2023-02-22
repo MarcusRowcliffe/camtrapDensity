@@ -4,12 +4,13 @@
 \alias{get_trap_rate}
 \title{Get average trap rate from REM data}
 \usage{
-get_trap_rate(data, strata = NULL, reps = 999)
+get_trap_rate(traprate_data, strata = NULL, reps = 999)
 }
 \arguments{
-\item{data}{A dataframe containing (at least) columns \code{n} and
-\code{effort}, as returned by \code{\link{get_rem_data}}; if \code{strata}
-supplied for stratified calculation, must also have column \code{stratumID}.}
+\item{traprate_data}{A dataframe containing (at least) columns \code{n} and
+\code{effort}, as returned by \code{\link{get_traprate_data}}; if
+\code{strata} supplied for stratified calculation, must also have column
+\code{stratumID}.}
 
 \item{strata}{A dataframe with one row per stratum, and columns
 \code{stratumID} and \code{area}.}
@@ -31,6 +32,6 @@ per-location observation counts and camera time.
 }
 \examples{
   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-  remdata <- get_rem_data(pkg)
-  get_trap_rate(remdata)
+  trdata <- get_traprate_data(pkg)
+  get_trap_rate(trdata)
 }
