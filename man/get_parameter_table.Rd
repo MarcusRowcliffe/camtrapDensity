@@ -5,19 +5,18 @@
 \title{Create a parameter table from a set of models}
 \usage{
 get_parameter_table(
-  package,
+  traprate_data,
   radius_model,
   angle_model,
   speed_model,
   activity_model,
-  species = NULL,
   strata = NULL,
   reps = 999
 )
 }
 \arguments{
-\item{package}{Camera trap data package object, as returned by
-\code{\link[camtraptor]{read_camtrap_dp}}.}
+\item{traprate_data}{A dataframe of trap rate data (counts and effort), as
+returned by \code{\link{get_traprate_data}}.}
 
 \item{radius_model}{A detection radius model fitted using \code{\link{fit_detmodel}}}
 
@@ -27,13 +26,13 @@ get_parameter_table(
 
 \item{activity_model}{An activity  model fitted using \code{\link{fit_actmodel}}}
 
-\item{species}{A character string indicating species subset to analyse;
-if NULL runs select_species to get user input.}
-
 \item{strata}{A dataframe of stratum information passed to \code{\link{get_trap_rate}}}
 
 \item{reps}{Number of bootstrap replicates for estimating trap rate error
 (see \code{\link{get_trap_rate}})}
+
+\item{species}{A character string indicating species subset to analyse;
+if NULL runs select_species to get user input.}
 }
 \value{
 A dataframe of unit-harmonised parameter estimates with seven rows:
