@@ -279,8 +279,8 @@ fit_actmodel <- function(package,
       dplyr::select(deploymentID, latitude, longitude) %>%
       dplyr::right_join(obs, by="deploymentID", multiple="all") %>%
       dplyr::select(-count)
-    suntimes <- insol::daylength(obs$latitude, obs$longitude,
-                                 insol::JD(obs$timestamp), 0)
+
+    suntimes <- activity::get_suntimes(obs$timestamp, obs$latitude, obs$longitude, 0)
     timeshift <- pi - mean(suntimes[, 1] + suntimes[,3]/2) * pi/12
     obs$solartime <- obs %>%
       with(activity::solartime(timestamp, latitude, longitude, 0)) %>%
