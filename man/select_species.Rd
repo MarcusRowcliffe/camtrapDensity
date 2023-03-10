@@ -4,11 +4,14 @@
 \alias{select_species}
 \title{Select a species name}
 \usage{
-select_species(package)
+select_species(package, species = NULL)
 }
 \arguments{
 \item{package}{Camera trap data package object, as returned by
 \code{\link[camtraptor]{read_camtrap_dp}}.}
+
+\item{species}{NULL (default) to select interactively, or character string
+giving a valid species name found within \code{package$data$observations$scientificName}}
 }
 \value{
 A character string, scientific species name.
@@ -20,6 +23,10 @@ and allows the user to interactively select one.
 \examples{
   \dontrun{
     pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-    species <- select_species(pkg)
+    select_species(pkg)
+    # If provided, a valid species name is simply passed through
+    select_species(pkg, "Vulpes vulpes")
+    # Providing a species name that isn't found in the data throws an error
+    select_species(pkg, "Vulpes vuppes")
   }
 }

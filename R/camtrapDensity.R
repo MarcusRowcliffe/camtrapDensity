@@ -142,39 +142,52 @@ correct_time <- function(package, depID, wrongTime, rightTime){
 #'
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
+#' @param species NULL (default) to select interactively, or character string
+#'   giving a valid species name found within \code{package$data$observations$scientificName}
 #' @return A character string, scientific species name.
 #' @examples
 #'   \dontrun{
 #'     pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-#'     species <- select_species(pkg)
+#'     select_species(pkg)
+#'     # If provided, a valid species name is simply passed through
+#'     select_species(pkg, "Vulpes vulpes")
+#'     # Providing a species name that isn't found in the data throws an error
+#'     select_species(pkg, "Vulpes vuppes")
 #'   }
 #' @export
 #'
-select_species <- function(package){
+select_species <- function(package, species=NULL){
   obs <- package$data$observations
-  n <- table(obs$scientificName)
-  tab <-  package %>%
-    camtraptor::get_species() %>%
-    dplyr::select(contains("Name")) %>%
-    dplyr::filter(scientificName %in% names(n))
-  tab$n_observations <- n
-  if("useDeployment" %in% names(obs))
-    obs[!obs$useDeployment, c("speed", "radius", "angle")] <- NA
-  tab$n_speeds <- with(obs, tapply(speed, scientificName, function(x)
-    sum(x>0.1 & x<10 & !is.na(x))))
-  tab$n_radii <- with(obs, tapply(radius, scientificName, function(x)
-    sum(x<10 & !is.na(x))))
-  tab$n_angles <- with(obs, tapply(angle, scientificName, function(x)
-    sum(!is.na(x))))
 
+  if(is.null(species)){
+    n <- table(obs$scientificName)
+    tab <-  package %>%
+      camtraptor::get_species() %>%
+      dplyr::select(contains("Name")) %>%
+      dplyr::filter(scientificName %in% names(n))
+    tab$n_observations <- n
+    if("useDeployment" %in% names(obs))
+      obs[!obs$useDeployment, c("speed", "radius", "angle")] <- NA
+    tab$n_speeds <- with(obs, tapply(speed, scientificName, function(x)
+      sum(x>0.1 & x<10 & !is.na(x))))
+    tab$n_radii <- with(obs, tapply(radius, scientificName, function(x)
+      sum(x<10 & !is.na(x))))
+    tab$n_angles <- with(obs, tapply(angle, scientificName, function(x)
+      sum(!is.na(x))))
 
-  print.data.frame(tab)
-  i <- NA
-  while(is.na(i) || i<1 || i>nrow(tab))
-    i <- readline("Enter row number of species to select: ") %>%
-    as.numeric() %>%
-    suppressWarnings()
-  as.character(tab$scientificName[i])
+    print.data.frame(tab)
+    i <- NA
+    while(is.na(i) || i<1 || i>nrow(tab))
+      i <- readline("Enter row number of species to select: ") %>%
+      as.numeric() %>%
+      suppressWarnings()
+    species <- as.character(tab$scientificName[i])
+  } else
+
+    if(!species %in% obs$scientificName)
+      stop("Can't find species in scientificName field of observations data")
+
+  species
 }
 
 #' Check deployment calibration model diagnostic plots
@@ -269,7 +282,7 @@ fit_speedmodel <- function(package,
   distUnit <- match.arg(distUnit)
   timeUnit <- match.arg(timeUnit)
 
-  if(is.null(species)) species <- select_species(package)
+  species <- select_species(package, species)
   obs <- package$data$observations %>%
     subset(scientificName==species & speed > 0.01 & speed < 10 & !is.na(speed))
   if("useDeployment" %in% names(obs)) obs <- subset(obs, useDeployment)
@@ -316,7 +329,7 @@ fit_actmodel <- function(package,
                          obsdef=c("individual", "sequence"),
                          ...){
   obsdef <- match.arg(obsdef)
-  if(is.null(species)) species <- select_species(package)
+  species <- select_species(package, species)
   deps <- package$data$deployments
   obs <- package$data$observations %>%
     dplyr::filter(scientificName==species) %>%
@@ -405,7 +418,7 @@ fit_detmodel <- function(formula,
   if("distance" %in% covars) stop("Cannot use \"distance\" as a covariate name - rename and try again")
 
   # set up data
-  if(is.null(species)) species <- select_species(package)
+  species <- select_species(package, species)
   dat <- dat %>%
     subset(scientificName==species) %>%
     dplyr::select(all_of(allvars)) %>%
@@ -491,7 +504,7 @@ fit_detmodel <- function(formula,
 get_traprate_data <- function(package, species=NULL,
                          unit=c("day", "hour", "minute", "second")){
   unit <- match.arg(unit)
-  if(is.null(species)) species <- select_species(package)
+  species <- select_species(package, species)
   dep <- package$data$deployments
   eff <- package %>%
     camtraptor::get_effort(unit=unit) %>%
@@ -989,7 +1002,7 @@ rem_estimate <- function(package,
                          reps=999){
 
   if(check_deployments) package <- check_deployment_models(package)
-  if(is.null(species)) species <- select_species(package)
+  species <- select_species(package, species)
   message(paste("Analysing", species))
 
   if(is.null(radius_model))
