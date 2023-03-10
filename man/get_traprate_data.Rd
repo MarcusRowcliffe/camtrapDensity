@@ -36,6 +36,14 @@ Extracts a data table of observation counts and effort for each
 camera location in a camtrap-dp data package.
 }
 \examples{
-  pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-  remdata <- get_traprate_data(pkg)
+  \dontrun{
+    pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+    }
+  data(pkg)
+  \dontrun{
+    # With interactive species definition
+    trdata <- get_traprate_data(pkg)
+  }
+  # With species predefined
+  trdata <- get_traprate_data(pkg, species="Vulpes vulpes")
 }

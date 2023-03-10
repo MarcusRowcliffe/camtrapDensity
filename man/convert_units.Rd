@@ -31,6 +31,8 @@ speed while active.}
 \item{overall_speed_unit}{A character string giving the output unit of
 day range.}
 
+\item{trap_rate_unit}{A character string giving the output unit of trap rate.}
+
 \item{density_unit}{A character string giving the output unit of density.}
 }
 \value{
@@ -42,12 +44,16 @@ Changes the units of parameters from their current setting to new
 user-defined units.
 }
 \examples{
-  pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+  \dontrun{
+    pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+    }
+  data(pkg)
   sp <- "Vulpes vulpes"
+  trdata <- get_traprate_data(pkg, species=sp)
   radmod <- fit_detmodel(radius~1, pkg, species=sp, order=0)
   angmod <- fit_detmodel(angle~1, pkg, species=sp, unit="radian", order=0)
   spdmod <- fit_speedmodel(pkg, species=sp)
   actmod <- fit_actmodel(pkg, species=sp, reps=100)
-  param <- get_parameter_table(pkg, radmod, angmod, spdmod, actmod, sp)
-  convert_units(param, radius_unit="m", angle_unit="degree")
+  param <- get_parameter_table(trdata, radmod, angmod, spdmod, actmod)
+  convert_units(param, radius_unit="m", angle_unit="degree", active_speed_unit="m/second")
 }

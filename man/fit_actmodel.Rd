@@ -33,8 +33,16 @@ Fits an activity model to data package data and estimates activity
 level (proportion of time spent active).
 }
 \examples{
-  pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-  act_model <- fit_actmodel(pkg, reps=100)
+  \dontrun{
+    pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+  }
+  data(pkg)
+  \dontrun{
+    # With interactive species definition
+    act_model <- fit_actmodel(pkg)
+  }
+  # With species predefined, reps reduced for speed
+  act_model <- fit_actmodel(pkg, species="Vulpes vulpes", reps=100)
   act_model@act
 }
 \seealso{

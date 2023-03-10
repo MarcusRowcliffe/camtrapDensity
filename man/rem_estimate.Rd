@@ -57,20 +57,28 @@ and time in seconds.
 }
 \examples{
   # Load data
-  pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+  \dontrun{
+    pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+    }
+  data(pkg)
   # Sense check deployment schedules
   plot_deployment_schedule(pkg)
-  # Sense check deployment calibration model diagnostic plots
-  pkg_checked <- check_deployment_models(pkg)
-
-  # Fully automated analysis (reps reduced for to limit run time)
-  res <- rem_estimate(pkg_checked, check_deployments=FALSE, reps=100)
+ \dontrun{
+   # Sense check deployment calibration model diagnostic plots
+   pkg_checked <- check_deployment_models(pkg)
+   # Fully automated analysis (interactive species definition by default;
+   # reps reduced to limit run time).
+   res <- rem_estimate(pkg_checked, check_deployments=FALSE, reps=100)
+  }
+  # Automated analysis with species predefined and no deployment checking
+  sp <- "Vulpes vulpes"
+  res <- rem_estimate(pkg, species=sp, check_deployments=FALSE, reps=100)
+  # Inspect results
   res$estimates
 
-  # Analysis with one parameter model fitted separately
-  sp <- "Vulpes vulpes"
-  radmod <- fit_detmodel(radius~1, pkg_checked, species=sp, truncation=15, order=0)
-  res <- rem_estimate(pkg_checked, check_deployments = FALSE, species = sp,
+  # Analysis with radius model fitted separately
+  radmod <- fit_detmodel(radius~1, pkg, species=sp, truncation=15, order=0)
+  res <- rem_estimate(pkg, check_deployments = FALSE, species = sp,
                       radius_model = radmod, reps=100)
   res$estimates
 }

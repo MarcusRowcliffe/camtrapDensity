@@ -23,6 +23,11 @@ to covariates.}
 \item{species}{A character string indicating species subset to analyse;
 if NULL runs select_species to get user input.}
 
+\item{newdata}{A dataframe of covariate values at which to predict detection
+distance.}
+
+\item{unit}{The units in which to return the result.}
+
 \item{...}{Arguments passed to \code{\link[Distance]{ds}}.}
 }
 \value{
@@ -42,11 +47,22 @@ The type of detection function (line or point) is determined by
   the \code{unit} argument.
 }
 \examples{
-  pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-  radius_model <- fit_detmodel(radius~1, pkg, order=0)
-  angle_model <- fit_detmodel(angle~1, pkg, order=0)
+  \dontrun{
+    pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+    }
+  data(pkg)
+  \dontrun{
+    # With interactive species definition
+    radius_model <- fit_detmodel(radius~1, pkg, order=0)
+  }
+  # With species predefined
+  sp <- "Vulpes vulpes"
+  radius_model <- fit_detmodel(radius~1, pkg, species=sp, order=0)
+  angle_model <- fit_detmodel(angle~1, pkg, species=sp, order=0, unit="degree")
   radius_model$edd
   angle_model$edd
+  plot(radius_model, pdf=TRUE)
+  plot(angle_model)
 }
 \seealso{
 \code{\link[Distance]{ds}}

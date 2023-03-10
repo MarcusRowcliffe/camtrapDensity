@@ -30,9 +30,6 @@ returned by \code{\link{get_traprate_data}}.}
 
 \item{reps}{Number of bootstrap replicates for estimating trap rate error
 (see \code{\link{get_trap_rate}})}
-
-\item{species}{A character string indicating species subset to analyse;
-if NULL runs select_species to get user input.}
 }
 \value{
 A dataframe of unit-harmonised parameter estimates with rows:
@@ -60,11 +57,15 @@ Creates a table of REM parameters taken from models for detection radius,
 detection angle, speed and activity level.
 }
 \examples{
-  pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+  \dontrun{
+    pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+    }
+  data(pkg)
   sp <- "Vulpes vulpes"
+  trdata <- get_traprate_data(pkg, species=sp)
   radmod <- fit_detmodel(radius~1, pkg, species=sp, order=0)
   angmod <- fit_detmodel(angle~1, pkg, species=sp, unit="radian", order=0)
   spdmod <- fit_speedmodel(pkg, species=sp)
   actmod <- fit_actmodel(pkg, species=sp, reps=100)
-  get_parameter_table(pkg, radmod, angmod, spdmod, actmod, sp)
+  get_parameter_table(trdata, radmod, angmod, spdmod, actmod)
 }

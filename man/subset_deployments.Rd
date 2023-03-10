@@ -24,7 +24,10 @@ a choice based on columns in the deployments table.
 }
 \examples{
 # subset excluding a location and including only October 2017
-  pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+  \dontrun{
+    pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+    }
+  data(pkg)
   subpkg <- subset_deployments(pkg,
                                locationName != "S01" &
                                start > as.POSIXct("2017-10-01", tz="UTC") &

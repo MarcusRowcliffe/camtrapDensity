@@ -1,5 +1,0 @@
-deploymentID,locationID,locationName,longitude,latitude,coordinateUncertainty,start,end,setupBy,cameraID,cameraModel,cameraInterval,cameraHeight,cameraTilt,cameraHeading,timestampIssues,baitUse,session,array,featureType,habitat,tags,comments,_id
-0d620d0e-5da8-42e6-bcf2-56c11fb3d08e,ce495c8f-840d-4eb7-bc97-8aaffcf20b04,S01,-0.14977,51.53643,,2017-10-02T19:06:43+01:00,2017-10-12T20:11:46+01:00,,,,,,,,,,,,,,,,
-6c920a31-cf07-496f-aa4f-846a428f450a,202fb9dc-4760-4dfb-acd9-986bcb381480,S03,-0.14986,51.53374,,2017-10-12T12:09:35+01:00,2017-10-19T06:23:12+01:00,,,,,,,,,,,,,,,,
-c95a566f-e75e-4e7b-a905-0479c8770da3,359d460a-b4c5-49ea-8006-3ec2e3d62286,S02,-0.15389,51.53459,,2017-10-24T06:10:55+01:00,2017-10-28T19:17:38+01:00,,,,,,,,,,,,,,,,
-d6d42e25-be43-4820-909d-708e42219a86,202fb9dc-4760-4dfb-acd9-986bcb381480,S03,-0.14986,51.53374,,2017-10-12T11:37:35+01:00,2017-10-25T01:50:57+01:00,,,,,,,,,,,,,,,,

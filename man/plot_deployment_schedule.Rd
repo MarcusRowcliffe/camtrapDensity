@@ -17,6 +17,7 @@ for checking errors in specification of deployment start and end dates, and
 visualising spatiotemporal distribution of observations.
 }
 \examples{
-  pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+  \dontrun{pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")}
+  data(pkg)
   plot_deployment_schedule(pkg)
 }

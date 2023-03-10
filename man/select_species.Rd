@@ -18,6 +18,8 @@ Presents a table of species names with observation count for each
 and allows the user to interactively select one.
 }
 \examples{
-  pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-  species <- select_species(pkg)
+  \dontrun{
+    pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+    species <- select_species(pkg)
+  }
 }

@@ -4,13 +4,13 @@
 \alias{correct_time}
 \title{Correct times for a given deployment in a camera trap datapackage}
 \usage{
-correct_time(package, deploymentID, wrongTime, rightTime)
+correct_time(package, depID, wrongTime, rightTime)
 }
 \arguments{
 \item{package}{Camera trap data package object, as returned by
 \code{\link[camtraptor]{read_camtrap_dp}}.}
 
-\item{deploymentID}{A character value giving the deployment identifier,
+\item{depID}{A character value giving the deployment identifier,
 to be matched in package$data$deployments$deploymentID.}
 
 \item{wrongTime}{A character or POSIX reference date-time recorded wrongly
@@ -30,8 +30,12 @@ recorded by the camera, the correct time for this reference time
 and the ID of the deployment to correct.
 }
 \examples{
+\dontrun{
+  pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+}
+data(pkg)
 pkg_corrected <- correct_time(pkg,
-                              deploymentID = "0d620d0e-5da8-42e6-bcf2-56c11fb3d08e",
-                              wrongTime = "2017-01-01 00:00:00",
-                              rightTime = "2018-09-01 11:04:00")
+                              depID = "0d620d0e-5da8-42e6-bcf2-56c11fb3d08e",
+                              wrongTime = "2017-10-02 08:06:43",
+                              rightTime = "2017-09-01 10:36:00")
 }

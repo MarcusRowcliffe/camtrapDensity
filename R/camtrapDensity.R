@@ -1,3 +1,16 @@
+#' Example camtrap-DP datapackage
+#'
+#' Data and metadata from an example study exported from the Agouti camera trap
+#' data management platform in camtrap-DP format. Metadata includes study name,
+#' authors, location and other details. Data is held in element \code{data},
+#' itself a list holding dataframes \code{deployments}, \code{media} and
+#' \code{observations}. See \url{https://tdwg.github.io/camtrap-dp} for details.
+#'
+#' @format A list holding study data and metadata.
+#' @name pkg
+#' @docType data
+NULL
+
 #' Plot a deployment Gantt chart
 #'
 #' Plots a Gantt chart illustrating deployment times (black lines) and
@@ -8,7 +21,8 @@
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @examples
-#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   \dontrun{pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")}
+#'   data(pkg)
 #'   plot_deployment_schedule(pkg)
 #' @export
 #'
@@ -49,7 +63,10 @@ plot_deployment_schedule <- function(package){
 #'  level.
 #' @examples
 #' # subset excluding a location and including only October 2017
-#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   \dontrun{
+#'     pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+#'     }
+#'   data(pkg)
 #'   subpkg <- subset_deployments(pkg,
 #'                                locationName != "S01" &
 #'                                start > as.POSIXct("2017-10-01", tz="UTC") &
@@ -85,7 +102,10 @@ subset_deployments <- function(package, choice){
 #' @return As for    \code{\link[camtraptor]{read_camtrap_dp}}, with all
 #'  date-times corrected by the difference between rightTime and wrongTime.
 #' @examples
-#' pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#' \dontrun{
+#'   pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+#' }
+#' data(pkg)
 #' pkg_corrected <- correct_time(pkg,
 #'                               depID = "0d620d0e-5da8-42e6-bcf2-56c11fb3d08e",
 #'                               wrongTime = "2017-10-02 08:06:43",
@@ -124,8 +144,10 @@ correct_time <- function(package, depID, wrongTime, rightTime){
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @return A character string, scientific species name.
 #' @examples
-#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-#'   species <- select_species(pkg)
+#'   \dontrun{
+#'     pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'     species <- select_species(pkg)
+#'   }
 #' @export
 #'
 select_species <- function(package){
@@ -165,8 +187,10 @@ select_species <- function(package){
 #' @return The original package with logical column \code{useDeployment}`
 #'  added to deployments and observations data.
 #' @examples
-#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-#'   pkg_checked <- check_deployment_models(pkg)
+#'   \dontrun{
+#'     pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+#'     pkg_checked <- check_deployment_models(pkg)
+#'   }
 #' @export
 #'
 check_deployment_models <- function(package){
@@ -225,8 +249,16 @@ check_deployment_models <- function(package){
 #'   \item{\code{data}: a numeric vector of the data from which the estimate is derived.}
 #'   }
 #' @examples
-#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-#'   speed_model <- fit_speedmodel(pkg)
+#'   \dontrun{
+#'     pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+#'   }
+#'   data(pkg)
+#'   \dontrun{
+#'     # With interactive species definition
+#'     speed_model <- fit_speedmodel(pkg)
+#'   }
+#'   # With species predefined
+#'   speed_model <- fit_speedmodel(pkg, species="Vulpes vulpes")
 #'   speed_model$speed
 #' @export
 #'
@@ -265,8 +297,16 @@ fit_speedmodel <- function(package,
 #' @return An `actmod` list.
 #' @seealso \code{\link[activity]{fitact}}
 #' @examples
-#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-#'   act_model <- fit_actmodel(pkg, reps=100)
+#'   \dontrun{
+#'     pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+#'   }
+#'   data(pkg)
+#'   \dontrun{
+#'     # With interactive species definition
+#'     act_model <- fit_actmodel(pkg)
+#'   }
+#'   # With species predefined, reps reduced for speed
+#'   act_model <- fit_actmodel(pkg, species="Vulpes vulpes", reps=100)
 #'   act_model@@act
 #' @export
 #'
@@ -316,6 +356,9 @@ fit_actmodel <- function(package,
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @param species A character string indicating species subset to analyse;
 #'   if NULL runs select_species to get user input.
+#' @param newdata A dataframe of covariate values at which to predict detection
+#'   distance.
+#' @param unit The units in which to return the result.
 #' @param ... Arguments passed to \code{\link[Distance]{ds}}.
 #' @return A \code{ddf} detection function model list, with additional elements:
 #'   \code{edd}, a vector with estimated and standard error effective detection
@@ -327,11 +370,22 @@ fit_actmodel <- function(package,
 #'   the \code{unit} argument.
 #' @seealso \code{\link[Distance]{ds}}
 #' @examples
-#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-#'   radius_model <- fit_detmodel(radius~1, pkg, order=0)
-#'   angle_model <- fit_detmodel(angle~1, pkg, order=0)
+#'   \dontrun{
+#'     pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+#'     }
+#'   data(pkg)
+#'   \dontrun{
+#'     # With interactive species definition
+#'     radius_model <- fit_detmodel(radius~1, pkg, order=0)
+#'   }
+#'   # With species predefined
+#'   sp <- "Vulpes vulpes"
+#'   radius_model <- fit_detmodel(radius~1, pkg, species=sp, order=0)
+#'   angle_model <- fit_detmodel(angle~1, pkg, species=sp, order=0, unit="degree")
 #'   radius_model$edd
 #'   angle_model$edd
+#'   plot(radius_model, pdf=TRUE)
+#'   plot(angle_model)
 #' @export
 #'
 fit_detmodel <- function(formula,
@@ -422,8 +476,16 @@ fit_detmodel <- function(formula,
 #'     \code{package$data$deployments})}
 #' }
 #' @examples
-#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-#'   remdata <- get_traprate_data(pkg)
+#'   \dontrun{
+#'     pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+#'     }
+#'   data(pkg)
+#'   \dontrun{
+#'     # With interactive species definition
+#'     trdata <- get_traprate_data(pkg)
+#'   }
+#'   # With species predefined
+#'   trdata <- get_traprate_data(pkg, species="Vulpes vulpes")
 #' @export
 #'
 get_traprate_data <- function(package, species=NULL,
@@ -473,8 +535,11 @@ get_traprate_data <- function(package, species=NULL,
 #'   - \code{n}: sample size (number of locations)
 #'   - \code{unit}: the unit of the estimate
 #' @examples
-#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-#'   trdata <- get_traprate_data(pkg)
+#'   \dontrun{
+#'     pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+#'     }
+#'   data(pkg)
+#'   trdata <- get_traprate_data(pkg, species="Vulpes vulpes")
 #'   get_trap_rate(trdata)
 #' @export
 #'
@@ -560,8 +625,6 @@ lnorm_confint <- function(estimate, se, percent=95){
 #' @param angle_model A detection angle model fitted using \code{\link{fit_detmodel}}
 #' @param speed_model A speed model fitted using \code{\link{fit_speedmodel}}
 #' @param activity_model An activity  model fitted using \code{\link{fit_actmodel}}
-#' @param species A character string indicating species subset to analyse;
-#'   if NULL runs select_species to get user input.
 #' @param strata A dataframe of stratum information passed to \code{\link{get_trap_rate}}
 #' @param reps Number of bootstrap replicates for estimating trap rate error
 #'   (see \code{\link{get_trap_rate}})
@@ -585,13 +648,17 @@ lnorm_confint <- function(estimate, se, percent=95){
 #'   \item{\code{unit}: the unit of the estimate}
 #' }
 #' @examples
-#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   \dontrun{
+#'     pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+#'     }
+#'   data(pkg)
 #'   sp <- "Vulpes vulpes"
+#'   trdata <- get_traprate_data(pkg, species=sp)
 #'   radmod <- fit_detmodel(radius~1, pkg, species=sp, order=0)
 #'   angmod <- fit_detmodel(angle~1, pkg, species=sp, unit="radian", order=0)
 #'   spdmod <- fit_speedmodel(pkg, species=sp)
 #'   actmod <- fit_actmodel(pkg, species=sp, reps=100)
-#'   get_parameter_table(pkg, radmod, angmod, spdmod, actmod, sp)
+#'   get_parameter_table(trdata, radmod, angmod, spdmod, actmod)
 #' @export
 #'
 get_parameter_table <- function(traprate_data,
@@ -710,18 +777,23 @@ get_multiplier <- function(unitIN, unitOUT){
 #'   speed while active.
 #' @param overall_speed_unit A character string giving the output unit of
 #'   day range.
+#' @param trap_rate_unit A character string giving the output unit of trap rate.
 #' @param density_unit A character string giving the output unit of density.
 #' @return A replica of input dataframe \code{param} with \code{estimate},
 #'   \code{se} and confidence limit values converted to output units.
 #' @examples
-#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   \dontrun{
+#'     pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+#'     }
+#'   data(pkg)
 #'   sp <- "Vulpes vulpes"
+#'   trdata <- get_traprate_data(pkg, species=sp)
 #'   radmod <- fit_detmodel(radius~1, pkg, species=sp, order=0)
 #'   angmod <- fit_detmodel(angle~1, pkg, species=sp, unit="radian", order=0)
 #'   spdmod <- fit_speedmodel(pkg, species=sp)
 #'   actmod <- fit_actmodel(pkg, species=sp, reps=100)
-#'   param <- get_parameter_table(pkg, radmod, angmod, spdmod, actmod, sp)
-#'   convert_units(param, radius_unit="m", angle_unit="degree")
+#'   param <- get_parameter_table(trdata, radmod, angmod, spdmod, actmod)
+#'   convert_units(param, radius_unit="m", angle_unit="degree", active_speed_unit="m/second")
 #' @export
 convert_units <- function(param,
                           radius_unit=c("km", "m", "cm"),
@@ -807,13 +879,17 @@ convert_units <- function(param,
 #' @return A dataframe with the input parameters plus estimated density and
 #'  its errors.
 #' @examples
-#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   \dontrun{
+#'     pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+#'     }
+#'   data(pkg)
 #'   sp <- "Vulpes vulpes"
+#'   trdata <- get_traprate_data(pkg, species=sp)
 #'   radmod <- fit_detmodel(radius~1, pkg, species=sp, order=0)
 #'   angmod <- fit_detmodel(angle~1, pkg, species=sp, unit="radian", order=0)
 #'   spdmod <- fit_speedmodel(pkg, species=sp)
 #'   actmod <- fit_actmodel(pkg, species=sp, reps=100)
-#'   param <- get_parameter_table(pkg, radmod, angmod, spdmod, actmod, sp)
+#'   param <- get_parameter_table(trdata, radmod, angmod, spdmod, actmod)
 #'   rem(param)
 #' @export
 rem <- function(parameters){
@@ -876,20 +952,28 @@ rem <- function(parameters){
 #'   all contributing parameters.
 #' @examples
 #'   # Load data
-#'   pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+#'   \dontrun{
+#'     pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+#'     }
+#'   data(pkg)
 #'   # Sense check deployment schedules
 #'   plot_deployment_schedule(pkg)
-#'   # Sense check deployment calibration model diagnostic plots
-#'   pkg_checked <- check_deployment_models(pkg)
-#'
-#'   # Fully automated analysis (reps reduced for to limit run time)
-#'   res <- rem_estimate(pkg_checked, check_deployments=FALSE, reps=100)
+#'  \dontrun{
+#'    # Sense check deployment calibration model diagnostic plots
+#'    pkg_checked <- check_deployment_models(pkg)
+#'    # Fully automated analysis (interactive species definition by default;
+#'    # reps reduced to limit run time).
+#'    res <- rem_estimate(pkg_checked, check_deployments=FALSE, reps=100)
+#'   }
+#'   # Automated analysis with species predefined and no deployment checking
+#'   sp <- "Vulpes vulpes"
+#'   res <- rem_estimate(pkg, species=sp, check_deployments=FALSE, reps=100)
+#'   # Inspect results
 #'   res$estimates
 #'
-#'   # Analysis with one parameter model fitted separately
-#'   sp <- "Vulpes vulpes"
-#'   radmod <- fit_detmodel(radius~1, pkg_checked, species=sp, truncation=15, order=0)
-#'   res <- rem_estimate(pkg_checked, check_deployments = FALSE, species = sp,
+#'   # Analysis with radius model fitted separately
+#'   radmod <- fit_detmodel(radius~1, pkg, species=sp, truncation=15, order=0)
+#'   res <- rem_estimate(pkg, check_deployments = FALSE, species = sp,
 #'                       radius_model = radmod, reps=100)
 #'   res$estimates
 #' @export

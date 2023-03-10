@@ -31,12 +31,16 @@ A dataframe with the input parameters plus estimated density and
 Estimates REM density given a dataframe of parameters and their errors.
 }
 \examples{
-  pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+  \dontrun{
+    pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+    }
+  data(pkg)
   sp <- "Vulpes vulpes"
+  trdata <- get_traprate_data(pkg, species=sp)
   radmod <- fit_detmodel(radius~1, pkg, species=sp, order=0)
   angmod <- fit_detmodel(angle~1, pkg, species=sp, unit="radian", order=0)
   spdmod <- fit_speedmodel(pkg, species=sp)
   actmod <- fit_actmodel(pkg, species=sp, reps=100)
-  param <- get_parameter_table(pkg, radmod, angmod, spdmod, actmod, sp)
+  param <- get_parameter_table(trdata, radmod, angmod, spdmod, actmod)
   rem(param)
 }

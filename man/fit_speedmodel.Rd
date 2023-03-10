@@ -35,7 +35,15 @@ Calculates harmonic mean and standard error of animal speed while active
 from a data package.
 }
 \examples{
-  pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-  speed_model <- fit_speedmodel(pkg)
+  \dontrun{
+    pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+  }
+  data(pkg)
+  \dontrun{
+    # With interactive species definition
+    speed_model <- fit_speedmodel(pkg)
+  }
+  # With species predefined
+  speed_model <- fit_speedmodel(pkg, species="Vulpes vulpes")
   speed_model$speed
 }

@@ -8,7 +8,7 @@ Description: Currently provides functions for working with camtrapDP format data
     exported from Agouti - checking deployment calibration diagnostic plots,
     filtering deployments, correcting mis-specified date-time data at specific 
     deployments, running REM density analysis.
-License: none
+License: GPL-3
 Encoding: UTF-8
 Imports:
     activity,

@@ -31,7 +31,10 @@ Calculates average trap rate and its bootstrapped error from a table of
 per-location observation counts and camera time.
 }
 \examples{
-  pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
-  trdata <- get_traprate_data(pkg)
+  \dontrun{
+    pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+    }
+  data(pkg)
+  trdata <- get_traprate_data(pkg, species="Vulpes vulpes")
   get_trap_rate(trdata)
 }
