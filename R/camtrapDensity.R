@@ -76,7 +76,7 @@ subset_deployments <- function(package, choice){
 #'
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
-#' @param deploymentID A character value giving the deployment identifier,
+#' @param depID A character value giving the deployment identifier,
 #'  to be matched in package$data$deployments$deploymentID.
 #' @param wrongTime A character or POSIX reference date-time recorded wrongly
 #'  by the camera.
@@ -85,21 +85,33 @@ subset_deployments <- function(package, choice){
 #' @return As for    \code{\link[camtraptor]{read_camtrap_dp}}, with all
 #'  date-times corrected by the difference between rightTime and wrongTime.
 #' @examples
+#' pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
 #' pkg_corrected <- correct_time(pkg,
-#'                               deploymentID = "0d620d0e-5da8-42e6-bcf2-56c11fb3d08e",
-#'                               wrongTime = "2017-01-01 00:00:00",
-#'                               rightTime = "2018-09-01 11:04:00")
+#'                               depID = "0d620d0e-5da8-42e6-bcf2-56c11fb3d08e",
+#'                               wrongTime = "2017-10-02 08:06:43",
+#'                               rightTime = "2017-09-01 10:36:00")
 #' @export
 #'
-correct_time <- function(package, deploymentID, wrongTime, rightTime){
+correct_time <- function(package, depID, wrongTime, rightTime){
   tdiff <- as.POSIXct(rightTime, tz="UTC") - as.POSIXct(wrongTime, tz="UTC")
-  package$data$deployments <- dplyr::mutate(package$data$deployments,
-                                            start = start + tdiff,
-                                            end = end + tdiff)
-  package$data$observations <- dplyr::mutate(package$data$observations,
-                                             timestamp = timestamp + tdiff)
-  package$data$media <- dplyr::mutate(package$data$media,
-                                      timestamp = timestamp + tdiff)
+  package$data$deployments <- package$data$deployments %>%
+    dplyr::mutate(
+      start = dplyr::case_when(
+        deploymentID==depID ~ start + tdiff,
+        .default = start),
+      end = dplyr::case_when(
+        deploymentID==depID ~ end + tdiff,
+        .default = end))
+  package$data$observations <- package$data$observations %>%
+    dplyr::mutate(
+      timestamp = dplyr::case_when(
+        deploymentID==depID ~ timestamp + tdiff,
+        .default = timestamp))
+  package$data$media <- package$data$media %>%
+    dplyr::mutate(
+      timestamp = dplyr::case_when(
+        deploymentID==depID ~ timestamp + tdiff,
+        .default = timestamp))
   package
 }
 
