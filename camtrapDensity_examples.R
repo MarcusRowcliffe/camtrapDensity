@@ -6,9 +6,7 @@ library(camtrapDensity)
 library(camtraptor)
 
 pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
-save(pkg,
-     version = 2,
-     file = "./data/pkg.rda")
+# save(pkg, version = 2, file = "./data/pkg.rda")
 
 plot_deployment_schedule(pkg)
 subpkg <- subset_deployments(pkg,
@@ -16,9 +14,9 @@ subpkg <- subset_deployments(pkg,
                                start > as.POSIXct("2017-10-01", tz="UTC") &
                                end < as.POSIXct("2017-10-31", tz="UTC"))
 pkg_corrected <- correct_time(pkg,
-                              deploymentID = "0d620d0e-5da8-42e6-bcf2-56c11fb3d08e",
-                              wrongTime = "2017-01-01 00:00:00",
-                              rightTime = "2018-09-01 11:04:00")
+                              depID = "0d620d0e-5da8-42e6-bcf2-56c11fb3d08e",
+                              wrongTime = "2017-10-02 12:30:00",
+                              rightTime = "2017-10-03 00:30:00")
 
 pkg2 <- check_deployment_models(pkg)
 res1 <- rem_estimate(pkg2, check_deployments=F)
