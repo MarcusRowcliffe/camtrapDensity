@@ -368,7 +368,7 @@ fit_actmodel <- function(package,
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @param species A character string indicating species subset to analyse;
-#'   if NULL runs select_species to get user input.
+#'   if NULL runs select_species to get user input; if "all" all data are used.
 #' @param newdata A dataframe of covariate values at which to predict detection
 #'   distance.
 #' @param unit The units in which to return the result.
@@ -418,13 +418,15 @@ fit_detmodel <- function(formula,
   if("distance" %in% covars) stop("Cannot use \"distance\" as a covariate name - rename and try again")
 
   # set up data
-  species <- select_species(package, species)
+  if(species=="all")
+    species <- unique(dat$scientificName) else
+      species <- select_species(package, species)
+  if("useDeployment" %in% names(dat)) dat <- subset(dat, useDeployment)
   dat <- dat %>%
-    subset(scientificName==species) %>%
+    subset(scientificName %in% species) %>%
     dplyr::select(all_of(allvars)) %>%
     tidyr::drop_na() %>%
     as.data.frame()
-  if("useDeployment" %in% names(dat)) dat <- subset(dat, useDeployment)
   if(nrow(dat) == 0) stop("There are no usable position data")
 
   classes <- dplyr::summarise_all(dat, class)
