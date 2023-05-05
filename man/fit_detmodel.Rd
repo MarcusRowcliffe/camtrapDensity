@@ -21,7 +21,7 @@ to covariates.}
 \code{\link[camtraptor]{read_camtrap_dp}}.}
 
 \item{species}{A character string indicating species subset to analyse;
-if NULL runs select_species to get user input.}
+if NULL runs select_species to get user input; if "all" all data are used.}
 
 \item{newdata}{A dataframe of covariate values at which to predict detection
 distance.}

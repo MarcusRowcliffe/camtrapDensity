@@ -11,6 +11,78 @@
 #' @docType data
 NULL
 
+#' Create a datapackage from csv files
+#'
+#' Reads csv data from a folder into a list that functions like a camtrap-dp
+#' object for the purposes of density estimation.
+#'
+#' @param folder A character string giving the folder in which the csv files sit.
+#' @return As for \code{\link[camtraptor]{read_camtrap_dp}} but with reduced
+#'  package metadata.
+#' @details The folder must contain three csv files: deployments.csv, media.csv
+#'  and observations.csv, each of which must contain at least the following fields:
+#'  \itemize{
+#'   \item{deployments: }{deploymentID, locationID, locationName, longitude, latitude,start,end}
+#'   \item{media: }{mediaID, deploymentID, sequenceID, timestamp, filePath, fileName}
+#'   \item{observations: }{observationID, deploymentID, sequenceID, mediaID, timestamp, scientificName, count, speed, radius, angle}
+#' }
+#' @examples
+#'   \dontrun{pkg <- camtraptor::read_camtrap_dp_csv("./data")}
+#' @export
+#'
+read_camtrap_dp_csv <- function(folder,
+                                tryFormats = c("%Y-%m-%d %H:%M:%OS",
+                                               "%Y/%m/%d %H:%M:%OS",
+                                               "%Y:%m:%d %H:%M:%OS")){
+
+  req_files <- c("deployments.csv", "media.csv", "observations.csv")
+  dep_fields <- c("deploymentID","locationID","locationName",
+                  "longitude","latitude","start","end")
+  med_fields <- c("mediaID","deploymentID","sequenceID",
+                  "timestamp","filePath","fileName")
+  obs_fields <- c("observationID","deploymentID","sequenceID","mediaID",
+                  "timestamp","scientificName","count","speed","radius","angle")
+
+  full_files <- list.files(folder, ".csv", full.names=TRUE)
+  csv_files <- basename(full_files)
+  files <- tools::file_path_sans_ext(csv_files)
+  if(!all(req_files %in% csv_files))
+    stop("Folder must contain deployments, media and observations csv files")
+
+  dat <- lapply(full_files[match(req_files, csv_files)], read.csv)
+  names(dat) <- files
+  deperr <- !all(dep_fields %in% names(dat$deployments))
+  mederr <- !all(med_fields %in% names(dat$media))
+  obserr <- !all(obs_fields %in% names(dat$observations))
+
+  if(any(deperr, mederr, obserr)){
+    if(deperr) message(paste("deployments.csv must contain at least these fields:/n"),
+                       paste(dep_fields, collapse = ", "))
+    if(mederr) message(paste("media.csv must contain at least these fields:/n"),
+                       paste(med_fields, collapse = ", "))
+    if(obserr) message(paste("observations.csv must contain at least these fields:/n"),
+                       paste(obs_fields, collapse = ", "))
+    stop("See above")
+  }
+
+  dat$deployments <- dat$deployments %>%
+    mutate(start = as.POSIXct(start, tz="UTC", tryFormats=tryFormats),
+           end = as.POSIXct(end, tz="UTC", tryFormats=tryFormats))
+  dat$media <- dat$media %>%
+    mutate(timestamp = as.POSIXct(timestamp, tz="UTC", tryFormats=tryFormats))
+  dat$observations <- dat$observations %>%
+    mutate(timestamp = as.POSIXct(timestamp, tz="UTC", tryFormats=tryFormats))
+
+  spp <- unique(dat$observation$scientificName)
+
+  list(taxonomic = lapply(spp, function(sp) list(taxonID=sp,
+                                                 taxonIDReference="observations.csv",
+                                                 scientificName=sp)),
+       directory = normalizePath(folder),
+       data = dat
+  )
+}
+
 #' Plot a deployment Gantt chart
 #'
 #' Plots a Gantt chart illustrating deployment times (black lines) and
