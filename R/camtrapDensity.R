@@ -66,12 +66,12 @@ read_camtrap_dp_csv <- function(folder,
   }
 
   dat$deployments <- dat$deployments %>%
-    mutate(start = as.POSIXct(start, tz="UTC", tryFormats=tryFormats),
+    dplyr::mutate(start = as.POSIXct(start, tz="UTC", tryFormats=tryFormats),
            end = as.POSIXct(end, tz="UTC", tryFormats=tryFormats))
   dat$media <- dat$media %>%
-    mutate(timestamp = as.POSIXct(timestamp, tz="UTC", tryFormats=tryFormats))
+    dplyr::mutate(timestamp = as.POSIXct(timestamp, tz="UTC", tryFormats=tryFormats))
   dat$observations <- dat$observations %>%
-    mutate(timestamp = as.POSIXct(timestamp, tz="UTC", tryFormats=tryFormats))
+    dplyr::mutate(timestamp = as.POSIXct(timestamp, tz="UTC", tryFormats=tryFormats))
 
   spp <- unique(dat$observation$scientificName)
 

@@ -4,7 +4,6 @@ devtools::install_github("MarcusRowcliffe/camtrapDensity")
 
 library(camtrapDensity)
 library(camtraptor)
-library(dplyr)
 
 pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
 pkg <- read_camtrap_dp_csv("C:/Users/rowcliffe.m/OneDrive - Zoological Society of London/CameraTrapping/Rewilding Europe/Jablanac2021/camtrapDP")
