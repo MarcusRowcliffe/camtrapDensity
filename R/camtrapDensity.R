@@ -164,7 +164,8 @@ select_species <- function(package, species=NULL){
     tab <-  package %>%
       camtraptor::get_species() %>%
       dplyr::select(contains("Name")) %>%
-      dplyr::filter(scientificName %in% names(n))
+      dplyr::filter(scientificName %in% names(n)) %>%
+      arrange(scientificName)
     tab$n_observations <- n
     if("useDeployment" %in% names(obs))
       obs[!obs$useDeployment, c("speed", "radius", "angle")] <- NA
