@@ -7,8 +7,12 @@
 fit_speedmodel(
   package,
   species = NULL,
+  formula = NULL,
+  newdata = NULL,
+  reps = 1000,
   distUnit = c("m", "km", "cm"),
-  timeUnit = c("second", "minute", "hour", "day")
+  timeUnit = c("second", "minute", "hour", "day"),
+  ...
 )
 }
 \arguments{
@@ -16,16 +20,24 @@ fit_speedmodel(
 \code{\link[camtraptor]{read_camtrap_dp}}.}
 
 \item{species}{A character string indicating species subset to analyse;
-if NULL runs select_species to get user input.}
+if NULL runs select_species to get user input; if all uses all data.}
+
+\item{formula}{A formula with speed on the left and covariates on the right.}
+
+\item{newdata}{A data frame of covariate values at which to predict speeds.}
+
+\item{reps}{Number of random draws to use for standard calculation.}
 
 \item{distUnit}{A character string indicating distance unit of speed observations.}
 
 \item{timeUnit}{A character string indicating time unit of speed observations.}
+
+\item{...}{Other parameters passed to \code{sbm} for covariate modelling (see details).}
 }
 \value{
 List with elements:
 \itemize{
-  \item{\code{speed}: a one row dataframe containing columns \code{estimate}
+  \item{\code{speed}: a dataframe containing columns \code{estimate}
    (mean) and \code{se} (standard error) speed while active.}
   \item{\code{data}: a numeric vector of the data from which the estimate is derived.}
   }
@@ -33,6 +45,11 @@ List with elements:
 \description{
 Calculates harmonic mean and standard error of animal speed while active
 from a data package.
+}
+\details{
+If a formula is provided, the model is fitted using the \code{sbm}
+ (size biased model) function, which can be installed using:\n
+ \code{devtools::source_url("https://raw.githubusercontent.com/MarcusRowcliffe/sbd/master/sbd.r")}
 }
 \examples{
   \dontrun{

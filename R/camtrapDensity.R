@@ -325,15 +325,22 @@ check_deployment_models <- function(package){
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @param species A character string indicating species subset to analyse;
-#'   if NULL runs select_species to get user input.
+#'   if NULL runs select_species to get user input; if all uses all data.
+#' @param formula A formula with speed on the left and covariates on the right.
+#' @param newdata A data frame of covariate values at which to predict speeds.
+#' @param reps Number of random draws to use for standard calculation.
 #' @param distUnit A character string indicating distance unit of speed observations.
 #' @param timeUnit A character string indicating time unit of speed observations.
+#' @param ... Other parameters passed to \code{sbm} for covariate modelling (see details).
 #' @return List with elements:
 #' \itemize{
-#'   \item{\code{speed}: a one row dataframe containing columns \code{estimate}
+#'   \item{\code{speed}: a dataframe containing columns \code{estimate}
 #'    (mean) and \code{se} (standard error) speed while active.}
 #'   \item{\code{data}: a numeric vector of the data from which the estimate is derived.}
 #'   }
+#' @details If a formula is provided, the model is fitted using the \code{sbm}
+#'  (size biased model) function, which can be installed using:
+#'  \code{devtools::source_url("https://raw.githubusercontent.com/MarcusRowcliffe/sbd/master/sbd.r")}
 #' @examples
 #'   \dontrun{
 #'     pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
@@ -350,20 +357,35 @@ check_deployment_models <- function(package){
 #'
 fit_speedmodel <- function(package,
                            species=NULL,
+                           formula=NULL,
+                           newdata=NULL,
+                           reps=1000,
                            distUnit=c("m", "km", "cm"),
-                           timeUnit=c("second", "minute", "hour", "day")){
+                           timeUnit=c("second", "minute", "hour", "day"),
+                           ...){
   distUnit <- match.arg(distUnit)
   timeUnit <- match.arg(timeUnit)
 
-  species <- select_species(package, species)
-  obs <- package$data$observations %>%
-    subset(scientificName==species & speed > 0.01 & speed < 10 & !is.na(speed))
+  if(is.null(species))
+    species <- select_species(package, species) else
+      if(species=="all")
+        species <- unique(na.omit(pkg$data$observations$scientificName))
+  obs <- pkg$data$observations %>%
+    filter(scientificName %in% species & speed>0.01 & speed<10) %>%
+    tidyr::drop_na()
   if("useDeployment" %in% names(obs)) obs <- subset(obs, useDeployment)
   if(nrow(obs) == 0) stop("There are no usable speed data")
-  mn <- 1/mean(1/obs$speed, na.rm=FALSE)
-  se <- mn^2 * sqrt(var(1/obs$speed, na.rm=FALSE)/nrow(obs))
-  list(speed=data.frame(estimate=mn, se=se),
-       data=obs$speed,
+
+  if(is.null(formula)){
+    mn <- 1/mean(1/obs$speed, na.rm=FALSE)
+    res <- data.frame(est = mn,
+                      se = mn^2 * sqrt(var(1/obs$speed)/nrow(obs)))
+  } else{
+    spdmod <- sbm(formula, obs, ...)
+    res <- predict.sbm(spdmod, newdata, reps)
+  }
+  list(speed=res,
+       data=obs,
        distUnit=distUnit,
        timeUnit=timeUnit)
 }
