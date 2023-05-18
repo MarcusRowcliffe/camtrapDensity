@@ -17,6 +17,7 @@ NULL
 #' object for the purposes of density estimation.
 #'
 #' @param folder A character string giving the folder in which the csv files sit.
+#' @param tryFormats A character string defining date-time format, passed to as.POSIXct.
 #' @return As for \code{\link[camtraptor]{read_camtrap_dp}} but with reduced
 #'  package metadata.
 #' @details The folder must contain three csv files: deployments.csv, media.csv
@@ -208,9 +209,9 @@ correct_time <- function(package, depID=NULL, locName=NULL, wrongTime, rightTime
     if(!locName %in% package$data$deployments$locationName)
       stop(paste("Can't find locName", locName, "in package$data$deployments$locationName"))
     depID <- package$data$deployments %>%
-      filter(locationName == locName) %>%
-      select(deploymentID) %>%
-      pull()
+      dplyr::filter(locationName == locName) %>%
+      dplyr::select(deploymentID) %>%
+      dplyr::pull()
     if(length(depID) > 1)
       stop(paste("There is more than one deployment associated with locName", locName))
   }
@@ -265,9 +266,9 @@ select_species <- function(package, species=NULL){
     n <- table(obs$scientificName)
     tab <-  package %>%
       camtraptor::get_species() %>%
-      dplyr::select(contains("Name")) %>%
+      dplyr::select(dplyr::contains("Name")) %>%
       dplyr::filter(scientificName %in% names(n)) %>%
-      arrange(scientificName)
+      dplyr::arrange(scientificName)
     tab$n_observations <- n
     if("useDeployment" %in% names(obs))
       obs[!obs$useDeployment, c("speed", "radius", "angle")] <- NA
@@ -339,7 +340,8 @@ check_deployment_models <- function(package){
   }
 
   if("useDeployment" %in% names(package$data$observations))
-    package$data$observations <- select(package$data$observations, -useDeployment)
+    package$data$observations <- package$data$observations %>%
+      dplyr::select(-useDeployment)
   package$data$observations <- package$data$observations %>%
     dplyr::left_join(depdat, by="deploymentID")
 
@@ -408,7 +410,7 @@ fit_speedmodel <- function(package,
     }
 
   obs <- pkg$data$observations %>%
-    dplyr::select(all_of(c("scientificName", varnms))) %>%
+    dplyr::select(dplyr::all_of(c("scientificName", varnms))) %>%
     dplyr::filter(scientificName %in% species & speed>0.01 & speed<10) %>%
     tidyr::drop_na()
 
@@ -423,7 +425,7 @@ fit_speedmodel <- function(package,
     spdmod <- sbm(formula, obs, ...)
     res <- predict.sbm(spdmod, newdata, reps)
   }
-  list(speed=res,
+  list(speed=as.matrix(res),
        data=obs,
        distUnit=distUnit,
        timeUnit=timeUnit)
@@ -558,7 +560,7 @@ fit_detmodel <- function(formula,
   if("useDeployment" %in% names(dat)) dat <- subset(dat, useDeployment)
   dat <- dat %>%
     subset(scientificName %in% species) %>%
-    dplyr::select(all_of(allvars)) %>%
+    dplyr::select(dplyr::all_of(allvars)) %>%
     tidyr::drop_na() %>%
     as.data.frame()
   if(nrow(dat) == 0) stop("There are no usable position data")
@@ -566,7 +568,7 @@ fit_detmodel <- function(formula,
   classes <- dplyr::summarise_all(dat, class)
   if(classes[depvar]=="numeric"){
     dat <- dat %>%
-      dplyr::rename(distance=all_of(depvar)) %>%
+      dplyr::rename(distance=dplyr::all_of(depvar)) %>%
       dplyr::mutate(distance=abs(distance))
   } else{
     cats <- strsplit(as.character(dplyr::pull(dat, depvar)), "-")
@@ -584,7 +586,7 @@ fit_detmodel <- function(formula,
   if(length(covars)==0)
     newdata <- data.frame(x=0) else{
       if(is.null(newdata)){
-        newdata <- dat %>% dplyr::select(all_of(covars)) %>%
+        newdata <- dat %>% dplyr::select(dplyr::all_of(covars)) %>%
           lapply(function(x)
             if(is.numeric(x)) mean(x, na.rm=T) else sort(unique(x)))  %>%
           expand.grid()

@@ -12,6 +12,8 @@ read_camtrap_dp_csv(
 }
 \arguments{
 \item{folder}{A character string giving the folder in which the csv files sit.}
+
+\item{tryFormats}{A character string defining date-time format, passed to as.POSIXct.}
 }
 \value{
 As for \code{\link[camtraptor]{read_camtrap_dp}} but with reduced
