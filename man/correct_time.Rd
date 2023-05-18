@@ -4,14 +4,17 @@
 \alias{correct_time}
 \title{Correct times for a given deployment in a camera trap datapackage}
 \usage{
-correct_time(package, depID, wrongTime, rightTime)
+correct_time(package, depID = NULL, locName = NULL, wrongTime, rightTime)
 }
 \arguments{
 \item{package}{Camera trap data package object, as returned by
 \code{\link[camtraptor]{read_camtrap_dp}}.}
 
-\item{depID}{A character value giving the deployment identifier,
+\item{depID}{A character value giving the deployment ID,
 to be matched in package$data$deployments$deploymentID.}
+
+\item{locName}{A character value giving the location name,
+to be matched in package$data$deployments$locationName.}
 
 \item{wrongTime}{A character or POSIX reference date-time recorded wrongly
 by the camera.}
@@ -20,7 +23,7 @@ by the camera.}
 when the reference time was recorded.}
 }
 \value{
-As for    \code{\link[camtraptor]{read_camtrap_dp}}, with all
+As for \code{\link[camtraptor]{read_camtrap_dp}}, with all
  date-times corrected by the difference between rightTime and wrongTime.
 }
 \description{
@@ -29,13 +32,19 @@ in all datapackage tables can be corrected given a reference time
 recorded by the camera, the correct time for this reference time
 and the ID of the deployment to correct.
 }
+\details{
+One, but not both, of depID and locName must be provided, as single
+ text values. If locName is provided, the deployment associated with this
+ in pkg$data$deployments is corrected, but if locName is associated with more
+ than one deployment the function does not run.
+}
 \examples{
 \dontrun{
   pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
 }
 data(pkg)
 pkg_corrected <- correct_time(pkg,
-                              depID = "0d620d0e-5da8-42e6-bcf2-56c11fb3d08e",
+                              locName = "S01",
                               wrongTime = "2017-10-02 08:06:43",
                               rightTime = "2017-09-01 10:36:00")
 }
