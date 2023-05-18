@@ -400,14 +400,23 @@ fit_speedmodel <- function(package,
     species <- select_species(package, species) else
       if(species=="all")
         species <- unique(na.omit(pkg$data$observations$scientificName))
+  if(is.null(formula))
+    varnms <- "speed" else{
+      varnms <- all.vars(formula)
+      if(!all(varnms %in% names(pkg$data$observations)))
+        stop("Can't find all formula variables in formula in the observations table")
+    }
+
   obs <- pkg$data$observations %>%
-    filter(scientificName %in% species & speed>0.01 & speed<10) %>%
+    dplyr::select(all_of(c("scientificName", varnms))) %>%
+    dplyr::filter(scientificName %in% species & speed>0.01 & speed<10) %>%
     tidyr::drop_na()
+
   if("useDeployment" %in% names(obs)) obs <- subset(obs, useDeployment)
   if(nrow(obs) == 0) stop("There are no usable speed data")
 
   if(is.null(formula)){
-    mn <- 1/mean(1/obs$speed, na.rm=FALSE)
+    mn <- 1/mean(1/obs$speed)
     res <- data.frame(est = mn,
                       se = mn^2 * sqrt(var(1/obs$speed)/nrow(obs)))
   } else{
