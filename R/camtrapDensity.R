@@ -165,26 +165,56 @@ subset_deployments <- function(package, choice){
 #'
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
-#' @param depID A character value giving the deployment identifier,
+#' @param depID A character value giving the deployment ID,
 #'  to be matched in package$data$deployments$deploymentID.
+#' @param locName A character value giving the location name,
+#'  to be matched in package$data$deployments$locationName.
 #' @param wrongTime A character or POSIX reference date-time recorded wrongly
 #'  by the camera.
 #' @param rightTime A character or POSIX value giving the correct date-time
 #'  when the reference time was recorded.
-#' @return As for    \code{\link[camtraptor]{read_camtrap_dp}}, with all
+#' @return As for \code{\link[camtraptor]{read_camtrap_dp}}, with all
 #'  date-times corrected by the difference between rightTime and wrongTime.
+#' @details One, but not both, of depID and locName must be provided, as single
+#'  text values. If locName is provided, the deployment associated with this
+#'  in pkg$data$deployments is corrected, but if locName is associated with more
+#'  than one deployment the function does not run.
 #' @examples
 #' \dontrun{
 #'   pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
 #' }
 #' data(pkg)
 #' pkg_corrected <- correct_time(pkg,
-#'                               depID = "0d620d0e-5da8-42e6-bcf2-56c11fb3d08e",
+#'                               locName = "S01",
 #'                               wrongTime = "2017-10-02 08:06:43",
 #'                               rightTime = "2017-09-01 10:36:00")
 #' @export
 #'
-correct_time <- function(package, depID, wrongTime, rightTime){
+correct_time <- function(package, depID=NULL, locName=NULL, wrongTime, rightTime){
+  nullsum <- sum(is.null(depID), is.null(locName))
+  if(nullsum!=1)
+    stop("One but not both of depID and locName must be provided")
+
+  if(!is.null(depID)){
+    if(length(depID) > 1)
+      stop("depID must be a single value")
+    if(!depID %in% package$data$deployments$deploymentID)
+      stop(paste("Can't find depID", depID, "in package$data$deployments$deploymentID"))
+  }
+
+  if(!is.null(locName)){
+    if(length(locName) > 1)
+      stop("locName must be a single value")
+    if(!locName %in% package$data$deployments$locationName)
+      stop(paste("Can't find locName", locName, "in package$data$deployments$locationName"))
+    depID <- package$data$deployments %>%
+      filter(locationName == locName) %>%
+      select(deploymentID) %>%
+      pull()
+    if(length(depID) > 1)
+      stop(paste("There is more than one deployment associated with locName", locName))
+  }
+
   tdiff <- as.POSIXct(rightTime, tz="UTC") - as.POSIXct(wrongTime, tz="UTC")
   package$data$deployments <- package$data$deployments %>%
     dplyr::mutate(

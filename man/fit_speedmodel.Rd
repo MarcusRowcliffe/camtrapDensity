@@ -48,7 +48,7 @@ from a data package.
 }
 \details{
 If a formula is provided, the model is fitted using the \code{sbm}
- (size biased model) function, which can be installed using:\n
+ (size biased model) function, which can be installed using:
  \code{devtools::source_url("https://raw.githubusercontent.com/MarcusRowcliffe/sbd/master/sbd.r")}
 }
 \examples{
