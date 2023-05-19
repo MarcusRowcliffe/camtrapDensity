@@ -187,7 +187,7 @@ subset_deployments <- function(package, choice){
 #' @export
 #'
 filter_camtrap_dp <- function(package,
-                              depChoice,
+                              depChoice = NULL,
                               start = NULL,
                               end = NULL){
   # deployment filtering
@@ -295,21 +295,21 @@ correct_time <- function(package, depID=NULL, locName=NULL, wrongTime, rightTime
   tdiff <- as.POSIXct(rightTime, tz="UTC") - as.POSIXct(wrongTime, tz="UTC")
   package$data$deployments <- package$data$deployments %>%
     dplyr::mutate(
-      start = ifelse(deploymentID==depID,
-                     start + tdiff,
-                     start),
-      end = ifelse(deploymentID==depID,
-                   end + tdiff,
-                   end))
+      start = dplyr::case_when(deploymentID==depID ~
+                                 start + tdiff,
+                               .default = start),
+      end = dplyr::case_when(deploymentID==depID ~
+                               end + tdiff,
+                             .default = end))
   package$data$observations <- package$data$observations %>%
-    dplyr::mutate(timestamp = ifelse(deploymentID==depID,
-                                     timestamp + tdiff,
-                                     timestamp))
+    dplyr::mutate(timestamp = dplyr::case_when(deploymentID==depID ~
+                                                 timestamp + tdiff,
+                                               .default = timestamp))
   if("media" %in% names(package$data))
     package$data$media <- package$data$media %>%
-      dplyr::mutate(timestamp = ifelse(deploymentID==depID,
-                                       timestamp + tdiff,
-                                       timestamp))
+      dplyr::mutate(timestamp = dplyr::case_when(deploymentID==depID ~
+                                                   timestamp + tdiff,
+                                                 .default = timestamp))
   package
 }
 
