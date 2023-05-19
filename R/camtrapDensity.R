@@ -122,10 +122,11 @@ plot_deployment_schedule <- function(package){
   }
 }
 
-#' Subset a camera trap datapackage by deployment
+#' Subset a camera trap datapackage by deployment (deprecated)
 #'
 #' Select a subset of deployments from a datapackage defined by
-#' a choice based on columns in the deployments table.
+#' a choice based on columns in the deployments table. Functionality
+#' now provided in filter_camtrap_dp.
 #'
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
@@ -156,6 +157,81 @@ subset_deployments <- function(package, choice){
                                          deploymentID %in% usedeps)
   out
 }
+
+
+#' Select a subset of a data package
+#'
+#' Discards any observations and media that occur at specified deployments,
+#' or that fall outside the time range defined by start and end. When start
+#' and/end are specified, truncates deployment start/end times, and removes
+#' any deployments that fall entirely outside the subset time range.
+#'
+#' @param package Camera trap data package object, as returned by
+#'   \code{\link[camtraptor]{read_camtrap_dp}}.
+#' @param depChoice A logical expression using column names from the
+#'  deployments table defining which deployments to keep.
+#' @param start,end Single character or POSIXct values defining the
+#'   time range within which to subset the package.
+#' @return As for \code{\link[camtraptor]{read_camtrap_dp}}, with all
+#'  data tables reduced according to the choice criteria.
+#' @examples
+#' # subset excluding a location and including only data from mid October 2017
+#'   \dontrun{
+#'     pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+#'     }
+#'   data(pkg)
+#'   subpkg <- filter_camtrap_dp(pkg,
+#'                               depChoice = locationName!="S01",
+#'                               start = "2017/10/10",
+#'                               end = "2017/10/20")
+#' @export
+#'
+filter_camtrap_dp <- function(package,
+                              depChoice,
+                              start = NULL,
+                              end = NULL){
+  # deployment filtering
+  if(!missing(depChoice)){
+    package$data$deployments <- package$data$deployments %>%
+      dplyr::filter({{depChoice}})
+    usedeps <- package$data$deployments$deploymentID
+    package$data$observations <- package$data$observations %>%
+      dplyr::filter(deploymentID %in% usedeps)
+    if("media" %in% names(package$data))
+      package$data$media <- package$data$media %>%
+        dplyr::filter(deploymentID %in% usedeps)
+  }
+
+  # time filtering
+  startCut <- if(is.null(start))
+    min(package$data$deployments$start) else
+      as.POSIXct(start, tz="UTC")
+
+  endCut <- if(is.null(end))
+    max(package$data$deployments$end) else
+      as.POSIXct(end, tz="UTC")
+
+  package$data$deployments <- package$data$deployments %>%
+    dplyr::mutate(start = dplyr::case_when(end<=startCut ~ NA,
+                                           start>=endCut ~ NA,
+                                           start<=startCut ~ startCut,
+                                           .default = start),
+                  end = dplyr::case_when(end<=startCut ~ NA,
+                                         start>=endCut ~ NA,
+                                         end>=endCut ~ endCut,
+                                         .default = end)) %>%
+    dplyr::filter(!is.na(start))
+
+  package$data$observations <- package$data$observations %>%
+    dplyr::filter(timestamp>=startCut & timestamp<=endCut)
+
+  if("media" %in% names(package$data)){
+    package$data$media <- package$data$media %>%
+      dplyr::filter(timestamp>=startCut & timestamp<=endCut)
+  }
+  package
+}
+
 
 #' Correct times for a given deployment in a camera trap datapackage
 #'
@@ -219,22 +295,21 @@ correct_time <- function(package, depID=NULL, locName=NULL, wrongTime, rightTime
   tdiff <- as.POSIXct(rightTime, tz="UTC") - as.POSIXct(wrongTime, tz="UTC")
   package$data$deployments <- package$data$deployments %>%
     dplyr::mutate(
-      start = dplyr::case_when(
-        deploymentID==depID ~ start + tdiff,
-        .default = start),
-      end = dplyr::case_when(
-        deploymentID==depID ~ end + tdiff,
-        .default = end))
+      start = ifelse(deploymentID==depID,
+                     start + tdiff,
+                     start),
+      end = ifelse(deploymentID==depID,
+                   end + tdiff,
+                   end))
   package$data$observations <- package$data$observations %>%
-    dplyr::mutate(
-      timestamp = dplyr::case_when(
-        deploymentID==depID ~ timestamp + tdiff,
-        .default = timestamp))
-  package$data$media <- package$data$media %>%
-    dplyr::mutate(
-      timestamp = dplyr::case_when(
-        deploymentID==depID ~ timestamp + tdiff,
-        .default = timestamp))
+    dplyr::mutate(timestamp = ifelse(deploymentID==depID,
+                                     timestamp + tdiff,
+                                     timestamp))
+  if("media" %in% names(package$data))
+    package$data$media <- package$data$media %>%
+      dplyr::mutate(timestamp = ifelse(deploymentID==depID,
+                                       timestamp + tdiff,
+                                       timestamp))
   package
 }
 

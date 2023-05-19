@@ -2,7 +2,7 @@
 % Please edit documentation in R/camtrapDensity.R
 \name{subset_deployments}
 \alias{subset_deployments}
-\title{Subset a camera trap datapackage by deployment}
+\title{Subset a camera trap datapackage by deployment (deprecated)}
 \usage{
 subset_deployments(package, choice)
 }
@@ -20,7 +20,8 @@ As for \code{\link[camtraptor]{read_camtrap_dp}}, with all
 }
 \description{
 Select a subset of deployments from a datapackage defined by
-a choice based on columns in the deployments table.
+a choice based on columns in the deployments table. Functionality
+now provided in filter_camtrap_dp.
 }
 \examples{
 # subset excluding a location and including only October 2017
