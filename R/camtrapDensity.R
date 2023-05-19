@@ -424,6 +424,33 @@ check_deployment_models <- function(package){
   package
 }
 
+
+#' Gets a set Agouti sequences URLs.
+#'
+#' Obtains web addresses for sequences of selected observations, based
+#' on criteria defined unsing fields in the observations table.
+#'
+#' @param package Camera trap data package object, as returned by
+#'   \code{\link[camtraptor]{read_camtrap_dp}}.
+#' @param obsChoice A logical expression using column names from the
+#'  observations table defining which observations you want to inspect.
+#' @return A dataframe of Agouti URLs.
+#' @examples
+#'   data(pkg)
+#'   get_agouti_url(pkg, speed<0.01)
+#'
+get_agouti_url <- function(package, obsChoice){
+  seqIDs <- chkg$data$observations %>%
+    dplyr::filter({{obsChoice}}) %>%
+    dplyr::select(sequenceID) %>%
+    dplyr::pull()
+  address <- file.path("https://www.agouti.eu/#/project",
+                       chkg$project$id,
+                       "annotate/sequence",
+                       seqIDs)
+  data.frame(address = unique(address))
+}
+
 #' Estimate average animal speed
 #'
 #' Calculates harmonic mean and standard error of animal speed while active
