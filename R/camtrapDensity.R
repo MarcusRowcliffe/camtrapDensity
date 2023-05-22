@@ -504,38 +504,43 @@ fit_speedmodel <- function(package,
                            ...){
   distUnit <- match.arg(distUnit)
   timeUnit <- match.arg(timeUnit)
+  obs <- package$data$observations
 
   if(is.null(species))
     species <- select_species(package, species) else
       if(species=="all")
-        species <- unique(na.omit(pkg$data$observations$scientificName))
+        species <- unique(na.omit(obs$scientificName))
   if(is.null(formula))
     varnms <- "speed" else{
       varnms <- all.vars(formula)
-      if(!all(varnms %in% names(pkg$data$observations)))
+      if(!all(varnms %in% names(obs)))
         stop("Can't find all formula variables in formula in the observations table")
     }
 
-  obs <- pkg$data$observations %>%
+  if("useDeployment" %in% names(obs))
+    obs <- dplyr::filter(obs, useDeployment==TRUE)
+  obs <- obs %>%
     dplyr::select(dplyr::all_of(c("scientificName", varnms))) %>%
     dplyr::filter(scientificName %in% species & speed>0.01 & speed<10) %>%
     tidyr::drop_na()
 
-  if("useDeployment" %in% names(obs)) obs <- subset(obs, useDeployment)
   if(nrow(obs) == 0) stop("There are no usable speed data")
 
   if(is.null(formula)){
     mn <- 1/mean(1/obs$speed)
     res <- data.frame(est = mn,
                       se = mn^2 * sqrt(var(1/obs$speed)/nrow(obs)))
+    spdmod <- NULL
   } else{
     spdmod <- sbm(formula, obs, ...)
     res <- predict.sbm(spdmod, newdata, reps)
+
   }
-  list(speed=as.matrix(res),
-       data=obs,
-       distUnit=distUnit,
-       timeUnit=timeUnit)
+  c(spdmod,
+    list(speed = res,
+         data = obs,
+         distUnit = distUnit,
+         timeUnit = timeUnit))
 }
 
 #' Fit an activity model
