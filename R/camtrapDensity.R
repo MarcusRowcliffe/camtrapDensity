@@ -31,12 +31,13 @@ NULL
 #'   \dontrun{pkg <- camtraptor::read_camtrap_dp_csv("./data")}
 #' @export
 #'
+#'
 read_camtrap_dp_csv <- function(folder,
                                 tryFormats = c("%Y-%m-%d %H:%M:%OS",
                                                "%Y/%m/%d %H:%M:%OS",
                                                "%Y:%m:%d %H:%M:%OS")){
 
-  req_files <- c("deployments.csv", "media.csv", "observations.csv")
+  req_files <- c("deployments.csv", "observations.csv")
   dep_fields <- c("deploymentID","locationID","locationName",
                   "longitude","latitude","start","end")
   med_fields <- c("mediaID","deploymentID","sequenceID",
@@ -48,13 +49,15 @@ read_camtrap_dp_csv <- function(folder,
   csv_files <- basename(full_files)
   files <- tools::file_path_sans_ext(csv_files)
   if(!all(req_files %in% csv_files))
-    stop("Folder must contain deployments, media and observations csv files")
+    stop("Folder must contain at least deployments and observations csv files")
 
-  dat <- lapply(full_files[match(req_files, csv_files)], read.csv)
+  dat <- lapply(full_files, read.csv)
   names(dat) <- files
   deperr <- !all(dep_fields %in% names(dat$deployments))
-  mederr <- !all(med_fields %in% names(dat$media))
   obserr <- !all(obs_fields %in% names(dat$observations))
+  if("media" %in% files)
+    mederr <- !all(med_fields %in% names(dat$media)) else
+      mederr <- FALSE
 
   if(any(deperr, mederr, obserr)){
     if(deperr) message(paste("deployments.csv must contain at least these fields:/n"),
@@ -69,17 +72,19 @@ read_camtrap_dp_csv <- function(folder,
   dat$deployments <- dat$deployments %>%
     dplyr::mutate(start = as.POSIXct(start, tz="UTC", tryFormats=tryFormats),
            end = as.POSIXct(end, tz="UTC", tryFormats=tryFormats))
-  dat$media <- dat$media %>%
-    dplyr::mutate(timestamp = as.POSIXct(timestamp, tz="UTC", tryFormats=tryFormats))
+  if("media" %in% files)
+    dat$media <- dat$media %>%
+      dplyr::mutate(timestamp = as.POSIXct(timestamp, tz="UTC", tryFormats=tryFormats))
   dat$observations <- dat$observations %>%
     dplyr::mutate(timestamp = as.POSIXct(timestamp, tz="UTC", tryFormats=tryFormats))
 
   spp <- unique(dat$observation$scientificName)
 
-  list(taxonomic = lapply(spp, function(sp) list(taxonID=sp,
+  list(name = basename(folder),
+       directory = normalizePath(folder),
+       taxonomic = lapply(spp, function(sp) list(taxonID=sp,
                                                  taxonIDReference="observations.csv",
                                                  scientificName=sp)),
-       directory = normalizePath(folder),
        data = dat
   )
 }
