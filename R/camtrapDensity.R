@@ -933,15 +933,19 @@ get_parameter_table <- function(traprate_data,
                                 reps = 999){
 
   # Get parameters and SEs
-  res <- data.frame(rbind(radius_model$edd,
-                          angle_model$edd * 2,
-                          speed_model$speed,
-                          activity_model@act[1:2]))
+  rad <- radius_model$edd
+  ang <- angle_model$edd * 2
+  spd <- speed_model$speed
+  act <- activity_model@act[1:2]
+  names(act) <- names(spd) <- dimnames(rad)[[2]]
+  res <- data.frame(rbind(rad, ang, spd, act))
+
   # Calculate overall speed (day range) and its SE
   ospd <- res[3,1] * res[4,1]
   se_ospd <- ospd * sqrt(sum((res[3:4, 2] / res[3:4, 1])^2))
   res <- rbind(res, c(ospd, se_ospd))
   res$cv <- res$se / res$estimate
+
   # Add confidence limits, sample sizes, units and row names
   res$lcl95 <- res$estimate - 1.96*res$se
   res$ucl95 <- res$estimate + 1.96*res$se
@@ -961,13 +965,14 @@ get_parameter_table <- function(traprate_data,
                      "active_speed",
                      "activity_level",
                      "overall_speed")
+
   # Add trap rate, including correction for any truncation of radius model
   traprate <- get_trap_rate(traprate_data, strata, reps)
   j <- c("estimate", "se", "lcl95", "ucl95")
   traprate[, j] <- traprate[, j] * radius_model$proportion_used
   res <- rbind(res, traprate)
 
-  convert_units(res)
+  camtrapDensity::convert_units(res)
 }
 
 #' Get a unit multiplier
