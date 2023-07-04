@@ -325,9 +325,11 @@ correct_time <- function(package, depID=NULL, locName=NULL, wrongTime, rightTime
 #'
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
-#' @param species NULL (default) to select interactively, or character string
-#'   giving a valid species name found within \code{package$data$observations$scientificName}
-#' @return A character string, scientific species name.
+#' @param species NULL (default) to select interactively, or character vector
+#'   giving either one or more valid species names found within
+#'   \code{package$data$observations$scientificName}, or the string "all"
+#'   to return all available species names.
+#' @return A character vector of one or more scientific species names.
 #' @examples
 #'   \dontrun{
 #'     pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
@@ -366,11 +368,12 @@ select_species <- function(package, species=NULL){
       as.numeric() %>%
       suppressWarnings()
     species <- as.character(tab$scientificName[i])
-  } else
-
-    if(!species %in% obs$scientificName)
-      stop("Can't find species in scientificName field of observations data")
-
+  } else{
+    if(length(species)==1 & "all" %in% species)
+      species <- unique(na.omit(obs$scientificName)) else
+        if(!all(species %in% obs$scientificName))
+          stop("Can't find species in scientificName field of observations data")
+  }
   species
 }
 
@@ -505,11 +508,8 @@ fit_speedmodel <- function(package,
   distUnit <- match.arg(distUnit)
   timeUnit <- match.arg(timeUnit)
   obs <- package$data$observations
+  species <- select_species(package, species)
 
-  if(is.null(species))
-    species <- select_species(package, species) else
-      if(species=="all")
-        species <- unique(na.omit(obs$scientificName))
   if(is.null(formula))
     varnms <- "speed" else{
       varnms <- all.vars(formula)
@@ -521,7 +521,7 @@ fit_speedmodel <- function(package,
     obs <- dplyr::filter(obs, useDeployment==TRUE)
   obs <- obs %>%
     dplyr::select(dplyr::all_of(c("scientificName", varnms))) %>%
-    dplyr::filter(scientificName %in% species & speed>0.01 & speed<10) %>%
+    dplyr::filter(scientificName %in% !!species & speed>0.01 & speed<10) %>%
     tidyr::drop_na()
 
   if(nrow(obs) == 0) stop("There are no usable speed data")
@@ -580,7 +580,7 @@ fit_actmodel <- function(package,
   species <- select_species(package, species)
   deps <- package$data$deployments
   obs <- package$data$observations %>%
-    dplyr::filter(scientificName==species) %>%
+    dplyr::filter(scientificName %in% !!species) %>%
     dplyr::select(deploymentID, sequenceID, timestamp, count)
   i <- switch(obsdef,
               individual = rep(1:nrow(obs), obs$count),
@@ -666,12 +666,10 @@ fit_detmodel <- function(formula,
   if("distance" %in% covars) stop("Cannot use \"distance\" as a covariate name - rename and try again")
 
   # set up data
-  if(species=="all")
-    species <- unique(dat$scientificName) else
-      species <- select_species(package, species)
+  species <- select_species(package, species)
   if("useDeployment" %in% names(dat)) dat <- subset(dat, useDeployment)
   dat <- dat %>%
-    subset(scientificName %in% species) %>%
+    dplyr::filter(scientificName %in% !!species) %>%
     dplyr::select(dplyr::all_of(allvars)) %>%
     tidyr::drop_na() %>%
     as.data.frame()
@@ -755,17 +753,39 @@ get_traprate_data <- function(package, species=NULL,
                          unit=c("day", "hour", "minute", "second")){
   unit <- match.arg(unit)
   species <- select_species(package, species)
-  dep <- package$data$deployments
+  dep <- package$data$deployments %>%
+    dplyr::select(deploymentID, locationName)
   eff <- package %>%
     camtraptor::get_effort(unit=unit) %>%
-    dplyr::select(deploymentID, effort)
-  res <- package %>%
-    camtraptor::get_n_individuals(species=species) %>%
-    suppressMessages() %>%
-    dplyr::left_join(dep, by="deploymentID") %>%
-    dplyr::left_join(eff, by="deploymentID") %>%
+    dplyr::select(deploymentID, effort, unit)
+  cnt <- package$data$observations %>%
+    dplyr::filter(scientificName %in% !!species) %>%
+    dplyr::group_by(deploymentID) %>%
+    dplyr::summarise(n=sum(count))
+  res <- eff %>%
+    left_join(dep, by="deploymentID") %>%
+    left_join(cnt, by="deploymentID") %>%
     dplyr::group_by(locationName) %>%
-    dplyr::summarise(n = sum(n), effort=sum(effort))
+    dplyr::summarise(n = sum(n),
+                     effort=sum(effort),
+                     effort_unit=unit) %>%
+    dplyr::mutate(n = ifelse(is.na(n), 0, n),
+                  scientificName = paste(species, collapse="|"))
+
+  #####
+#  dep <- package$data$deployments
+#  eff <- package %>%
+#    camtraptor::get_effort(unit=unit) %>%
+#    dplyr::select(deploymentID, effort)
+#  res <- package %>%
+#    camtraptor::get_n_individuals(species=species) %>%
+#    suppressMessages() %>%
+#    dplyr::left_join(dep, by="deploymentID") %>%
+#    dplyr::left_join(eff, by="deploymentID") %>%
+#    dplyr::group_by(locationName) %>%
+#    dplyr::summarise(n = sum(n), effort=sum(effort))
+  #######
+
   if("stratumID" %in% names(dep)){
     str <- dep %>%
       dplyr::group_by(locationName) %>%
@@ -774,8 +794,6 @@ get_traprate_data <- function(package, species=NULL,
       stop("Some locations appear in more than one stratum in the deployments data") else
         res <- dplyr::left_join(res, str, by="locationName")
   }
-  res$effort_unit <- unit
-  res$species <- species
   res
 }
 #' Get average trap rate from REM data
