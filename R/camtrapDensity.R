@@ -148,8 +148,8 @@ plot_deployment_schedule <- function(package){
 #'   data(pkg)
 #'   subpkg <- subset_deployments(pkg,
 #'                                locationName != "S01" &
-#'                                start > as.POSIXct("2017-10-01", tz="UTC") &
-#'                                end < as.POSIXct("2017-10-31", tz="UTC"))
+#'                                start >= as.POSIXct("2017-10-01", tz="UTC") &
+#'                                end <= as.POSIXct("2017-10-31", tz="UTC"))
 #' @export
 #'
 subset_deployments <- function(package, choice){
