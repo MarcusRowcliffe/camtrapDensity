@@ -1,6 +1,6 @@
 # install.packages(c("devtools", "dply", "tidyr"))
-# devtools::install_github("inbo/camtraptor")
-# devtools::install_github("MarcusRowcliffe/camtrapDensity", "V0.1.4")
+devtools::install_github("inbo/camtraptor", "v0.22.0")
+devtools::install_github("MarcusRowcliffe/camtrapDensity", "V0.1.4")
 
 library(camtrapDensity)
 library(camtraptor)
@@ -8,13 +8,12 @@ library(dplyr)
 
 ################################################
 # Load data
-dpfile <- "C:/Users/rowcliffe.m/OneDrive - Zoological Society of London/GitHub/camtrapDensity/camtrapDensity/datapackage/datapackage.json"
-pkg <- read_camtrap_dp(dpfile)
+pkg0 <- read_camtrap_dp("./datapackage_V0.1/datapackage.json")
 
 ################################################
 # Check deployment schedule and calibration models
-plot_deployment_schedule(pkg)
-pkg2 <- check_deployment_models(pkg)
+plot_deployment_schedule(pkg0)
+pkg2 <- check_deployment_models(pkg0)
 
 ################################################
 # One step REM analysis
