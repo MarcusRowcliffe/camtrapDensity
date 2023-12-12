@@ -48,7 +48,7 @@ The type of detection function (line or point) is determined by
 }
 \examples{
   \dontrun{
-    pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+    pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
     }
   data(pkg)
   \dontrun{

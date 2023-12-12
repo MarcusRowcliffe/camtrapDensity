@@ -24,7 +24,7 @@ and allows the user to interactively select one.
 }
 \examples{
   \dontrun{
-    pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+    pkg <- camtraptor::read_camtrapDP("./data/datapackage.json")
     select_species(pkg)
     # If provided, a valid species name is simply passed through
     select_species(pkg, "Vulpes vulpes")

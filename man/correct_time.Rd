@@ -40,7 +40,7 @@ One, but not both, of depID and locName must be provided, as single
 }
 \examples{
 \dontrun{
-  pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+  pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
 }
 data(pkg)
 pkg_corrected <- correct_time(pkg,

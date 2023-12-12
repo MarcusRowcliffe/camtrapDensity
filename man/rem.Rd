@@ -32,7 +32,7 @@ Estimates REM density given a dataframe of parameters and their errors.
 }
 \examples{
   \dontrun{
-    pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+    pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
     }
   data(pkg)
   sp <- "Vulpes vulpes"

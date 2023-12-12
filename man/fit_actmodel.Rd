@@ -34,7 +34,7 @@ level (proportion of time spent active).
 }
 \examples{
   \dontrun{
-    pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+    pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
   }
   data(pkg)
   \dontrun{

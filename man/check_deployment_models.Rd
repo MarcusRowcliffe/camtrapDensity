@@ -20,7 +20,7 @@ users to record interactively whether each deployment is reliable.
 }
 \examples{
   \dontrun{
-    pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+    pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
     pkg_checked <- check_deployment_models(pkg)
   }
 }

@@ -29,7 +29,7 @@ any deployments that fall entirely outside the subset time range.
 \examples{
 # subset excluding a location and including only data from mid October 2017
   \dontrun{
-    pkg <- camtraptor::read_camtrap_dp("./datapackage/datapackage.json")
+    pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
     }
   data(pkg)
   subpkg <- filter_camtrap_dp(pkg,

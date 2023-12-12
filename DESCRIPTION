@@ -18,6 +18,7 @@ Imports:
     ggplot2,
     gtools,
     jpeg,
+    jsonlite,
     tidyr
 LazyData: true
 RoxygenNote: 7.2.3
