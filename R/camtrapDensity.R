@@ -851,38 +851,19 @@ get_traprate_data <- function(package, species=NULL,
                          unit=c("day", "hour", "minute", "second")){
   unit <- match.arg(unit)
   species <- select_species(package, species)
-  dep <- package$data$deployments %>%
-    dplyr::select(deploymentID, locationName)
+  dep <- package$data$deployments
   eff <- package %>%
     camtraptor::get_effort(unit=unit) %>%
-    dplyr::select(deploymentID, effort, unit)
-  cnt <- package$data$observations %>%
-    dplyr::filter(scientificName %in% !!species) %>%
-    dplyr::group_by(deploymentID) %>%
-    dplyr::summarise(n=sum(count))
-  res <- eff %>%
+    dplyr::select(deploymentID, effort)
+  res <- package %>%
+    camtraptor::get_n_individuals(species=species) %>%
+    suppressMessages() %>%
     dplyr::left_join(dep, by="deploymentID") %>%
-    dplyr::left_join(cnt, by="deploymentID") %>%
+    dplyr::left_join(eff, by="deploymentID") %>%
     dplyr::group_by(locationName) %>%
-    dplyr::summarise(n = sum(n),
-                     effort=sum(effort),
-                     effort_unit=unit) %>%
-    dplyr::mutate(n = ifelse(is.na(n), 0, n),
+    dplyr::summarise(n = sum(n), effort=sum(effort)) %>%
+    dplyr::mutate(effort_unit = unit,
                   scientificName = paste(species, collapse="|"))
-
-  #####
-#  dep <- package$data$deployments
-#  eff <- package %>%
-#    camtraptor::get_effort(unit=unit) %>%
-#    dplyr::select(deploymentID, effort)
-#  res <- package %>%
-#    camtraptor::get_n_individuals(species=species) %>%
-#    suppressMessages() %>%
-#    dplyr::left_join(dep, by="deploymentID") %>%
-#    dplyr::left_join(eff, by="deploymentID") %>%
-#    dplyr::group_by(locationName) %>%
-#    dplyr::summarise(n = sum(n), effort=sum(effort))
-  #######
 
   if("stratumID" %in% names(dep)){
     str <- dep %>%
