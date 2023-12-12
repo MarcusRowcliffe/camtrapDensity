@@ -107,7 +107,11 @@ smod <- fit_speedmodel(pkg, species=sp)
 pmod <- fit_actmodel(pkg, reps=100, species=sp)
 rmod <- fit_detmodel(radius~1, pkg, order=0, species=sp)
 amod <- fit_detmodel(angle~1, pkg, order=0, unit="radian", species=sp)
-res <- rem_estimate(pkg, check_deployments=F, species=sp)
+res <- rem_estimate(pkg, check_deployments=F, species=sp,
+                    radius_model = rmod,
+                    angle_model = amod,
+                    speed_model = smod,
+                    activity_model = pmod)
 ```
 
     ## Analysing Vulpes vulpes
@@ -130,13 +134,13 @@ res$estimates
 ```
 
     ##                  estimate         se         cv      lcl95      ucl95  n
-    ## radius          4.3905560 0.38262427 0.08714711  3.6406124  5.1404995 14
+    ## radius          5.5820537 0.42748750 0.07658248  4.7441782  6.4199292 15
     ## angle          43.6918974 8.76427859 0.20059277 26.5139113 60.8698834 15
     ## active_speed    1.5334081 0.70103906 0.45717709  0.1593716  2.9074447  7
-    ## activity_level  0.2447423 0.06774103 0.27678514  0.1119699  0.3775147 15
-    ## overall_speed   9.0069560 4.81363367 0.53443513 -0.4277660 18.4416780 NA
-    ## trap_rate       0.4124492 0.05993256 0.14530897  0.2787408  0.4822912  3
-    ## density        11.8606874 8.32703052 0.70206981  3.4298661 41.0149841 NA
+    ## activity_level  0.2447423 0.05973084 0.24405604  0.1276699  0.3618147 15
+    ## overall_speed   9.0069560 4.66777827 0.51824149 -0.1418894 18.1558014 NA
+    ## trap_rate       0.4419098 0.06385799 0.14450456  0.2986509  0.5167405  3
+    ## density         9.9953634 6.88079306 0.68839849  2.9488441 33.8801531 NA
     ##                   unit
     ## radius               m
     ## angle           degree

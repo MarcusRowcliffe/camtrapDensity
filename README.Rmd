@@ -91,7 +91,11 @@ smod <- fit_speedmodel(pkg, species=sp)
 pmod <- fit_actmodel(pkg, reps=100, species=sp)
 rmod <- fit_detmodel(radius~1, pkg, order=0, species=sp)
 amod <- fit_detmodel(angle~1, pkg, order=0, unit="radian", species=sp)
-res <- rem_estimate(pkg, check_deployments=F, species=sp)
+res <- rem_estimate(pkg, check_deployments=F, species=sp,
+                    radius_model = rmod,
+                    angle_model = amod,
+                    speed_model = smod,
+                    activity_model = pmod)
 ```
 
 ## Understanding the output
