@@ -31,6 +31,6 @@ now provided in filter_camtrap_dp.
   data(pkg)
   subpkg <- subset_deployments(pkg,
                                locationName != "S01" &
-                               start > as.POSIXct("2017-10-01", tz="UTC") &
-                               end < as.POSIXct("2017-10-31", tz="UTC"))
+                               start >= as.POSIXct("2017-10-01", tz="UTC") &
+                               end <= as.POSIXct("2017-10-31", tz="UTC"))
 }

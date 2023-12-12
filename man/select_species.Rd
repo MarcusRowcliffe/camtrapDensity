@@ -10,11 +10,13 @@ select_species(package, species = NULL)
 \item{package}{Camera trap data package object, as returned by
 \code{\link[camtraptor]{read_camtrap_dp}}.}
 
-\item{species}{NULL (default) to select interactively, or character string
-giving a valid species name found within \code{package$data$observations$scientificName}}
+\item{species}{NULL (default) to select interactively, or character vector
+giving either one or more valid species names found within
+\code{package$data$observations$scientificName}, or the string "all"
+to return all available species names.}
 }
 \value{
-A character string, scientific species name.
+A character vector of one or more scientific species names.
 }
 \description{
 Presents a table of species names with observation count for each

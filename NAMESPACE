@@ -1,4 +1,5 @@
 export(read_camtrap_dp_csv)
+export(read_camtrap_dp_V1)
 export(check_deployment_models)
 export(convert_units)
 export(correct_time)

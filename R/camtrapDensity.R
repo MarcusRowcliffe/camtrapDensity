@@ -89,6 +89,104 @@ read_camtrap_dp_csv <- function(folder,
   )
 }
 
+#' Read Camtrap DP V1.0 data
+#'
+#' Reads data from a Camtrap DP V1.0 datapackage Agouti export, effectively
+#' down-versioning to V0.1, and recalculating speeds to include observations
+#' with zero time difference, and ensuring positions are correctly ordered.
+#'
+#' @param file Path to a datapackage.json file.
+#' @return As for \code{\link[camtraptor]{read_camtrap_dp}}.
+#' @examples
+#'   \dontrun{pkg <- camtraptor::read_camtrap_dp_csv("./data/datapackage.json")}
+#' @export
+#'
+#'
+read_camtrap_dp_V1 <- function(file){
+
+  convert_date <- function(x){
+    x <- paste0(substr(x, 1, 22), substr(x, 24, 25))
+    as.POSIXct(x, format="%FT%T%z", tz="UTC")
+  }
+
+  # Read json and csv files
+  dir <- normalizePath(dirname(file), "/")
+  res <- jsonlite::read_json(file)
+  res$directory <- dir
+  res$data$deployments <- read.csv(file.path(dir, "deployments.csv"))
+  res$data$media <- read.csv(file.path(dir, "media.csv"))
+  res$data$observations <- read.csv(file.path(dir, "observations.csv"))
+
+  # Rename necessary fields
+  res$taxonomic <- lapply(res$taxonomic, function(x) c(x, taxonIDReference=dirname(x$taxonID)))
+  res$data$deployments <- res$data$deployments %>%
+    dplyr::rename(start = deploymentStart, end = deploymentEnd)
+  res$data$observations <- res$data$observations %>%
+    dplyr::rename(sequenceID = eventID)
+
+  # Convert date-times to POSIX
+  res$data$deployments <- res$data$deployments %>%
+    dplyr::mutate(start = convert_date(start)) %>%
+    dplyr::mutate(end = convert_date(end))
+  res$data$media <- res$data$media %>%
+    dplyr::mutate(timestamp = convert_date(timestamp))
+  res$data$observations <- res$data$observations %>%
+    dplyr::mutate(eventStart = convert_date(eventStart)) %>%
+    dplyr::mutate(eventEnd = convert_date(eventEnd))
+
+  # Extract media observations with fileName and timestamp added from media,
+  # and sort media chronologically within individual events
+  medobs <- res$data$observations %>%
+    dplyr::filter(observationLevel == "media") %>%
+    dplyr::left_join(dplyr::select(res$data$media, mediaID, fileName, timestamp), by="mediaID") %>%
+    dplyr::arrange(deploymentID, individualID, fileName)
+
+  # Add stepwise distances, time differences and image counter
+  r1 <- head(medobs$individualPositionRadius, -1)
+  r2 <- tail(medobs$individualPositionRadius, -1)
+  a1 <- head(medobs$individualPositionAngle, -1)
+  a2 <- tail(medobs$individualPositionAngle, -1)
+  t1 <- head(medobs$timestamp, -1)
+  t2 <- tail(medobs$timestamp, -1)
+  id1 <- head(medobs$individualID, -1)
+  id2 <- tail(medobs$individualID, -1)
+  dist <- sqrt(r1^2 + r2^2 - 2*r1*r2*cos(a2-a1))
+  tdiff <- as.numeric(difftime(t2, t1, units="secs"))
+  dist[id1!=id2] <- NA
+  tdiff[id1!=id2] <- NA
+  medobs$dist <- c(NA, dist)
+  medobs$tdiff <- c(NA, tdiff)
+  medobs$imgCount <- sequence(table(cumsum(c(0, id2!=id1))))
+
+  # Summarise events for distance traveled, time difference, number of steps, first position radius and angle
+  evobs <- medobs %>%
+    dplyr::group_by(individualID) %>%
+    dplyr::summarise(dist = sum(dist, na.rm=TRUE),
+                     timestamp = timestamp[imgCount==1],
+                     tdiff = sum(tdiff, na.rm=TRUE),
+                     steps = which(res$data$media$mediaID==mediaID[imgCount==max(imgCount)]) -
+                       which(res$data$media$mediaID == mediaID[imgCount==1]),
+                     radius = individualPositionRadius[imgCount==1],
+                     angle = individualPositionAngle[imgCount==1])
+
+  # Calculate speed, substituting mean step duration for zero time differences
+  secs_per_img <- mean(evobs$tdiff / evobs$steps, na.rm=TRUE)
+  evobs <- evobs %>%
+    dplyr::mutate(tdiff = ifelse(tdiff==0, secs_per_img * steps, tdiff)) %>%
+    dplyr::mutate(speed = ifelse(steps>0, dist/tdiff, NA))
+
+  # Add newly calculated radius, angle, speed etc to event observations
+  res$data$observations <- res$data$observations %>%
+    dplyr::filter(observationLevel=="event" & observationType=="animal") %>%
+    dplyr::select(-individualPositionRadius, -individualPositionAngle, -individualSpeed) %>%
+    dplyr::left_join(evobs, by="individualID")
+
+  # Add media observations to data object
+  res$data$positions <- medobs
+
+  return(res)
+}
+
 #' Plot a deployment Gantt chart
 #'
 #' Plots a Gantt chart illustrating deployment times (black lines) and
@@ -763,8 +861,8 @@ get_traprate_data <- function(package, species=NULL,
     dplyr::group_by(deploymentID) %>%
     dplyr::summarise(n=sum(count))
   res <- eff %>%
-    left_join(dep, by="deploymentID") %>%
-    left_join(cnt, by="deploymentID") %>%
+    dplyr::left_join(dep, by="deploymentID") %>%
+    dplyr::left_join(cnt, by="deploymentID") %>%
     dplyr::group_by(locationName) %>%
     dplyr::summarise(n = sum(n),
                      effort=sum(effort),
