@@ -1,4 +1,4 @@
-# install.packages(c("devtools", "dply", "tidyr"))
+# install.packages(c("devtools", "dply", "tidyr", "jsonlite"))
 devtools::install_github("inbo/camtraptor")
 devtools::install_github("MarcusRowcliffe/camtrapDensity")
 
@@ -8,7 +8,7 @@ library(dplyr)
 
 ################################################
 # Load data
-pkg <- read_camtrap_dp("./datapackage_V1.0/datapackage.json")
+pkg <- read_camtrapDP("./datapackage_V1.0/datapackage.json")
 
 ################################################
 # Check deployment schedule and calibration models

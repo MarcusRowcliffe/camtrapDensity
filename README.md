@@ -40,13 +40,8 @@ the resulting download and moved the contents to a directory named data
 in your working project directory, run this to load the data:
 
 ``` r
-pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+pkg <- camtrapDensity::read_camtrapDP("./datapackage_V1.0/datapackage.json")
 ```
-
-    ## Please make sure you have the right to access data from this Data Package for your intended use.
-    ## Follow applicable norms or requirements to credit the dataset and its authors.
-
-    ## Three extra fields in `observations` interpreted as `speed`, `radius` and `angle`.
 
 This provides a visualisation of the deployment schedules:
 
@@ -69,12 +64,7 @@ subpkg <- subset_deployments(pkg,
 This creates a datapackage corrected for a mis-specified time timestamp
 at one deployment:
 
-``` r
-pkg_corrected <- correct_time(pkg,
-                              deploymentID = "0d620d0e-5da8-42e6-bcf2-56c11fb3d08e",
-                              wrongTime = "2017-01-01 00:00:00",
-                              rightTime = "2017-01-01 12:00:00")
-```
+`{r}package, depID=NULL, locName=NULL, wrongTime, rightTime pkg_corrected <- correct_time(pkg,                               depID = "c95a566f-e75e-4e7b-a905-0479c8770da3",                               wrongTime = "2017-01-01 00:00:00",                               rightTime = "2017-01-01 12:00:00")`
 
 This allows you to inspect deployment calibration model diagnostic
 plots, and derive a datapackage that records which deployments are
@@ -139,14 +129,14 @@ The estimate result is a list with components:
 res$estimates
 ```
 
-    ##                  estimate          se        cv      lcl95      ucl95  n
-    ## radius          4.7692252  1.10308342 0.2312920  2.6071817  6.9312687  5
-    ## angle          44.4312270 11.28197392 0.2539199 22.3185581 66.5438959  5
-    ## active_speed    3.0792649  0.76463024 0.2483158  1.5805896  4.5779401  4
-    ## activity_level  0.2452761  0.06614415 0.2696722  0.1156336  0.3749186 15
-    ## overall_speed  18.1264815  6.64487890 0.3665840  5.1025189 31.1504442 NA
-    ## trap_rate       0.4419098  0.06219157 0.1407336  0.2986509  0.5167405  3
-    ## density         5.7860938  4.11732689 0.7115901  1.6502599 20.2870350 NA
+    ##                  estimate         se         cv      lcl95      ucl95  n
+    ## radius          4.3905560 0.38262427 0.08714711  3.6406124  5.1404995 14
+    ## angle          43.6918974 8.76427859 0.20059277 26.5139113 60.8698834 15
+    ## active_speed    1.5334081 0.70103906 0.45717709  0.1593716  2.9074447  7
+    ## activity_level  0.2447423 0.06774103 0.27678514  0.1119699  0.3775147 15
+    ## overall_speed   9.0069560 4.81363367 0.53443513 -0.4277660 18.4416780 NA
+    ## trap_rate       0.4124492 0.05993256 0.14530897  0.2787408  0.4822912  3
+    ## density        11.8606874 8.32703052 0.70206981  3.4298661 41.0149841 NA
     ##                   unit
     ## radius               m
     ## angle           degree
@@ -179,10 +169,10 @@ res$data
 ```
 
     ## # A tibble: 3 × 5
-    ##   locationName     n effort effort_unit species      
-    ##   <chr>        <int>  <dbl> <chr>       <chr>        
-    ## 1 S01              3  10.0  day         Vulpes vulpes
-    ## 2 S02              2   4.55 day         Vulpes vulpes
+    ##   locationName     n effort effort_unit scientificName
+    ##   <chr>        <int>  <dbl> <chr>       <chr>         
+    ## 1 S01              3  10.0  day         Vulpes vulpes 
+    ## 2 S02              2   4.55 day         Vulpes vulpes 
     ## 3 S03             10  19.4  day         Vulpes vulpes
 
 Component models can be evaluated by inspecting plots.
@@ -191,16 +181,16 @@ Component models can be evaluated by inspecting plots.
 plot(res$activity_model)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 plot(res$radius_model, pdf=TRUE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
 
 ``` r
 plot(res$angle_model)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-3.png)<!-- -->

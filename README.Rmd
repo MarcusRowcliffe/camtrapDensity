@@ -31,7 +31,7 @@ library(camtrapDensity)
 Having annotated your images in Agouti (including marking animal positions and deployment calibration poles), exported the data, unzipped the resulting download and moved the contents to a directory named data in your working project directory, run this to load the data:
   
 ``` {r}
-pkg <- camtraptor::read_camtrap_dp("./data/datapackage.json")
+pkg <- camtrapDensity::read_camtrapDP("./datapackage_V1.0/datapackage.json")
 ```
 
 This provides a visualisation of the deployment schedules:
@@ -51,9 +51,9 @@ subpkg <- subset_deployments(pkg,
 
 This creates a datapackage corrected for a mis-specified time timestamp at one deployment:
   
-```{r}
+```{r}package, depID=NULL, locName=NULL, wrongTime, rightTime
 pkg_corrected <- correct_time(pkg,
-                              deploymentID = "0d620d0e-5da8-42e6-bcf2-56c11fb3d08e",
+                              depID = "c95a566f-e75e-4e7b-a905-0479c8770da3",
                               wrongTime = "2017-01-01 00:00:00",
                               rightTime = "2017-01-01 12:00:00")
 ```
