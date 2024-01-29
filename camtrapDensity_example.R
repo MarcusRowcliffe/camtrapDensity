@@ -17,7 +17,7 @@ pkg2 <- check_deployment_models(pkg)
 
 ################################################
 # One step REM analysis
-res <- rem_estimate(pkg2, check_deployments=F, reps=50, species="Vulpes vulpes")
+res <- rem_estimate(pkg, check_deployments=F, reps=50)
 # Inspect outputs
 res$estimates
 res$species
