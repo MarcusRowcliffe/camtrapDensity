@@ -128,6 +128,11 @@ read_camtrapDP <- function(file){
       dplyr::rename(start = deploymentStart, end = deploymentEnd) %>%
       dplyr::mutate(start = convert_date(start),
                     end = convert_date(end))
+    if(any(is.na(dep$start) | is.na(dep$end))){
+      warning("Some deployments had missing start and/or end times and were removed")
+      deployments <- deployments %>%
+        filter(!is.na(dep$start) & !is.na(dep$end))
+    }
 
     media <- read.csv(file.path(dir, "media.csv")) %>%
       dplyr::arrange(deploymentID, timestamp) %>%
