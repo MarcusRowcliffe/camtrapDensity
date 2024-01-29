@@ -453,13 +453,14 @@ select_species <- function(package, species=NULL){
   obs <- package$data$observations
 
   if(is.null(species)){
-    n <- table(obs$scientificName)
+    cnt <- obs %>%
+      group_by(scientificName) %>%
+      dplyr::summarise(n=n())
     tab <-  package %>%
       camtraptor::get_species() %>%
       dplyr::select(dplyr::contains("Name")) %>%
-      dplyr::filter(scientificName %in% names(n)) %>%
-      dplyr::arrange(scientificName)
-    tab$n_observations <- n
+      dplyr::arrange(scientificName) %>%
+      dplyr::left_join(cnt, by="scientificName")
     if("useDeployment" %in% names(obs))
       obs[!obs$useDeployment, c("speed", "radius", "angle")] <- NA
     tab$n_speeds <- with(obs, tapply(speed, scientificName, function(x)
