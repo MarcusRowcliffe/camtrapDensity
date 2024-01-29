@@ -1,4 +1,3 @@
-#' Example camtrap-DP datapackage
 #'
 #' Data and metadata from an example study exported from the Agouti camera trap
 #' data management platform in camtrap-DP format. Metadata includes study name,
@@ -112,45 +111,38 @@ read_camtrapDP <- function(file){
     as.POSIXct(x, format="%FT%T%z", tz="UTC")
   }
 
-  # Read json and check version
+  # Read json and add directory / taxonomicIDReference
   dir <- normalizePath(dirname(file), "/")
   res <- jsonlite::read_json(file)
-  version <- substr(basename(dirname(res$profile)), 1, 1)
+  res$directory <- dir
+  res$taxonomic <- lapply(res$taxonomic, function(x)
+    c(x, taxonIDReference=dirname(x$taxonID)))
 
+  # Check version and use camtraptor if V0, otherwise bespoke
+  version <- substr(basename(dirname(res$profile)), 1, 1)
   if(version == "0"){
     res <- camtraptor::read_camtrap_dp(file)
   } else{
-    # Read csv files and add directory
-    res$data$deployments <- read.csv(file.path(dir, "deployments.csv"))
-    res$data$media <- read.csv(file.path(dir, "media.csv")) %>%
-      dplyr::arrange(deploymentID, timestamp)
-    res$data$observations <- read.csv(file.path(dir, "observations.csv"))
+    # Read and modify csv files
+    deployments <- read.csv(file.path(dir, "deployments.csv")) %>%
+      dplyr::rename(start = deploymentStart, end = deploymentEnd) %>%
+      dplyr::mutate(start = convert_date(start),
+                    end = convert_date(end))
 
-    # Rename/add necessary fields
-    res$directory <- dir
-    res$taxonomic <- lapply(res$taxonomic, function(x)
-      c(x, taxonIDReference=dirname(x$taxonID))
-      )
-    res$data$deployments <- res$data$deployments %>%
-      dplyr::rename(start = deploymentStart, end = deploymentEnd)
-    res$data$observations <- res$data$observations %>%
-      dplyr::rename(sequenceID = eventID)
-
-    # Convert date-times to POSIX
-    res$data$deployments <- res$data$deployments %>%
-      dplyr::mutate(start = convert_date(start)) %>%
-      dplyr::mutate(end = convert_date(end))
-    res$data$media <- res$data$media %>%
+    media <- read.csv(file.path(dir, "media.csv")) %>%
+      dplyr::arrange(deploymentID, timestamp) %>%
       dplyr::mutate(timestamp = convert_date(timestamp))
-    res$data$observations <- res$data$observations %>%
-      dplyr::mutate(eventStart = convert_date(eventStart)) %>%
-      dplyr::mutate(eventEnd = convert_date(eventEnd))
+
+    observations <- read.csv(file.path(dir, "observations.csv")) %>%
+      dplyr::rename(sequenceID = eventID) %>%
+      dplyr::mutate(eventStart = convert_date(eventStart),
+                    eventEnd = convert_date(eventEnd))
 
     # Extract media observations with fileName and timestamp added from media,
-    # and sort media chronologically within individual events
-    medobs <- res$data$observations %>%
+    # sort media chronologically within events
+    medobs <- observations %>%
       dplyr::filter(observationLevel == "media") %>%
-      dplyr::left_join(dplyr::select(res$data$media, mediaID, fileName, timestamp), by="mediaID") %>%
+      dplyr::left_join(dplyr::select(media, mediaID, fileName, timestamp), by="mediaID") %>%
       dplyr::arrange(deploymentID, individualID, fileName)
 
     # Add stepwise distances, time differences and image counter
@@ -170,31 +162,36 @@ read_camtrapDP <- function(file){
     medobs$tdiff <- c(NA, tdiff)
     medobs$imgCount <- sequence(table(cumsum(c(0, id2!=id1))))
 
-    # Summarise events for distance traveled, time difference, number of steps, first position radius and angle
+    # Summarise events for distance traveled, time difference,
+    # number of steps, first position radius and angle
     evobs <- medobs %>%
       dplyr::group_by(individualID) %>%
       dplyr::summarise(dist = sum(dist, na.rm=TRUE),
                        timestamp = timestamp[imgCount==1],
                        tdiff = sum(tdiff, na.rm=TRUE),
-                       steps = which(res$data$media$mediaID==mediaID[imgCount==max(imgCount)]) -
-                         which(res$data$media$mediaID == mediaID[imgCount==1]),
+                       steps = which(media$mediaID==mediaID[imgCount==max(imgCount)]) -
+                         which(media$mediaID == mediaID[imgCount==1]),
                        radius = individualPositionRadius[imgCount==1],
                        angle = individualPositionAngle[imgCount==1])
 
     # Calculate speed, substituting mean step duration for zero time differences
     secs_per_img <- mean(evobs$tdiff / evobs$steps, na.rm=TRUE)
     evobs <- evobs %>%
-      dplyr::mutate(tdiff = ifelse(tdiff==0, secs_per_img * steps, tdiff)) %>%
-      dplyr::mutate(speed = ifelse(steps>0, dist/tdiff, NA))
+      dplyr::mutate(tdiff = if_else(tdiff==0, secs_per_img * steps, tdiff),
+                    speed = if_else(steps>0, dist/tdiff, NA))
 
     # Add newly calculated radius, angle, speed etc to event observations
-    res$data$observations <- res$data$observations %>%
-      dplyr::filter(observationLevel=="event" & observationType=="animal") %>%
+    observations <- observations %>%
+      dplyr::filter(observationLevel=="event") %>%
       dplyr::select(-individualPositionRadius, -individualPositionAngle, -individualSpeed) %>%
-      dplyr::left_join(evobs, by="individualID")
+      dplyr::left_join(evobs, by="individualID") %>%
+      dplyr::mutate(timestamp = if_else(is.na(timestamp), eventStart, timestamp))
 
-    # Add media observations to data object
-    res$data$positions <- medobs
+    # Add data tables to output
+    res$data <- list(deployments=deployments,
+                     media=media,
+                     observations=observations,
+                     positions=medobs)
   }
 
   return(res)
