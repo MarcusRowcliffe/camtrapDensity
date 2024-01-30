@@ -128,11 +128,11 @@ read_camtrapDP <- function(file){
       dplyr::rename(start = deploymentStart, end = deploymentEnd) %>%
       dplyr::mutate(start = convert_date(start),
                     end = convert_date(end))
-    dateNA <- is.na(deployments$start) | is.na(deployments$end)
-    if(any(dateNA)){
-      deployments <- dplyr::filter(deployments, !dateNA)
-      warning("Some deployments had missing start and/or end times and were removed")
-    }
+    gaps <- with(deployments,
+                is.na(start) | is.na(end) | is.na(latitude) | is.na(longitude))
+    if(any(gaps)) stop(
+      paste(c("These deployments have missing dates and/or positions:",
+              deployments$deploymentID[gaps]), collapse="\n"))
 
     media <- read.csv(file.path(dir, "media.csv")) %>%
       dplyr::arrange(deploymentID, timestamp) %>%
