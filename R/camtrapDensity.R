@@ -460,17 +460,14 @@ select_species <- function(package, species=NULL){
   if(is.null(species)){
     if("useDeployment" %in% names(obs))
       obs[!obs$useDeployment, c("speed", "radius", "angle")] <- NA
-    cnts <- obs %>%
+    tab <- obs %>%
       dplyr::group_by(scientificName) %>%
-      dplyr::summarise(n_observations=dplyr::n(),
-                       n_speeds = sum(speed>0.1 & speed<10 & !is.na(speed)),
+      dplyr::summarise(n_sequences = sum(!duplicated(sequenceID)),
+                       n_individuals = sum(count),
+                       n_speeds = sum(speed>0.01 & speed<10 & !is.na(speed)),
                        n_radii = sum(!is.na(radius)),
-                       n_angles = sum(!is.na(angle)))
-    tab <-  package %>%
-      camtraptor::get_species() %>%
-      dplyr::select(dplyr::contains("Name")) %>%
-      dplyr::arrange(scientificName) %>%
-      dplyr::left_join(cnts, by="scientificName")
+                       n_angles = sum(!is.na(angle))) %>%
+      dplyr::filter(!is.na(scientificName) & scientificName!="")
 
     print.data.frame(tab)
     i <- NA
