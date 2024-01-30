@@ -476,6 +476,7 @@ select_species <- function(package, species=NULL){
       as.numeric() %>%
       suppressWarnings()
     species <- as.character(tab$scientificName[i])
+    message(paste(species, "selected"))
   } else{
     if(length(species)==1 & "all" %in% species)
       species <- unique(na.omit(obs$scientificName)) else
