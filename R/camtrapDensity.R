@@ -182,15 +182,15 @@ read_camtrapDP <- function(file){
     # Calculate speed, substituting mean step duration for zero time differences
     secs_per_img <- mean(evobs$tdiff / evobs$steps, na.rm=TRUE)
     evobs <- evobs %>%
-      dplyr::mutate(tdiff = if_else(tdiff==0, secs_per_img * steps, tdiff),
-                    speed = if_else(steps>0, dist/tdiff, NA))
+      dplyr::mutate(tdiff = dplyr::if_else(tdiff==0, secs_per_img * steps, tdiff),
+                    speed = dplyr::if_else(steps>0, dist/tdiff, NA))
 
     # Add newly calculated radius, angle, speed etc to event observations
     observations <- observations %>%
       dplyr::filter(observationLevel=="event") %>%
       dplyr::select(-individualPositionRadius, -individualPositionAngle, -individualSpeed) %>%
       dplyr::left_join(evobs, by="individualID") %>%
-      dplyr::mutate(timestamp = if_else(is.na(timestamp), eventStart, timestamp))
+      dplyr::mutate(timestamp = dplyr::if_else(is.na(timestamp), eventStart, timestamp))
 
     # Add data tables to output
     res$data <- list(deployments=deployments,
