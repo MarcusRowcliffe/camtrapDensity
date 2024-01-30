@@ -462,7 +462,7 @@ select_species <- function(package, species=NULL){
       obs[!obs$useDeployment, c("speed", "radius", "angle")] <- NA
     cnts <- obs %>%
       dplyr::group_by(scientificName) %>%
-      dplyr::summarise(n_observations=n(),
+      dplyr::summarise(n_observations=dplyr::n(),
                        n_speeds = sum(speed>0.1 & speed<10 & !is.na(speed)),
                        n_radii = sum(!is.na(radius)),
                        n_angles = sum(!is.na(angle)))
