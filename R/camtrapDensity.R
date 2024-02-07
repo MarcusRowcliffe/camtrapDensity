@@ -128,11 +128,11 @@ read_camtrapDP <- function(file){
       dplyr::rename(start = deploymentStart, end = deploymentEnd) %>%
       dplyr::mutate(start = convert_date(start),
                     end = convert_date(end))
-    if(any(is.na(dep$start) | is.na(dep$end))){
-      warning("Some deployments had missing start and/or end times and were removed")
-      deployments <- deployments %>%
-        filter(!is.na(dep$start) & !is.na(dep$end))
-    }
+    gaps <- with(deployments,
+                is.na(start) | is.na(end) | is.na(latitude) | is.na(longitude))
+    if(any(gaps)) stop(
+      paste(c("These deployments have missing dates and/or positions:",
+              deployments$deploymentID[gaps]), collapse="\n"))
 
     media <- read.csv(file.path(dir, "media.csv")) %>%
       dplyr::arrange(deploymentID, timestamp) %>%
@@ -182,15 +182,15 @@ read_camtrapDP <- function(file){
     # Calculate speed, substituting mean step duration for zero time differences
     secs_per_img <- mean(evobs$tdiff / evobs$steps, na.rm=TRUE)
     evobs <- evobs %>%
-      dplyr::mutate(tdiff = if_else(tdiff==0, secs_per_img * steps, tdiff),
-                    speed = if_else(steps>0, dist/tdiff, NA))
+      dplyr::mutate(tdiff = dplyr::if_else(tdiff==0, secs_per_img * steps, tdiff),
+                    speed = dplyr::if_else(steps>0, dist/tdiff, NA))
 
     # Add newly calculated radius, angle, speed etc to event observations
     observations <- observations %>%
       dplyr::filter(observationLevel=="event") %>%
       dplyr::select(-individualPositionRadius, -individualPositionAngle, -individualSpeed) %>%
       dplyr::left_join(evobs, by="individualID") %>%
-      dplyr::mutate(timestamp = if_else(is.na(timestamp), eventStart, timestamp))
+      dplyr::mutate(timestamp = dplyr::if_else(is.na(timestamp), eventStart, timestamp))
 
     # Add data tables to output
     res$data <- list(deployments=deployments,
@@ -460,17 +460,14 @@ select_species <- function(package, species=NULL){
   if(is.null(species)){
     if("useDeployment" %in% names(obs))
       obs[!obs$useDeployment, c("speed", "radius", "angle")] <- NA
-    cnts <- obs %>%
-      group_by(scientificName) %>%
-      dplyr::summarise(n_observations=n(),
-                       n_speeds = sum(speed>0.1 & speed<10 & !is.na(speed)),
+    tab <- obs %>%
+      dplyr::group_by(scientificName) %>%
+      dplyr::summarise(n_sequences = sum(!duplicated(sequenceID)),
+                       n_individuals = sum(count),
+                       n_speeds = sum(speed>0.01 & speed<10 & !is.na(speed)),
                        n_radii = sum(!is.na(radius)),
-                       n_angles = sum(!is.na(angle)))
-    tab <-  package %>%
-      camtraptor::get_species() %>%
-      dplyr::select(dplyr::contains("Name")) %>%
-      dplyr::arrange(scientificName) %>%
-      dplyr::left_join(cnts, by="scientificName")
+                       n_angles = sum(!is.na(angle))) %>%
+      dplyr::filter(!is.na(scientificName) & scientificName!="")
 
     print.data.frame(tab)
     i <- NA
@@ -479,6 +476,7 @@ select_species <- function(package, species=NULL){
       as.numeric() %>%
       suppressWarnings()
     species <- as.character(tab$scientificName[i])
+    message(paste(species, "selected"))
   } else{
     if(length(species)==1 & "all" %in% species)
       species <- unique(na.omit(obs$scientificName)) else
