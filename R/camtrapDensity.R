@@ -98,13 +98,23 @@ read_camtrap_dp_csv <- function(folder,
 #' for speed calculation from average frame rate.
 #'
 #' @param file Path to a datapackage.json file.
-#' @return As for \code{\link[camtraptor]{read_camtrap_dp}}.
+#' @param resort Logical defining whether to re-sort sequences (see details).
+#' @return As for \code{\link[camtraptor]{read_camtrap_dp}} with the addition
+#'  of $data$positions table, containing the original media observations.
+#' @details Occasionally, images may be mis-ordered within sequences when
+#'  timestamps of adjacent images are equal, leading to mis-specification of
+#'  speeds and initial positions. To fix this, \code{resort} can be set TRUE,
+#'  and images will be rearranged according to original file name in the
+#'  positions table, before recalculating speeds and initial positions in the
+#'  observations table. Note that this only works if the fileName field of the
+#'  $data$media table has preserved the original alphanumeric file name following
+#'  the upload time suffix (e.g. "20231019073014-IMG0001.JPG").
 #' @examples
 #'   \dontrun{pkg <- read_camtrapDP("./data/datapackage.json")}
 #' @export
 #'
 #'
-read_camtrapDP <- function(file){
+read_camtrapDP <- function(file, resort=FALSE){
 
   convert_date <- function(x){
     x <- paste0(substr(x, 1, 22), substr(x, 24, 25))
@@ -144,11 +154,18 @@ read_camtrapDP <- function(file){
                     eventEnd = convert_date(eventEnd))
 
     # Extract media observations with fileName and timestamp added from media,
-    # sort media chronologically within events
+    # sort media chronologically within events if specified
     medobs <- observations %>%
       dplyr::filter(observationLevel == "media") %>%
-      dplyr::left_join(dplyr::select(media, mediaID, fileName, timestamp), by="mediaID") %>%
-      dplyr::arrange(deploymentID, individualID, fileName)
+      dplyr::left_join(dplyr::select(media, mediaID, fileName, timestamp), by="mediaID")
+    if(resort){
+      id <- medobs$individualID
+      i <- c(0, cumsum(head(id, -1) != tail(id, -1)))
+      filenm <- with(medobs, substr(fileName,
+                                    1+regexpr("-", fileName),
+                                    nchar(fileName)))
+      medobs <- dplyr::arrange(medobs, i, filenm)
+    }
 
     # Add stepwise distances, time differences and image counter
     r1 <- head(medobs$individualPositionRadius, -1)
@@ -172,7 +189,6 @@ read_camtrapDP <- function(file){
     evobs <- medobs %>%
       dplyr::group_by(individualID) %>%
       dplyr::summarise(dist = sum(dist, na.rm=TRUE),
-                       timestamp = timestamp[imgCount==1],
                        tdiff = sum(tdiff, na.rm=TRUE),
                        steps = which(media$mediaID==mediaID[imgCount==max(imgCount)]) -
                          which(media$mediaID == mediaID[imgCount==1]),
@@ -190,7 +206,7 @@ read_camtrapDP <- function(file){
       dplyr::filter(observationLevel=="event") %>%
       dplyr::select(-individualPositionRadius, -individualPositionAngle, -individualSpeed) %>%
       dplyr::left_join(evobs, by="individualID") %>%
-      dplyr::mutate(timestamp = dplyr::if_else(is.na(timestamp), eventStart, timestamp))
+      dplyr::mutate(timestamp = eventStart)
 
     # Add data tables to output
     res$data <- list(deployments=deployments,
