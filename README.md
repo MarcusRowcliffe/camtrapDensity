@@ -35,12 +35,14 @@ library(camtrapDensity)
 ```
 
 Having annotated your images in Agouti (including marking animal
-positions and deployment calibration poles), exported the data, unzipped
-the resulting download and moved the contents to a directory named data
-in your working project directory, run this to load the data:
+positions and deployment calibration poles): 1. download the data from
+Agouti; 2. open R Studio and create a new project; 3. unzip the Agouti
+download within your project directory; run this to load the data
+(replacing `your_local_folder` with the name of the folder containing
+the `datapackage.json` file):
 
 ``` r
-pkg <- camtrapDensity::read_camtrapDP("./datapackage_V1.0/datapackage.json")
+pkg <- camtrapDensity::read_camtrapDP("./your_local_folder/datapackage.json")
 ```
 
 This provides a visualisation of the deployment schedules:
@@ -49,7 +51,7 @@ This provides a visualisation of the deployment schedules:
 plot_deployment_schedule(pkg)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-4-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 This creates a subset datapackage excluding a named location (S01) and
 including only deployments in October 2017:
@@ -64,7 +66,12 @@ subpkg <- subset_deployments(pkg,
 This creates a datapackage corrected for a mis-specified time timestamp
 at one deployment:
 
-`{r}package, depID=NULL, locName=NULL, wrongTime, rightTime pkg_corrected <- correct_time(pkg,                               depID = "c95a566f-e75e-4e7b-a905-0479c8770da3",                               wrongTime = "2017-01-01 00:00:00",                               rightTime = "2017-01-01 12:00:00")`
+``` r
+pkg_corrected <- correct_time(pkg,
+                              depID = "c95a566f-e75e-4e7b-a905-0479c8770da3",
+                              wrongTime = "2017-01-01 00:00:00",
+                              rightTime = "2017-01-01 12:00:00")
+```
 
 This allows you to inspect deployment calibration model diagnostic
 plots, and derive a datapackage that records which deployments are
@@ -137,10 +144,10 @@ res$estimates
     ## radius          5.5820537 0.42748750 0.07658248  4.7441782  6.4199292 15
     ## angle          43.6918974 8.76427859 0.20059277 26.5139113 60.8698834 15
     ## active_speed    1.5334081 0.70103906 0.45717709  0.1593716  2.9074447  7
-    ## activity_level  0.2447423 0.05973084 0.24405604  0.1276699  0.3618147 15
-    ## overall_speed   9.0069560 4.66777827 0.51824149 -0.1418894 18.1558014 NA
-    ## trap_rate       0.4419098 0.06385799 0.14450456  0.2986509  0.5167405  3
-    ## density         9.9953634 6.88079306 0.68839849  2.9488441 33.8801531 NA
+    ## activity_level  0.2447423 0.07957097 0.32512144  0.0887832  0.4007014 15
+    ## overall_speed   9.0069560 5.05285287 0.56099451 -0.8966356 18.9105476 NA
+    ## trap_rate       0.4419098 0.06381983 0.14441822  0.2986509  0.5167405  3
+    ## density         9.9953634 7.20781542 0.72111590  2.8119074 35.5300780 NA
     ##                   unit
     ## radius               m
     ## angle           degree
@@ -185,16 +192,16 @@ Component models can be evaluated by inspecting plots.
 plot(res$activity_model)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 plot(res$radius_model, pdf=TRUE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
 
 ``` r
 plot(res$angle_model)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-13-3.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-15-3.png)<!-- -->
