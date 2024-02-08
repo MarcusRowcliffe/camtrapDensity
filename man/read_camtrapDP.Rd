@@ -4,13 +4,16 @@
 \alias{read_camtrapDP}
 \title{Read Camtrap DP data}
 \usage{
-read_camtrapDP(file)
+read_camtrapDP(file, resort = FALSE)
 }
 \arguments{
 \item{file}{Path to a datapackage.json file.}
+
+\item{resort}{Logical defining whether to re-sort sequences (see details).}
 }
 \value{
-As for \code{\link[camtraptor]{read_camtrap_dp}}.
+As for \code{\link[camtraptor]{read_camtrap_dp}} with the addition
+ of $data$positions table, containing the original media observations.
 }
 \description{
 Reads data from a Camtrap DP datapackage Agouti export in either V0.1 or V1.
@@ -19,6 +22,16 @@ down-versions to V0.1, and recalculates speeds. Positions are reordered
 correctly before calculating speed (not always the case in raw output).
 Observations with zero time difference (hence infinite speed) impute time
 for speed calculation from average frame rate.
+}
+\details{
+Occasionally, images may be mis-ordered within sequences when
+ timestamps of adjacent images are equal, leading to mis-specification of
+ speeds and initial positions. To fix this, \code{resort} can be set TRUE,
+ and images will be rearranged according to original file name in the
+ positions table, before recalculating speeds and initial positions in the
+ observations table. Note that this only works if the fileName field of the
+ $data$media table has preserved the original alphanumeric file name following
+ the upload time suffix (e.g. "20231019073014-IMG0001.JPG").
 }
 \examples{
   \dontrun{pkg <- read_camtrapDP("./data/datapackage.json")}

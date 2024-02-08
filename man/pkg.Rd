@@ -3,7 +3,11 @@
 \docType{data}
 \name{pkg}
 \alias{pkg}
-\title{Example camtrap-DP datapackage}
+\title{Data and metadata from an example study exported from the Agouti camera trap
+data management platform in camtrap-DP format. Metadata includes study name,
+authors, location and other details. Data is held in element \code{data},
+itself a list holding dataframes \code{deployments}, \code{media} and
+\code{observations}. See \url{https://tdwg.github.io/camtrap-dp} for details.}
 \format{
 A list holding study data and metadata.
 }
