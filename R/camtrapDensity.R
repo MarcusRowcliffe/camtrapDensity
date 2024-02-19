@@ -426,24 +426,23 @@ correct_time <- function(package, depID=NULL, locName=NULL, wrongTime, rightTime
       stop(paste("There is more than one deployment associated with locName", locName))
   }
 
-  tdiff <- as.POSIXct(rightTime, tz="UTC") - as.POSIXct(wrongTime, tz="UTC")
+  tdiff <- difftime(rightTime, wrongTime, tz="UTC")
   package$data$deployments <- package$data$deployments %>%
-    dplyr::mutate(
-      start = dplyr::case_when(deploymentID==depID ~
-                                 start + tdiff,
-                               .default = start),
-      end = dplyr::case_when(deploymentID==depID ~
-                               end + tdiff,
-                             .default = end))
+    dplyr::mutate(start = dplyr::if_else(deploymentID==depID,
+                                         start + tdiff,
+                                         .default = start),
+                  end = dplyr::if_else(deploymentID==depID,
+                                       end + tdiff,
+                                       .default = end))
   package$data$observations <- package$data$observations %>%
-    dplyr::mutate(timestamp = dplyr::case_when(deploymentID==depID ~
-                                                 timestamp + tdiff,
-                                               .default = timestamp))
+    dplyr::mutate(timestamp = dplyr::if_else(deploymentID==depID,
+                                             timestamp + tdiff,
+                                             .default = timestamp))
   if("media" %in% names(package$data))
     package$data$media <- package$data$media %>%
-      dplyr::mutate(timestamp = dplyr::case_when(deploymentID==depID ~
-                                                   timestamp + tdiff,
-                                                 .default = timestamp))
+      dplyr::mutate(timestamp = dplyr::if_else(deploymentID==depID,
+                                               timestamp + tdiff,
+                                               .default = timestamp))
   package
 }
 
