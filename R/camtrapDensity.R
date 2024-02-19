@@ -426,23 +426,23 @@ correct_time <- function(package, depID=NULL, locName=NULL, wrongTime, rightTime
       stop(paste("There is more than one deployment associated with locName", locName))
   }
 
-  tdiff <- difftime(rightTime, wrongTime, tz="UTC")
+  td <- difftime(rightTime, wrongTime, tz="UTC")
   package$data$deployments <- package$data$deployments %>%
     dplyr::mutate(start = dplyr::if_else(deploymentID==depID,
-                                         start + tdiff,
-                                         .default = start),
+                                         start + td,
+                                         start),
                   end = dplyr::if_else(deploymentID==depID,
-                                       end + tdiff,
-                                       .default = end))
+                                       end + td,
+                                       end))
   package$data$observations <- package$data$observations %>%
     dplyr::mutate(timestamp = dplyr::if_else(deploymentID==depID,
-                                             timestamp + tdiff,
-                                             .default = timestamp))
+                                             timestamp + td,
+                                             timestamp))
   if("media" %in% names(package$data))
     package$data$media <- package$data$media %>%
       dplyr::mutate(timestamp = dplyr::if_else(deploymentID==depID,
-                                               timestamp + tdiff,
-                                               .default = timestamp))
+                                               timestamp + td,
+                                               timestamp))
   package
 }
 
