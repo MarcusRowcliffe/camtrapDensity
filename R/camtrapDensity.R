@@ -430,19 +430,19 @@ correct_time <- function(package, depID=NULL, locName=NULL, wrongTime, rightTime
   package$data$deployments <- package$data$deployments %>%
     dplyr::mutate(start = dplyr::if_else(deploymentID==depID,
                                          start + tdiff,
-                                         .default = start),
+                                         start),
                   end = dplyr::if_else(deploymentID==depID,
                                        end + tdiff,
-                                       .default = end))
+                                       end))
   package$data$observations <- package$data$observations %>%
     dplyr::mutate(timestamp = dplyr::if_else(deploymentID==depID,
                                              timestamp + tdiff,
-                                             .default = timestamp))
+                                             timestamp))
   if("media" %in% names(package$data))
     package$data$media <- package$data$media %>%
       dplyr::mutate(timestamp = dplyr::if_else(deploymentID==depID,
                                                timestamp + tdiff,
-                                               .default = timestamp))
+                                               timestamp))
   package
 }
 
