@@ -241,7 +241,7 @@ plot_deployment_schedule <- function(package){
   n <- nrow(depdat)
   depdat <- depdat[gtools::mixedorder(depdat$locationName), ]
 
-  plot(c(1,n+0.5), rng, type="n", xlab="Location name", ylab="Date", xaxt="n", las=1)
+  plot(c(0.5,n+0.5), rng, type="n", xlab="Location name", ylab="Date", xaxt="n", las=1)
   axis(1, (1:n)+0.05, depdat$locationName, las=2, cex.axis=0.7)
 
   for(i in 1:n){
