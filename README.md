@@ -197,7 +197,7 @@ calibration models used to generate animal position and speed data
 package if necessary). Then follow the interactive instructions to
 accept or reject each calibration model. See the document “*Interpreting
 deployment model diagnostic plots*” for guidance on how to decide,
-available [here](tinyurl.com/CalibrationPlots).
+available [here](http://www.tinyurl.com/CalibrationPlots).
 
 ``` r
 pkg_chk <- check_deployment_models(pkg)
@@ -288,10 +288,10 @@ res_vul$estimates
     ## radius          3.3516525  0.78550867 0.2343646  1.81205547  4.8912495 13
     ## angle          44.9831275  9.42829597 0.2095963 26.50366740 63.4625876 15
     ## active_speed    1.3414083  0.60283473 0.4494044  0.15985224  2.5229644  6
-    ## activity_level  0.2451959  0.05835315 0.2379859  0.13082371  0.3595681 15
-    ## overall_speed   7.8937874  4.01421822 0.5085288  0.02591966 15.7616551 NA
-    ## trap_rate       0.3829885  0.05806371 0.1516069  0.28142322  0.4376289  3
-    ## density        16.3286340 12.07164182 0.7392928  4.47589786 59.5688943 NA
+    ## activity_level  0.2451959  0.08657545 0.3530869  0.07550801  0.4148838 15
+    ## overall_speed   7.8937874  4.51145390 0.5715196 -0.94866228 16.7362370 NA
+    ## trap_rate       0.3829885  0.06368696 0.1662895  0.27191852  0.4408429  3
+    ## density        16.3286340 12.84944670 0.7869272  4.18806817 63.6628336 NA
     ##                   unit
     ## radius               m
     ## angle           degree
