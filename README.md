@@ -12,7 +12,7 @@ estimate animal density, including models for the component parameters
 (speed, activity level and detection zone dimensions). There is also
 some basic functionality to check and correct the data.
 
-## Getting started with RStudio
+## <a id="GettingStarted"></a>Getting started with RStudio
 
 If you don’t already have them, install [R](https://cran.r-project.org)
 and [RStudio](https://posit.co/download/rstudio-desktop).
@@ -101,7 +101,7 @@ pkg <- read_camtrapDP("C:/path/to/your/folder/datapackage.json") # Windows
 pkg <- read_camtrapDP("/path/to/your/folder/datapackage.json") # Mac
 ```
 
-### Checking the deployment schedule
+### <a id="ScheduleChecking"></a>Checking the deployment schedule
 
 This line provides a visualisation of the deployment schedules. It can
 quickly highlight any incorrect dates, or help you decide where to split
@@ -189,7 +189,7 @@ pkg_corrected <- correct_time(pkg,
 
 Both examples create a new datapackage object called `pkg_corrected`.
 
-### Checking deployment calibration models
+### <a id="CalibrationChecking"></a>Checking deployment calibration models
 
 Run the next chunk to show diagnostic plots for the deployment
 calibration models used to generate animal position and speed data
@@ -288,10 +288,10 @@ res_vul$estimates
     ## radius          3.3516525  0.78550867 0.2343646  1.81205547  4.8912495 13
     ## angle          44.9831275  9.42829597 0.2095963 26.50366740 63.4625876 15
     ## active_speed    1.3414083  0.60283473 0.4494044  0.15985224  2.5229644  6
-    ## activity_level  0.2451959  0.11270535 0.4596543  0.02429341  0.4660984 15
-    ## overall_speed   7.8937874  5.07446128 0.6428424 -2.05215675 17.8397315 NA
-    ## trap_rate       0.3829885  0.04382842 0.1144379  0.30388645  0.4376289  3
-    ## density        16.3286340 13.57645226 0.8314506  3.94366585 67.6082348 NA
+    ## activity_level  0.2451959  0.05835315 0.2379859  0.13082371  0.3595681 15
+    ## overall_speed   7.8937874  4.01421822 0.5085288  0.02591966 15.7616551 NA
+    ## trap_rate       0.3829885  0.05806371 0.1516069  0.28142322  0.4376289  3
+    ## density        16.3286340 12.07164182 0.7392928  4.47589786 59.5688943 NA
     ##                   unit
     ## radius               m
     ## angle           degree
