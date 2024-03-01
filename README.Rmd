@@ -1,6 +1,7 @@
 ---
 title: "camtrapDensity"
 output: github_document
+always_allow_html: true
 ---
   
 ```{r setup, include=FALSE}
@@ -82,8 +83,22 @@ pkg <- camtrapDensity::read_camtrapDP("./datapackage_V1.0/datapackage.json")
 
 This line provides a visualisation of the deployment schedules. It can quickly highlight any incorrect dates, or help you decide where to split the data if you only want to analyse a subset of the deployments. Black lines indicate the period of operation of each deployment and red ticks indicate the time at which each observation occurred. 
 
-``` {r}
+```{r}
 plot_deployment_schedule(pkg)
+```
+
+### Mapping deployments
+
+You can create a map of deployments using this code:
+
+```{r}
+plot_deployments(pkg)
+```
+
+You can plot the same map but with point diameter proportional to deployment-specific trap rate for a given species like this (use scientific names):
+
+```{r}
+plot_traprates(pkg, species="Vulpes vulpes")
 ```
 
 ### Subsetting deployments

@@ -115,6 +115,26 @@ plot_deployment_schedule(pkg)
 
 ![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
+### Mapping deployments
+
+You can create a map of deployments using this code:
+
+``` r
+plot_deployments(pkg)
+```
+
+![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+You can plot the same map but with point diameter proportional to
+deployment-specific trap rate for a given species like this (use
+scientific names):
+
+``` r
+plot_traprates(pkg, species="Vulpes vulpes")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+
 ### Subsetting deployments
 
 Use this function if you want to analyse only a subset of deployments.
@@ -288,10 +308,10 @@ res_vul$estimates
     ## radius          3.3516525  0.78550867 0.2343646  1.81205547  4.8912495 13
     ## angle          44.9831275  9.42829597 0.2095963 26.50366740 63.4625876 15
     ## active_speed    1.3414083  0.60283473 0.4494044  0.15985224  2.5229644  6
-    ## activity_level  0.2451959  0.08657545 0.3530869  0.07550801  0.4148838 15
-    ## overall_speed   7.8937874  4.51145390 0.5715196 -0.94866228 16.7362370 NA
-    ## trap_rate       0.3829885  0.06368696 0.1662895  0.27191852  0.4408429  3
-    ## density        16.3286340 12.84944670 0.7869272  4.18806817 63.6628336 NA
+    ## activity_level  0.2451959  0.05604924 0.2285896  0.13533938  0.3550524 15
+    ## overall_speed   7.8937874  3.98004645 0.5041999  0.09289633 15.6946784 NA
+    ## trap_rate       0.3829885  0.04565755 0.1192139  0.31699858  0.4462671  3
+    ## density        16.3286340 11.92546122 0.7303404  4.53329513 58.8146765 NA
     ##                   unit
     ## radius               m
     ## angle           degree
@@ -343,19 +363,19 @@ Component model fits can be evaluated by inspecting diagnostic plots:
 plot(res_vul$activity_model)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 ``` r
 plot(res_vul$radius_model, pdf=TRUE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-20-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-22-2.png)<!-- -->
 
 ``` r
 plot(res_vul$angle_model)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-20-3.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-22-3.png)<!-- -->
 
 ## General R tips
 

@@ -1,7 +1,7 @@
 Package: camtrapDensity
 Type: Package
 Title: Density Estimation Functions for camtrapDP Data
-Version: 0.1.7
+Version: 0.1.8
 Author: Marcus Rowcliffe
 Maintainer: Marcus Rowcliffe <marcus.rowcliffe@ioz.ac.uk>
 Description: Currently provides functions for working with camtrapDP format data
@@ -19,6 +19,7 @@ Imports:
     gtools,
     jpeg,
     jsonlite,
-    tidyr
+    tidyr,
+    leaflet
 LazyData: true
 RoxygenNote: 7.2.3

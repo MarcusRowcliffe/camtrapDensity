@@ -218,6 +218,94 @@ read_camtrapDP <- function(file, resort=FALSE){
   return(res)
 }
 
+#' Plot a map of deployments
+#'
+#' Creates an OpenStreetMap street or satellite map over-plotted with
+#' deployment locations.
+#'
+#' @param package Camera trap data package object, as returned by
+#'   \code{\link[camtraptor]{read_camtrap_dp}}.
+#' @param basemap Basemap to plot, street (default) or satellite
+#' @param ... Additional arguments passed to
+#'   \code{\link[leaflet]{addCircleMarkers}}
+#' @examples
+#'   \dontrun{pkg <- camtraptor::read_camtrapDP("./data/datapackage.json")}
+#'   data(pkg)
+#'   plot_deployments(pkg)
+#' @export
+#'
+#'
+plot_deployments <- function(pkg, basemap=c("street", "satellite"), ...){
+  basemap <- match.arg(basemap)
+  map <- leaflet::leaflet(data = pkg$data$deployments)
+  map <- if(basemap == "street")
+    leaflet::addTiles(map) else
+      leaflet::addProviderTiles(map,"Esri.WorldImagery")
+  leaflet::addCircleMarkers(map, lng = ~longitude, lat = ~latitude,
+                            popup = ~locationName, ...)
+}
+
+
+#' Plot a map of deployment trap rates
+#'
+#' Creates an OpenStreetMap street or satellite map over-plotted with
+#' deployment locations, with points sized in proportion to trap rate for a
+#' given species.
+#'
+#' @param package Camera trap data package object, as returned by
+#'   \code{\link[camtraptor]{read_camtrap_dp}}.
+#' @param species A character string indicating species subset to analyse.
+#'   Use scientific names. If NULL runs select_species to get user input;
+#'   if all uses all data.
+#' @param basemap Basemap to plot, street (default) or satellite
+#' @param minSize Minimum point size to plot.
+#' @param maxSize Maximum point size to plot.
+#' @examples
+#'   \dontrun{pkg <- camtraptor::read_camtrapDP("./data/datapackage.json")}
+#'   data(pkg)
+#'   plot_traprate(pkg, species="Vulpes vulpes")
+#' @export
+#'
+#'
+plot_traprates <- function(pkg, species=NULL, basemap=c("street", "satellite"),
+                          maxSize=25, minSize=3){
+
+  szfunc <- function(x, mxx)
+    minSize + (maxSize-minSize) * x / mxx
+
+  basemap <- match.arg(basemap)
+  trdat <- pkg %>%
+    get_traprate_data(species=species) %>%
+    dplyr::left_join(pkg$data$deployments, by="locationName") %>%
+    dplyr::mutate(tr = 100 * n/effort,
+           sz = szfunc(tr, max(tr)),
+           col = ifelse(tr==0, "red", "blue"))
+
+  labels <- pretty(c(0,max(trdat$tr)), n=3)
+  nlabs <- length(labels)
+  cols <- c("red", rep("blue", nlabs-1))
+  szs <- 2 * szfunc(labels, max(trdat$tr))
+  cols <- paste0(cols, "; width:", szs, "px; height:", szs,
+                 "px; border:0px solid ", cols,
+                 "; border-radius:50%")
+
+  map <- leaflet::leaflet(data = trdat)
+  map <- if(basemap == "street")
+    leaflet::addTiles(map) else
+      leaflet::addProviderTiles(map,"Esri.WorldImagery")
+  leaflet::addCircleMarkers(map, lng = ~longitude, lat = ~latitude,
+                            popup = ~paste0(locationName, ": ", n, " records ", tr),
+                            radius = ~sz,
+                            color= ~col,
+                            weight=0,
+                            fillOpacity = 1) %>%
+    leaflet::addLegend(position = "topright",
+              colors = cols,
+              labels = labels,
+              opacity = 1,
+              title = "Records/100 days")
+}
+
 #' Plot a deployment Gantt chart
 #'
 #' Plots a Gantt chart illustrating deployment times (black lines) and
