@@ -231,11 +231,11 @@ read_camtrapDP <- function(file, resort=FALSE){
 #' @examples
 #'   \dontrun{pkg <- camtraptor::read_camtrapDP("./data/datapackage.json")}
 #'   data(pkg)
-#'   plot_deployments(pkg)
+#'   map_deployments(pkg)
 #' @export
 #'
 #'
-plot_deployments <- function(pkg, basemap=c("street", "satellite"), ...){
+map_deployments <- function(pkg, basemap=c("street", "satellite"), ...){
   basemap <- match.arg(basemap)
   map <- leaflet::leaflet(data = pkg$data$deployments)
   map <- if(basemap == "street")
@@ -263,11 +263,11 @@ plot_deployments <- function(pkg, basemap=c("street", "satellite"), ...){
 #' @examples
 #'   \dontrun{pkg <- camtraptor::read_camtrapDP("./data/datapackage.json")}
 #'   data(pkg)
-#'   plot_traprate(pkg, species="Vulpes vulpes")
+#'   map_traprate(pkg, species="Vulpes vulpes")
 #' @export
 #'
 #'
-plot_traprates <- function(pkg, species=NULL, basemap=c("street", "satellite"),
+map_traprates <- function(pkg, species=NULL, basemap=c("street", "satellite"),
                           maxSize=25, minSize=3){
 
   szfunc <- function(x, mxx)
@@ -294,7 +294,9 @@ plot_traprates <- function(pkg, species=NULL, basemap=c("street", "satellite"),
     leaflet::addTiles(map) else
       leaflet::addProviderTiles(map,"Esri.WorldImagery")
   leaflet::addCircleMarkers(map, lng = ~longitude, lat = ~latitude,
-                            popup = ~paste0(locationName, ": ", n, " records ", tr),
+                            popup = ~paste0(locationName, ": ",
+                                            round(tr, 2-floor(log10(tr))),
+                                            " (", n, " records)"),
                             radius = ~sz,
                             color= ~col,
                             weight=0,

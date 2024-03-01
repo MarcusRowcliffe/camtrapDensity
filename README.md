@@ -120,7 +120,7 @@ plot_deployment_schedule(pkg)
 You can create a map of deployments using this code:
 
 ``` r
-plot_deployments(pkg)
+map_deployments(pkg)
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
@@ -130,7 +130,7 @@ deployment-specific trap rate for a given species like this (use
 scientific names):
 
 ``` r
-plot_traprates(pkg, species="Vulpes vulpes")
+map_traprates(pkg, species="Vulpes vulpes")
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
@@ -304,14 +304,14 @@ compenent name to the result object spearated with a \$ sign, like this:
 res_vul$estimates
 ```
 
-    ##                  estimate          se        cv       lcl95      ucl95  n
-    ## radius          3.3516525  0.78550867 0.2343646  1.81205547  4.8912495 13
-    ## angle          44.9831275  9.42829597 0.2095963 26.50366740 63.4625876 15
-    ## active_speed    1.3414083  0.60283473 0.4494044  0.15985224  2.5229644  6
-    ## activity_level  0.2451959  0.05604924 0.2285896  0.13533938  0.3550524 15
-    ## overall_speed   7.8937874  3.98004645 0.5041999  0.09289633 15.6946784 NA
-    ## trap_rate       0.3829885  0.04565755 0.1192139  0.31699858  0.4462671  3
-    ## density        16.3286340 11.92546122 0.7303404  4.53329513 58.8146765 NA
+    ##                  estimate          se        cv      lcl95      ucl95  n
+    ## radius          3.3516525  0.78550867 0.2343646  1.8120555  4.8912495 13
+    ## angle          44.9831275  9.42829597 0.2095963 26.5036674 63.4625876 15
+    ## active_speed    1.3414083  0.60283473 0.4494044  0.1598522  2.5229644  6
+    ## activity_level  0.2451959  0.07206383 0.2939031  0.1039508  0.3864410 15
+    ## overall_speed   7.8937874  4.23877495 0.5369761 -0.4142115 16.2017863 NA
+    ## trap_rate       0.3829885  0.05529651 0.1443816  0.2639141  0.4088946  3
+    ## density        16.3286340 12.37272034 0.7577315  4.3610520 61.1376076 NA
     ##                   unit
     ## radius               m
     ## angle           degree

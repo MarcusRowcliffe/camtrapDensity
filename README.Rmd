@@ -92,13 +92,13 @@ plot_deployment_schedule(pkg)
 You can create a map of deployments using this code:
 
 ```{r}
-plot_deployments(pkg)
+map_deployments(pkg)
 ```
 
 You can plot the same map but with point diameter proportional to deployment-specific trap rate for a given species like this (use scientific names):
 
 ```{r}
-plot_traprates(pkg, species="Vulpes vulpes")
+map_traprates(pkg, species="Vulpes vulpes")
 ```
 
 ### Subsetting deployments
