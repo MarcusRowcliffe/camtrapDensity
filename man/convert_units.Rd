@@ -10,16 +10,12 @@ convert_units(
   angle_unit = c("radian", "degree"),
   active_speed_unit = c("km/day", "km/hour", "m/hour", "m/second"),
   overall_speed_unit = c("km/day", "km/hour", "m/hour", "m/second"),
-  trap_rate_unit = c("day", "hour", "minute", "second"),
+  trap_rate_unit = c("n/day", "n/100day", "n/hour", "n/minute", "n/second"),
   density_unit = c("n/km2", "n/ha", "n/100km2")
 )
 }
 \arguments{
-\item{param}{An REM parameter dataframe as created with
-\code{\link{get_parameter_table}}. Must contain columns \code{estimate},
-\code{se}, \code{lcl95}, \code{ucl95} and \code{unit}, and at least one
-row named from \code{radius}, \code{angle}, \code{active_speed},
-\code{overall_speed}.}
+\item{param}{An REM parameter dataframe (see details).}
 
 \item{radius_unit}{A character string giving the output unit of radius.}
 
@@ -42,6 +38,13 @@ A replica of input dataframe \code{param} with \code{estimate},
 \description{
 Changes the units of parameters from their current setting to new
 user-defined units.
+}
+\details{
+Input dataframe param must contain field \code{unit}, and at least one
+ field among \code{estimate}, \code{se}, \code{lcl95}, and \code{ucl95}.
+ Row names must be among \code{radius}, \code{angle}, \code{activity_level},
+ \code{active_speed}, \code{overall_speed}. Input is typically created with
+ function \code{\link{get_parameter_table}}.
 }
 \examples{
   \dontrun{

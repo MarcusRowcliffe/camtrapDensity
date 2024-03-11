@@ -1190,56 +1190,66 @@ get_parameter_table <- function(traprate_data,
 
 #' Get a unit multiplier
 #'
-#' Returns a multiplier to convert a value from one unit to another in
-#' one of three types: distance, time and angle.
+#' Returns a multiplier to convert values from one unit to another, in
+#' one of four categories: distance, time, angle, count.
 #'
-#' @param unitIN A text value giving the unit of the input; must be one of
-#'   "cm", "m", "km" for distances, "second", "minute", "hour", "day" for
-#'   times, "radian" "degree" for angles, or "n/ha", "n/km2" "n/100km2" for
-#'   density.
-#' @param unitOUT As for \code{unitIN}; must be of the same type (distance,
-#'   time or density) as \code{unitIN}.
-#' @return A number giving the amount by which to multiply input values
-#'   to arrive a unit-converted output.
+#' @param unitIN A character vector giving the units of input.
+#' @param unitOUT A character vector giving the units of output,
+#'   the same length as \code{unitIN},
+#' @return A vector of numbers giving the amount by which to multiply input
+#'   values to arrive at unit-converted values.
+#' @details
+#'  Possible \code{unitIN} and \code{unitOUT} values are "cm", "m", "km"
+#'  for distances; "second", "minute", "hour", "day", "100day" for times;
+#'  "radian", "degree" for angles; "n" for count; "none" for no units. Unit
+#'  ratios are allowed for rates or densities. In this case, units should be
+#'  separated with a forward slash (e.g. "n/day", "km/hour", "n/km2"). Input
+#'  and output types must match.
+#'
 #' @examples
-#'   get_multiplier("m", "km")
+#'   get_multiplier(c("m", "m/s"), c("km", "km/d"))
 #' @export
 #'
 get_multiplier <- function(unitIN, unitOUT){
-  dunits <- c("cm", "m", "km")
-  dmult <- c(1, 1e2, 1e5)
-  tunits <- c("second", "minute", "hour", "day")
-  tmult <- c(1, 60, 60^2, 24*60^2)
-  aunits <- c("radian", "degree")
-  amult <- c(1, pi/180)
-  areaUnits <- c("n/ha", "n/km2", "n/100km2")
-  areaMult <- c(1, 1e2, 1e4)
-  if(unitIN %in% dunits & unitOUT %in% dunits){
-    u <- dunits
-    m <- dmult
-    n <- length(dunits)
-  } else
-    if(unitIN %in% tunits & unitOUT %in% tunits){
-      u <- tunits
-      m <- tmult
-      n <- length(tunits)
-    } else
-      if(unitIN %in% aunits & unitOUT %in% aunits){
-        u <- aunits
-        m <- amult
-        n <- length(aunits)
-      } else
-        if(unitIN %in% areaUnits & unitOUT %in% areaUnits){
-          u <- areaUnits
-          m <- areaMult
-          n <- length(areaUnits)
-        } else
-          stop("Units not of the same type or not recognised")
+  # lookup table for types and multipliers
+  lookup <- data.frame(unit = c("cm", "m", "km",
+                                "second", "minute", "hour", "day", "100day",
+                                "radian", "degree",
+                                "ha", "km2", "100km2",
+                                "n", "none"),
+                       mult = c(1, 1e2, 1e5,
+                                1, 60, 60^2, 24*60^2, 2400*60^2,
+                                1, pi/180,
+                                1, 1e2, 1e4,
+                                1, 1),
+                       type = rep(c("distance", "time", "angle", "area", "unit"),
+                                  c(3, 5, 2, 3, 2)))
 
-  tab <- data.frame(from = rep(u, each=n),
-                    to = rep(u, n),
-                    mult = rep(m, each=n) / rep(m, n))
-  tab$mult[tab$from==unitIN & tab$to==unitOUT]
+  # recasts all input to x/y (x per y) format, adding "/n" where no denominator given
+  recast <- function(u){
+    unlist(strsplit(paste0(u, ifelse(grepl("/", u), "", "/n")), "/"))
+  }
+
+  if(length(unitIN) != length(unitOUT))
+    stop("unitIN and unitOUT have different lengths")
+  if(!all(grepl("/", unitIN) == grepl("/", unitOUT)))
+    stop("unitIN and unitOUT have mismatched types")
+
+  uIN <- recast(unitIN)
+  uOUT <- recast(unitOUT)
+
+  typeIN <- lookup$type[match(unlist(uIN), lookup$unit)]
+  typeOUT <- lookup$type[match(unlist(uOUT), lookup$unit)]
+
+  if(any(is.na(c(typeIN, typeOUT))))
+    stop(paste("Units not recognised:",
+               paste(c(uIN,uOUT)[is.na(c(typeIN, typeOUT))], collapse=", ")))
+  if(!all(typeIN == typeOUT))
+    stop("unitIN and unitOUT have mismatched types")
+
+  m <- lookup$mult[match(uIN, lookup$unit)] / lookup$mult[match(uOUT, lookup$unit)]
+  i <- 2 * (1:length(unitIN))
+  m[i-1] / m[i]
 }
 
 #' Change the units of an REM parameter table
@@ -1247,11 +1257,7 @@ get_multiplier <- function(unitIN, unitOUT){
 #' Changes the units of parameters from their current setting to new
 #' user-defined units.
 #'
-#' @param param An REM parameter dataframe as created with
-#'   \code{\link{get_parameter_table}}. Must contain columns \code{estimate},
-#'   \code{se}, \code{lcl95}, \code{ucl95} and \code{unit}, and at least one
-#'   row named from \code{radius}, \code{angle}, \code{active_speed},
-#'   \code{overall_speed}.
+#' @param param An REM parameter dataframe (see details).
 #' @param radius_unit A character string giving the output unit of radius.
 #' @param angle_unit A character string giving the output unit of angle.
 #' @param active_speed_unit A character string giving the output unit of
@@ -1262,6 +1268,13 @@ get_multiplier <- function(unitIN, unitOUT){
 #' @param density_unit A character string giving the output unit of density.
 #' @return A replica of input dataframe \code{param} with \code{estimate},
 #'   \code{se} and confidence limit values converted to output units.
+#' @details
+#'  Input dataframe param must contain field \code{unit}, and at least one
+#'  field among \code{estimate}, \code{se}, \code{lcl95}, and \code{ucl95}.
+#'  Row names must be among \code{radius}, \code{angle}, \code{activity_level},
+#'  \code{active_speed}, \code{overall_speed}. Input is typically created with
+#'  function \code{\link{get_parameter_table}}.
+#'
 #' @examples
 #'   \dontrun{
 #'     pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
@@ -1281,59 +1294,29 @@ convert_units <- function(param,
                           angle_unit=c("radian", "degree"),
                           active_speed_unit=c("km/day", "km/hour", "m/hour", "m/second"),
                           overall_speed_unit=c("km/day", "km/hour", "m/hour", "m/second"),
-                          trap_rate_unit=c("day", "hour", "minute", "second"),
+                          trap_rate_unit=c("n/day", "n/100day", "n/hour", "n/minute", "n/second"),
                           density_unit=c("n/km2", "n/ha", "n/100km2")){
-  radius_unit <- match.arg(radius_unit)
-  angle_unit <- match.arg(angle_unit)
-  active_speed_unit <- match.arg(active_speed_unit)
-  overall_speed_unit <- match.arg(overall_speed_unit)
-  trap_rate_unit <- match.arg(trap_rate_unit)
-  density_unit <- match.arg(density_unit)
+  uOUT <- c(radius = match.arg(radius_unit),
+            angle = match.arg(angle_unit),
+            activity_level = "none",
+            active_speed = match.arg(active_speed_unit),
+            overall_speed = match.arg(overall_speed_unit),
+            trap_rate = match.arg(trap_rate_unit),
+            density = match.arg(density_unit))
 
-  j <- c("estimate", "se", "lcl95", "ucl95")
+  convert_fields <- c("estimate", "se", "lcl95", "ucl95")
+  j <- names(param) %in% convert_fields
+  if(sum(j) == 0 | !"unit" %in% names(param))
+    stop(paste("Fields in param dataframe must include unit and at least one of:\n",
+               paste(head(convert_fields, -1), collapse=", ")))
+  if(!all(rownames(param) %in% names(uOUT)))
+    stop(paste("Row names in param dataframe must be among:\n",
+               paste(names(uOUT), collapse=", ")))
 
-  if("radius" %in% rownames(param)){
-    m <- get_multiplier(param["radius", "unit"], radius_unit)
-    param["radius", j] <- param["radius", j] * m
-    param["radius", "unit"] <- radius_unit
-  }
-
-  if("angle" %in% rownames(param)){
-    m <- get_multiplier(param["angle", "unit"], angle_unit)
-    param["angle", j] <- param["angle", j] * m
-    param["angle", "unit"] <- angle_unit
-  }
-
-  if("active_speed" %in% rownames(param)){
-    unit_from <- unlist(strsplit(param["active_speed", "unit"], "/"))
-    unit_to <- unlist(strsplit(active_speed_unit, "/"))
-    dm <- get_multiplier(unit_from[1], unit_to[1])
-    tm <- get_multiplier(unit_from[2], unit_to[2])
-    param["active_speed", j] <- param["active_speed", j] * dm / tm
-    param["active_speed", "unit"] <- paste(unit_to, collapse="/")
-  }
-
-  if("overall_speed" %in% rownames(param)){
-    unit_from <- unlist(strsplit(param["overall_speed", "unit"], "/"))
-    unit_to <- unlist(strsplit(overall_speed_unit, "/"))
-    dm <- get_multiplier(unit_from[1], unit_to[1])
-    tm <- get_multiplier(unit_from[2], unit_to[2])
-    param["overall_speed", j] <- param["overall_speed", j] * dm / tm
-    param["overall_speed", "unit"] <- paste(unit_to, collapse="/")
-  }
-
-  if("trap_rate" %in% rownames(param)){
-    unit_from <- unlist(strsplit(param["trap_rate", "unit"], "/"))[2]
-    m <- get_multiplier(unit_from, trap_rate_unit)
-    param["trap_rate", j] <- param["trap_rate", j] / m
-    param["trap_rate", "unit"] <- paste0("n/", trap_rate_unit)
-  }
-
-  if("density" %in% rownames(param)){
-    m <- get_multiplier(param["density", "unit"], density_unit)
-    param["density", j] <- param["density", j] / m
-    param["density", "unit"] <- density_unit
-  }
+  uOUT <- uOUT[rownames(param)]
+  m <- get_multiplier(param$unit, uOUT)
+  param[, j] <- m * param[, j]
+  param$unit <- uOUT
 
   param
 }
@@ -1384,23 +1367,26 @@ rem <- function(parameters){
                ";\nand (at least) column names:",
                paste(required_cols, collapse=", ")))
 
-  param <- convert_units(parameters)
+  param <- convert_units(parameters[required_rows, ])
+  wtd_est <- param$estimate + c(0,0,0,2)
+  pwr_est <- wtd_est ^ c(1,-1,-1,-1)
+  CVs <- param$se / wtd_est
+  density <- pi * prod(pwr_est)
+  cv <- sqrt(sum(CVs^2))
+  se <- density * cv
+  ci <- unname(lnorm_confint(density, se))
 
-  Es <- (param[required_rows, "estimate"] + c(0,0,0,2)) ^ c(1,-1,-1,-1)
-  density <- pi * prod(Es)
-  CVs <- param[required_rows, "cv"]
-  CVs[4] <- param["angle", "se"] / Es[4]
+  parameters["density", "estimate"] <- density
+  parameters["density", "se"] <- se
+  if("cv" %in% names(parameters))
+    parameters["density", "cv"] <- cv
+  if("ucl95" %in% names(parameters))
+    parameters["density", "ucl95"] <- ci[1]
+  if("lcl95" %in% names(parameters))
+    parameters["density", "lcl95"] <- ci[2]
+  parameters["density", "unit"] <- "n/km2"
 
-  density_CV <- sqrt(sum(CVs^2))
-  density_SE <- density_CV * density
-  density_CI <- unname(lnorm_confint(density, density_SE))
-  rbind(parameters, density=c(density,
-                              density_SE,
-                              density_CV,
-                              density_CI[1],
-                              density_CI[2],
-                              NA,
-                              "n/km2"))
+  parameters
 }
 
 #' Integrated random encounter model density estimate
@@ -1506,4 +1492,3 @@ rem_estimate <- function(package,
        speed_model=speed_model, activity_model=activity_model,
        radius_model=radius_model, angle_model=angle_model)
 }
-
