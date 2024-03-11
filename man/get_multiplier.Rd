@@ -7,22 +7,27 @@
 get_multiplier(unitIN, unitOUT)
 }
 \arguments{
-\item{unitIN}{A text value giving the unit of the input; must be one of
-"cm", "m", "km" for distances, "second", "minute", "hour", "day" for
-times, "radian" "degree" for angles, or "n/ha", "n/km2" "n/100km2" for
-density.}
+\item{unitIN}{A character vector giving the units of input.}
 
-\item{unitOUT}{As for \code{unitIN}; must be of the same type (distance,
-time or density) as \code{unitIN}.}
+\item{unitOUT}{A character vector giving the units of output,
+the same length as \code{unitIN},}
 }
 \value{
-A number giving the amount by which to multiply input values
-  to arrive a unit-converted output.
+A vector of numbers giving the amount by which to multiply input
+  values to arrive at unit-converted values.
 }
 \description{
-Returns a multiplier to convert a value from one unit to another in
-one of three types: distance, time and angle.
+Returns a multiplier to convert values from one unit to another, in
+one of four categories: distance, time, angle, count.
+}
+\details{
+Possible \code{unitIN} and \code{unitOUT} values are "cm", "m", "km"
+ for distances; "second", "minute", "hour", "day", "100day" for times;
+ "radian", "degree" for angles; "n" for count; "none" for no units. Unit
+ ratios are allowed for rates or densities. In this case, units should be
+ separated with a forward slash (e.g. "n/day", "km/hour", "n/km2"). Input
+ and output types must match.
 }
 \examples{
-  get_multiplier("m", "km")
+  get_multiplier(c("m", "m/s"), c("km", "km/d"))
 }
