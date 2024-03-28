@@ -708,7 +708,8 @@ get_agouti_url <- function(package, obsChoice){
 #'   }
 #'   # With species predefined
 #'   speed_model <- fit_speedmodel(pkg, species="Vulpes vulpes")
-#'   speed_model$speed
+#'   speed_model$estimate
+#'   hist(speed_model)
 #' @export
 #'
 fit_speedmodel <- function(package,
