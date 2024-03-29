@@ -1129,7 +1129,7 @@ get_parameter_table <- function(traprate_data,
   # Get parameters and SEs
   rad <- radius_model$edd
   ang <- angle_model$edd * 2
-  spd <- select(smod$estimate, all_of(c("est", "se")))
+  spd <- dplyr::select(smod$estimate, all_of(c("est", "se")))
   act <- activity_model@act[1:2]
   names(act) <- names(spd) <- dimnames(rad)[[2]]
   res <- data.frame(rbind(rad, ang, spd, act))
