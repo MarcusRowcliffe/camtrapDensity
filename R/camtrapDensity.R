@@ -1380,10 +1380,10 @@ rem <- function(parameters){
   parameters["density", "se"] <- se
   if("cv" %in% names(parameters))
     parameters["density", "cv"] <- cv
-  if("ucl95" %in% names(parameters))
-    parameters["density", "ucl95"] <- ci[1]
   if("lcl95" %in% names(parameters))
-    parameters["density", "lcl95"] <- ci[2]
+    parameters["density", "lcl95"] <- ci[1]
+  if("ucl95" %in% names(parameters))
+    parameters["density", "ucl95"] <- ci[2]
   parameters["density", "unit"] <- "n/km2"
 
   parameters
