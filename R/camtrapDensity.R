@@ -1459,20 +1459,25 @@ rem_estimate <- function(package,
   species <- select_species(package, species)
   message(paste("Analysing", species))
 
+  message("Fitting radius model...")
   if(is.null(radius_model))
     radius_model <- fit_detmodel(radius~1, package, species,
-                                 order=0, truncation=12)
+                                 order=0, truncation="5%")
 
+  message("Fitting angle model...")
   if(is.null(angle_model))
     angle_model <- fit_detmodel(angle~1, package, species,
                                 order=0, unit="radian")
 
+  message("Fitting speed model...")
   if(is.null(speed_model))
     speed_model <- fit_speedmodel(package, species)
 
+  message("Fitting activity model...")
   if(is.null(activity_model))
     activity_model <- fit_actmodel(package, species, reps)
 
+  message("Calculating density...")
   trdat <- get_traprate_data(package, species)
   parameters <- get_parameter_table(trdat,
                                     radius_model,
@@ -1488,6 +1493,7 @@ rem_estimate <- function(package,
                   active_speed_unit = "km/hour",
                   overall_speed_unit = "km/day")
 
+  message("DONE")
   list(species=species, data=trdat, estimates=estimates,
        speed_model=speed_model, activity_model=activity_model,
        radius_model=radius_model, angle_model=angle_model)
