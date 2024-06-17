@@ -398,7 +398,7 @@ subset_deployments <- function(package, choice){
 #' @param start,end Single character or POSIXct values defining the
 #'   time range within which to slice the package.
 #' @param depChoice A logical expression using column names from the
-#'  deployments table defining which deployments to keep.
+#'  deployments table defining which deployments to slice.
 #' @return As for \code{\link[camtraptor]{read_camtrap_dp}}, with all
 #'  data tables reduced according to the choice criteria.
 #' @examples
