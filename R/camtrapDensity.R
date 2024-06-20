@@ -387,50 +387,49 @@ subset_deployments <- function(package, choice){
 }
 
 
-#' Select a subset of a data package
+#' Take a time slice of a data package
 #'
-#' Discards any observations and media that occur at specified deployments,
-#' or that fall outside the time range defined by start and end. When start
-#' and/end are specified, truncates deployment start/end times, and removes
-#' any deployments that fall entirely outside the subset time range.
+#' Discards any observations, media, or deployments that fall wholly outside
+#' the time range defined by start and end. When start or end are not
+#' specified, no slicing is applied to start or end points respectively.
+#' Slicing applies to all deployments by default, or can be applied to only a
+#' subset of deployments specified by depChoice. The fully default behaviour
+#' for this function is therefore to do nothing (the datapackage is returned
+#' unchanged).
 #'
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
-#' @param depChoice A logical expression using column names from the
-#'  deployments table defining which deployments to keep.
 #' @param start,end Single character or POSIXct values defining the
-#'   time range within which to subset the package.
+#'   time range within which to slice the package.
+#' @param depChoice A logical expression using column names from the
+#'  deployments table defining which deployments to slice.
 #' @return As for \code{\link[camtraptor]{read_camtrap_dp}}, with all
 #'  data tables reduced according to the choice criteria.
 #' @examples
-#' # subset excluding a location and including only data from mid October 2017
 #'   \dontrun{
 #'     pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
 #'     }
 #'   data(pkg)
-#'   subpkg <- filter_camtrap_dp(pkg,
-#'                               depChoice = locationName!="S01",
+#' # Slicing the whole package to mid October 2017
+#'   subpkg <- slice_camtrap_dp(pkg,
 #'                               start = "2017/10/10",
 #'                               end = "2017/10/20")
+#' # Slicing only deployments at location "S03" to a specific start time/date
+#'   subpkg <- slice_camtrap_dp(pkg,
+#'                               start = "2017/10/15 14:30:00",
+#'                               depChoice = locationName=="S03")
 #' @export
 #'
-filter_camtrap_dp <- function(package,
-                              depChoice = NULL,
-                              start = NULL,
-                              end = NULL){
-  # deployment filtering
-  if(!missing(depChoice)){
-    package$data$deployments <- package$data$deployments %>%
-      dplyr::filter({{depChoice}})
-    usedeps <- package$data$deployments$deploymentID
-    package$data$observations <- package$data$observations %>%
-      dplyr::filter(deploymentID %in% usedeps)
-    if("media" %in% names(package$data))
-      package$data$media <- package$data$media %>%
-        dplyr::filter(deploymentID %in% usedeps)
-  }
+slice_camtrap_dp <- function(package,
+                             start = NULL,
+                             end = NULL,
+                             depChoice = NULL){
 
-  # time filtering
+  if(missing(depChoice)) depChoice <- TRUE
+  deps <- package$data$deployments %>%
+    dplyr::filter({{depChoice}}) %>%
+    dplyr::pull(deploymentID)
+
   startCut <- if(is.null(start))
     min(package$data$deployments$start) else
       as.POSIXct(start, tz="UTC")
@@ -440,22 +439,28 @@ filter_camtrap_dp <- function(package,
       as.POSIXct(end, tz="UTC")
 
   package$data$deployments <- package$data$deployments %>%
-    dplyr::mutate(start = dplyr::case_when(end<=startCut ~ NA,
-                                           start>=endCut ~ NA,
-                                           start<=startCut ~ startCut,
+    dplyr::mutate(start = dplyr::case_when(end<=startCut & {{depChoice}} ~ NA,
+                                           start>=endCut & {{depChoice}} ~ NA,
+                                           start<=startCut & {{depChoice}} ~ startCut,
                                            .default = start),
-                  end = dplyr::case_when(end<=startCut ~ NA,
-                                         start>=endCut ~ NA,
-                                         end>=endCut ~ endCut,
+                  end = dplyr::case_when(end<=startCut & {{depChoice}} ~ NA,
+                                         start>=endCut & {{depChoice}} ~ NA,
+                                         end>=endCut & {{depChoice}} ~ endCut,
                                          .default = end)) %>%
     dplyr::filter(!is.na(start))
 
   package$data$observations <- package$data$observations %>%
-    dplyr::filter(timestamp>=startCut & timestamp<=endCut)
+    dplyr::filter(!deploymentID %in% deps |
+                    (timestamp>=startCut &
+                       timestamp<=endCut &
+                       deploymentID %in% deps))
 
   if("media" %in% names(package$data)){
     package$data$media <- package$data$media %>%
-      dplyr::filter(timestamp>=startCut & timestamp<=endCut)
+      dplyr::filter(!deploymentID %in% deps |
+                      (timestamp>=startCut &
+                         timestamp<=endCut &
+                         deploymentID %in% deps))
   }
   package
 }
