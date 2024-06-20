@@ -14,7 +14,7 @@ slice_camtrap_dp(package, start = NULL, end = NULL, depChoice = NULL)
 time range within which to slice the package.}
 
 \item{depChoice}{A logical expression using column names from the
-deployments table defining which deployments to keep.}
+deployments table defining which deployments to slice.}
 }
 \value{
 As for \code{\link[camtraptor]{read_camtrap_dp}}, with all
