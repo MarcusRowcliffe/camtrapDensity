@@ -310,10 +310,10 @@ map_traprates <- function(pkg, species=NULL, basemap=c("street", "satellite"),
 
 #' Plot a deployment Gantt chart
 #'
-#' Plots a Gantt chart illustrating deployment times (black lines) and
-#' the occurrence of observations within those deployments (red bars). Useful
-#' for checking errors in specification of deployment start and end dates, and
-#' visualising spatiotemporal distribution of observations.
+#' Plots an interactive Gantt chart illustrating deployment times (black lines)
+#' and the occurrence of observations within those deployments (orange bars).
+#' Useful for checking errors in specification of deployment start and end
+#' dates, and visualising spatiotemporal distribution of observations.
 #'
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
@@ -324,26 +324,26 @@ map_traprates <- function(pkg, species=NULL, basemap=c("street", "satellite"),
 #' @export
 #'
 plot_deployment_schedule <- function(package){
+
   depdat <- package$data$deployments
+  i <- gtools::mixedorder(depdat$locationName)
+  depdat <- depdat[i,] %>%
+    dplyr::mutate(deploymentID=factor(deploymentID, deploymentID))
   obsdat <- package$data$observations
 
-  rng <- range(c(depdat$start, depdat$end, obsdat$timestamp))
-  n <- nrow(depdat)
-  depdat <- depdat[gtools::mixedorder(depdat$locationName), ]
-
-  plot(c(0.5,n+0.5), rng, type="n", xlab="Location name", ylab="Date", xaxt="n", las=1)
-  axis(1, (1:n)+0.05, depdat$locationName, las=2, cex.axis=0.7)
-
-  for(i in 1:n){
-    dep <- depdat$deploymentID[i]
-    obs <- subset(obsdat, deploymentID==dep)$timestamp
-    lines(rep(i, 2), rng + difftime(rng[2], rng[1]) * c(-0.05, 0.05),
-          col="grey90")
-    points(rep(i+0.1, length(obs)), obs, pch="-",
-           col="red")
-    lines(rep(i-0.1, 2), depdat[i, c("start", "end")],
-          lwd=2)
-  }
+  plt <- ggplot2::ggplot() +
+    geom_point(data = obsdat,
+               mapping = aes(deploymentID, timestamp),
+               shape=45, color="tan2") +
+    geom_segment(data = depdat,
+                 mapping = aes(x=deploymentID, y=start,
+                               xend=deploymentID, yend=end)) +
+    scale_x_discrete(labels=depdat$locationName) +
+    scale_y_datetime(date_labels="%Y/%m/%d") +
+    labs(x="Location", y=element_blank()) +
+    theme_classic() +
+    theme(axis.text.x = element_text(angle = 90, vjust=0.5))
+  plotly::ggplotly(plt)
 }
 
 #' Subset a camera trap datapackage by deployment (deprecated)
