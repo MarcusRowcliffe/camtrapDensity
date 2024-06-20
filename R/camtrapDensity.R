@@ -332,17 +332,17 @@ plot_deployment_schedule <- function(package){
   obsdat <- package$data$observations
 
   plt <- ggplot2::ggplot() +
-    geom_point(data = obsdat,
-               mapping = aes(deploymentID, timestamp),
-               shape=45, color="tan2") +
-    geom_segment(data = depdat,
-                 mapping = aes(x=deploymentID, y=start,
-                               xend=deploymentID, yend=end)) +
-    scale_x_discrete(labels=depdat$locationName) +
-    scale_y_datetime(date_labels="%Y/%m/%d") +
-    labs(x="Location", y=element_blank()) +
-    theme_classic() +
-    theme(axis.text.x = element_text(angle = 90, vjust=0.5))
+    ggplot2::geom_point(data = obsdat,
+                        mapping = aes(deploymentID, timestamp),
+                        shape=45, color="tan2") +
+    ggplot2::geom_segment(data = depdat,
+                          mapping = aes(x=deploymentID, y=start,
+                                        xend=deploymentID, yend=end)) +
+    ggplot2::scale_x_discrete(labels=depdat$locationName) +
+    ggplot2::scale_y_datetime(date_labels="%Y/%m/%d") +
+    ggplot2::labs(x="Location", y=element_blank()) +
+    ggplot2::theme_classic() +
+    ggplot2::theme(axis.text.x = element_text(angle = 90, vjust=0.5))
   plotly::ggplotly(plt)
 }
 
