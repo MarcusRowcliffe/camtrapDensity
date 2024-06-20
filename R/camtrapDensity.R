@@ -323,6 +323,7 @@ map_traprates <- function(pkg, species=NULL, basemap=c("street", "satellite"),
 #'   plot_deployment_schedule(pkg)
 #' @export
 #'
+
 plot_deployment_schedule <- function(package){
 
   depdat <- package$data$deployments
@@ -333,16 +334,19 @@ plot_deployment_schedule <- function(package){
 
   plt <- ggplot2::ggplot() +
     ggplot2::geom_point(data = obsdat,
-                        mapping = aes(deploymentID, timestamp),
+                        mapping = ggplot2::aes(.data$deploymentID,
+                                               .data$timestamp),
                         shape=45, color="tan2") +
     ggplot2::geom_segment(data = depdat,
-                          mapping = aes(x=deploymentID, y=start,
-                                        xend=deploymentID, yend=end)) +
+                          mapping = ggplot2::aes(x = .data$deploymentID,
+                                                 xend = .data$deploymentID,
+                                                 y = .data$start,
+                                                 yend = .data$end)) +
     ggplot2::scale_x_discrete(labels=depdat$locationName) +
     ggplot2::scale_y_datetime(date_labels="%Y/%m/%d") +
-    ggplot2::labs(x="Location", y=element_blank()) +
+    ggplot2::labs(x="Location", y=ggplot2::element_blank()) +
     ggplot2::theme_classic() +
-    ggplot2::theme(axis.text.x = element_text(angle = 90, vjust=0.5))
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust=0.5))
   plotly::ggplotly(plt)
 }
 
