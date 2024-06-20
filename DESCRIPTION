@@ -19,7 +19,9 @@ Imports:
     gtools,
     jpeg,
     jsonlite,
-    tidyr,
-    leaflet
+    leaflet,
+    plotly,
+    rlang,
+    tidyr
 LazyData: true
 RoxygenNote: 7.2.3
