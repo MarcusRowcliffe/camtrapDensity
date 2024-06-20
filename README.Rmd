@@ -81,7 +81,7 @@ pkg <- camtrapDensity::read_camtrapDP("./datapackage_V1.0/datapackage.json")
 
 ### <a id="ScheduleChecking"></a>Checking the deployment schedule
 
-This line provides a visualisation of the deployment schedules. It can quickly highlight any incorrect dates, or help you decide where to split the data if you only want to analyse a subset of the deployments. Black lines indicate the period of operation of each deployment and red ticks indicate the time at which each observation occurred. 
+This line provides an interactive visualisation of the deployment schedules. It can quickly highlight any incorrect dates, or help you decide where to split the data if you only want to analyse a subset of the deployments. Black lines indicate the period of operation of each deployment and orange bars indicate the time at which each observation occurred. 
 
 ```{r}
 plot_deployment_schedule(pkg)
@@ -123,6 +123,21 @@ subpkg <- subset_deployments(pkg, locationName != "S01")
 ```
 
 After subsetting, check your sub-package to verify correct selection, as [above](#ScheduleChecking).
+
+### Time-slicing deployments
+
+Use this function to take a time slice of the data. Observations outside start and/or end times are discarded, and deployment start and/or end times are rest to those times if they fall outside the slice. Optionally, you can restrict the slicing to a subset of deployments, selected on the basis of information in the deployments table. Here are some examples:
+
+```{r}
+# Slices all deployments to the interval between 9 Oct and 26 Oct mid-day
+subpkg <- slice_camtrap_dp(pkg,
+                           start = "2017/10/09 12:00:00",
+                           end = "2017/10/26 12:00:00")
+# Slices just the deployment at location S02 to finish on 27 Oct mid-day
+subpkg <- slice_camtrap_dp(pkg,
+                           end = "2017/10/27 12:00:00",
+                           depChoice = locationName=="S02")
+```
 
 ### Correcting timestamps
 
