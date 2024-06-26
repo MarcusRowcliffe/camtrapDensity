@@ -1,8 +1,8 @@
-remove.packages("camtrapDensity")
 # See https://github.com/MarcusRowcliffe/camtrapDensity for detailed instructions
 
 # 1. INITIAL SETUP
 # One-off
+# remove.packages("camtrapDensity")
 install.packages(c("devtools", "dply", "tidyr", "jsonlite", "lubridate"))
 devtools::install_github("inbo/camtraptor")
 devtools::install_github("MarcusRowcliffe/camtrapDensity")
@@ -18,7 +18,7 @@ library(lubridate)
 pkg <- read_camtrapDP("datapackage_V1.0/datapackage.json")
 plot_deployment_schedule(pkg)
 
-# 4. SUBSET DEPLOYMENTS (OPTIONAL)
+# 4. SUBSET DEPLOYMENTS (IF NECESSARY)
 # e.g. Selects only deployments occuring within 2023
 subpkg <- subset_deployments(pkg, start > ymd("2023-01-01") &
                                end < ymd("2024-01-01"))
@@ -32,23 +32,23 @@ subpkg <- slice_camtrap_dp(pkg,
                            depChoice = locationName=="S02")
 plot_deployment_schedule(subpkg)
 
-# 5. CHECK DEPLOYMENT SCHEDULE
+# recheck deployment schedule of filtered datapackage
 plot_deployment_schedule(subpkg)
 
-# 6. CHECK DEPLOYMENT CALIBRATION MODELS
+# 5. CHECK DEPLOYMENT CALIBRATION MODELS
 pkg_chk <- check_deployment_models(pkg)
 
-# 7. REM ANALYSIS
+# 6. REM ANALYSIS
 res <- rem_estimate(pkg_chk, check_deployments=FALSE)
 
-# 8. EVALUATE DATA DISTRIBUTIONS AND MODEL FITS
+# 7. EVALUATE DATA DISTRIBUTIONS AND MODEL FITS
 plot(res$activity_model)
 plot(res$radius_model, pdf=TRUE)
 plot(res$angle_model)
 hist(res$speed_model)
 
-# 9. EXTRACT MODEL ESTIMATES
+# 8. EXTRACT MODEL ESTIMATES
 res$estimates
 
-# 10. SAVE WORKSPACE FOR FUTURE REFERENCE
+# 9. SAVE WORKSPACE FOR FUTURE REFERENCE
 save.image()
