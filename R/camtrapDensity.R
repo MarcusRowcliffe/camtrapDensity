@@ -717,53 +717,34 @@ get_agouti_url <- function(package, obsChoice){
 #'   }
 #'   # With species predefined
 #'   speed_model <- fit_speedmodel(pkg, species="Vulpes vulpes")
-#'   speed_model$speed
+#'   speed_model$estimate
+#'   hist(speed_model)
 #' @export
 #'
 fit_speedmodel <- function(package,
-                           species=NULL,
-                           formula=NULL,
-                           newdata=NULL,
-                           reps=1000,
-                           distUnit=c("m", "km", "cm"),
-                           timeUnit=c("second", "minute", "hour", "day"),
+                           species = NULL,
+                           formula = speed ~ 1,
+                           newdata = NULL,
+                           reps = 1000,
+                           distUnit = c("m", "km", "cm"),
+                           timeUnit = c("second", "minute", "hour", "day"),
                            ...){
   distUnit <- match.arg(distUnit)
   timeUnit <- match.arg(timeUnit)
-  obs <- package$data$observations
+  varnms <- all.vars(formula)
   species <- select_species(package, species)
-
-  if(is.null(formula))
-    varnms <- "speed" else{
-      varnms <- all.vars(formula)
-      if(!all(varnms %in% names(obs)))
-        stop("Can't find all formula variables in formula in the observations table")
-    }
-
-  if("useDeployment" %in% names(obs))
-    obs <- dplyr::filter(obs, useDeployment==TRUE)
-  obs <- obs %>%
+  obs <- package$data$observations %>%
     dplyr::select(dplyr::all_of(c("scientificName", varnms))) %>%
     dplyr::filter(scientificName %in% !!species & speed>0.01 & speed<10) %>%
     tidyr::drop_na()
+  if("useDeployment" %in% names(obs))
+    obs <- dplyr::filter(obs, useDeployment==TRUE)
 
   if(nrow(obs) == 0) stop("There are no usable speed data")
 
-  if(is.null(formula)){
-    mn <- 1/mean(1/obs$speed)
-    res <- data.frame(est = mn,
-                      se = mn^2 * sqrt(var(1/obs$speed)/nrow(obs)))
-    spdmod <- NULL
-  } else{
-    spdmod <- sbm(formula, obs, ...)
-    res <- predict.sbm(spdmod, newdata, reps)
-
-  }
-  c(spdmod,
-    list(speed = res,
-         data = obs,
-         distUnit = distUnit,
-         timeUnit = timeUnit))
+  res <- sbd::sbm(formula, obs, ...)
+  res$unit <- paste(distUnit, timeUnit, sep="/")
+  res
 }
 
 #' Fit an activity model
@@ -1157,7 +1138,7 @@ get_parameter_table <- function(traprate_data,
   # Get parameters and SEs
   rad <- radius_model$edd
   ang <- angle_model$edd * 2
-  spd <- speed_model$speed
+  spd <- dplyr::select(speed_model$estimate, all_of(c("est", "se")))
   act <- activity_model@act[1:2]
   names(act) <- names(spd) <- dimnames(rad)[[2]]
   res <- data.frame(rbind(rad, ang, spd, act))
@@ -1176,12 +1157,11 @@ get_parameter_table <- function(traprate_data,
              nrow(speed_model$data),
              length(activity_model@data),
              NA)
-  speed_unit <- paste(speed_model$distUnit, speed_model$timeUnit, sep="/")
   res$unit <- c(radius_model$unit,
                 angle_model$unit,
-                speed_unit,
+                speed_model$unit,
                 "none",
-                speed_unit)
+                speed_model$unit)
   rownames(res) <- c("radius",
                      "angle",
                      "active_speed",

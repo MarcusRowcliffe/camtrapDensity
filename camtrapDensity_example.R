@@ -1,3 +1,4 @@
+remove.packages("camtrapDensity")
 # See https://github.com/MarcusRowcliffe/camtrapDensity for detailed instructions
 
 # 1. INITIAL SETUP
@@ -13,38 +14,38 @@ library(camtraptor)
 library(lubridate)
 
 # 3. LOAD DATA
-# Assumes data are in the root project directory and Windows OS.
-# Delete the "." for Mac.
-pkg <- read_camtrapDP("./DataPackage_V1.0/datapackage.json")
+# Assumes data are in a subdirectory of root project directory.
+pkg <- read_camtrapDP("datapackage_V1.0/datapackage.json")
 plot_deployment_schedule(pkg)
 
-# 4. FILTER DATA (IF NECESSARY)
-# e.g. selects only deployments occurring within 2023
-subpkg <- subset_deployments(pkg, choice=end < ymd("2024-10-20"))
-# slices all deployments to given date
+# 4. SUBSET DEPLOYMENTS (OPTIONAL)
+# e.g. Selects only deployments occuring within 2023
+subpkg <- subset_deployments(pkg, start > ymd("2023-01-01") &
+                               end < ymd("2024-01-01"))
+# e.g. Slices all deployments to given date range
 subpkg <- slice_camtrap_dp(pkg,
                            start = "2017/10/09",
                            end = "2017/10/26")
-# slices deployment at location S02 to end at the given date
+# e.g. Slices deployment at location S02 to end at the given time
 subpkg <- slice_camtrap_dp(pkg,
-                           end = "2017/10/27",
+                           end = "2017/10/27 16:45:00",
                            depChoice = locationName=="S02")
 plot_deployment_schedule(subpkg)
 
 # 5. CHECK DEPLOYMENT SCHEDULE
-plot_deployment_schedule(pkg)
 plot_deployment_schedule(subpkg)
 
 # 6. CHECK DEPLOYMENT CALIBRATION MODELS
-pkg_chk <- check_deployment_models(subpkg)
+pkg_chk <- check_deployment_models(pkg)
 
 # 7. REM ANALYSIS
 res <- rem_estimate(pkg_chk, check_deployments=FALSE)
 
-# 8. EVALUATE MODEL FITS
+# 8. EVALUATE DATA DISTRIBUTIONS AND MODEL FITS
 plot(res$activity_model)
 plot(res$radius_model, pdf=TRUE)
 plot(res$angle_model)
+hist(res$speed_model)
 
 # 9. EXTRACT MODEL ESTIMATES
 res$estimates

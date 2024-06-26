@@ -7,7 +7,7 @@
 fit_speedmodel(
   package,
   species = NULL,
-  formula = NULL,
+  formula = speed ~ 1,
   newdata = NULL,
   reps = 1000,
   distUnit = c("m", "km", "cm"),
@@ -62,5 +62,6 @@ If a formula is provided, the model is fitted using the \code{sbm}
   }
   # With species predefined
   speed_model <- fit_speedmodel(pkg, species="Vulpes vulpes")
-  speed_model$speed
+  speed_model$estimate
+  hist(speed_model)
 }
