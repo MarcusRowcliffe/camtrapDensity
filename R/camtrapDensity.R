@@ -310,10 +310,10 @@ map_traprates <- function(pkg, species=NULL, basemap=c("street", "satellite"),
 
 #' Plot a deployment Gantt chart
 #'
-#' Plots a Gantt chart illustrating deployment times (black lines) and
-#' the occurrence of observations within those deployments (red bars). Useful
-#' for checking errors in specification of deployment start and end dates, and
-#' visualising spatiotemporal distribution of observations.
+#' Plots an interactive Gantt chart illustrating deployment times (black lines)
+#' and the occurrence of observations within those deployments (orange bars).
+#' Useful for checking errors in specification of deployment start and end
+#' dates, and visualising spatiotemporal distribution of observations.
 #'
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
@@ -323,27 +323,31 @@ map_traprates <- function(pkg, species=NULL, basemap=c("street", "satellite"),
 #'   plot_deployment_schedule(pkg)
 #' @export
 #'
+
 plot_deployment_schedule <- function(package){
+
   depdat <- package$data$deployments
+  i <- gtools::mixedorder(depdat$locationName)
+  depdat <- depdat[i,] %>%
+    dplyr::mutate(deploymentID=factor(deploymentID, deploymentID))
   obsdat <- package$data$observations
 
-  rng <- range(c(depdat$start, depdat$end, obsdat$timestamp))
-  n <- nrow(depdat)
-  depdat <- depdat[gtools::mixedorder(depdat$locationName), ]
-
-  plot(c(0.5,n+0.5), rng, type="n", xlab="Location name", ylab="Date", xaxt="n", las=1)
-  axis(1, (1:n)+0.05, depdat$locationName, las=2, cex.axis=0.7)
-
-  for(i in 1:n){
-    dep <- depdat$deploymentID[i]
-    obs <- subset(obsdat, deploymentID==dep)$timestamp
-    lines(rep(i, 2), rng + difftime(rng[2], rng[1]) * c(-0.05, 0.05),
-          col="grey90")
-    points(rep(i+0.1, length(obs)), obs, pch="-",
-           col="red")
-    lines(rep(i-0.1, 2), depdat[i, c("start", "end")],
-          lwd=2)
-  }
+  plt <- ggplot2::ggplot() +
+    ggplot2::geom_point(data = obsdat,
+                        mapping = ggplot2::aes(.data$deploymentID,
+                                               .data$timestamp),
+                        shape=45, color="tan2") +
+    ggplot2::geom_segment(data = depdat,
+                          mapping = ggplot2::aes(x = .data$deploymentID,
+                                                 xend = .data$deploymentID,
+                                                 y = .data$start,
+                                                 yend = .data$end)) +
+    ggplot2::scale_x_discrete(labels=depdat$locationName) +
+    ggplot2::scale_y_datetime(date_labels="%Y/%m/%d") +
+    ggplot2::labs(x="Location", y=ggplot2::element_blank()) +
+    ggplot2::theme_classic() +
+    ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust=0.5))
+  plotly::ggplotly(plt)
 }
 
 #' Subset a camera trap datapackage by deployment (deprecated)
@@ -383,50 +387,49 @@ subset_deployments <- function(package, choice){
 }
 
 
-#' Select a subset of a data package
+#' Take a time slice of a data package
 #'
-#' Discards any observations and media that occur at specified deployments,
-#' or that fall outside the time range defined by start and end. When start
-#' and/end are specified, truncates deployment start/end times, and removes
-#' any deployments that fall entirely outside the subset time range.
+#' Discards any observations, media, or deployments that fall wholly outside
+#' the time range defined by start and end. When start or end are not
+#' specified, no slicing is applied to start or end points respectively.
+#' Slicing applies to all deployments by default, or can be applied to only a
+#' subset of deployments specified by depChoice. The fully default behaviour
+#' for this function is therefore to do nothing (the datapackage is returned
+#' unchanged).
 #'
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
-#' @param depChoice A logical expression using column names from the
-#'  deployments table defining which deployments to keep.
 #' @param start,end Single character or POSIXct values defining the
-#'   time range within which to subset the package.
+#'   time range within which to slice the package.
+#' @param depChoice A logical expression using column names from the
+#'  deployments table defining which deployments to slice.
 #' @return As for \code{\link[camtraptor]{read_camtrap_dp}}, with all
 #'  data tables reduced according to the choice criteria.
 #' @examples
-#' # subset excluding a location and including only data from mid October 2017
 #'   \dontrun{
 #'     pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
 #'     }
 #'   data(pkg)
-#'   subpkg <- filter_camtrap_dp(pkg,
-#'                               depChoice = locationName!="S01",
+#' # Slicing the whole package to mid October 2017
+#'   subpkg <- slice_camtrap_dp(pkg,
 #'                               start = "2017/10/10",
 #'                               end = "2017/10/20")
+#' # Slicing only deployments at location "S03" to a specific start time/date
+#'   subpkg <- slice_camtrap_dp(pkg,
+#'                               start = "2017/10/15 14:30:00",
+#'                               depChoice = locationName=="S03")
 #' @export
 #'
-filter_camtrap_dp <- function(package,
-                              depChoice = NULL,
-                              start = NULL,
-                              end = NULL){
-  # deployment filtering
-  if(!missing(depChoice)){
-    package$data$deployments <- package$data$deployments %>%
-      dplyr::filter({{depChoice}})
-    usedeps <- package$data$deployments$deploymentID
-    package$data$observations <- package$data$observations %>%
-      dplyr::filter(deploymentID %in% usedeps)
-    if("media" %in% names(package$data))
-      package$data$media <- package$data$media %>%
-        dplyr::filter(deploymentID %in% usedeps)
-  }
+slice_camtrap_dp <- function(package,
+                             start = NULL,
+                             end = NULL,
+                             depChoice = NULL){
 
-  # time filtering
+  if(missing(depChoice)) depChoice <- TRUE
+  deps <- package$data$deployments %>%
+    dplyr::filter({{depChoice}}) %>%
+    dplyr::pull(deploymentID)
+
   startCut <- if(is.null(start))
     min(package$data$deployments$start) else
       as.POSIXct(start, tz="UTC")
@@ -436,22 +439,28 @@ filter_camtrap_dp <- function(package,
       as.POSIXct(end, tz="UTC")
 
   package$data$deployments <- package$data$deployments %>%
-    dplyr::mutate(start = dplyr::case_when(end<=startCut ~ NA,
-                                           start>=endCut ~ NA,
-                                           start<=startCut ~ startCut,
+    dplyr::mutate(start = dplyr::case_when(end<=startCut & {{depChoice}} ~ NA,
+                                           start>=endCut & {{depChoice}} ~ NA,
+                                           start<=startCut & {{depChoice}} ~ startCut,
                                            .default = start),
-                  end = dplyr::case_when(end<=startCut ~ NA,
-                                         start>=endCut ~ NA,
-                                         end>=endCut ~ endCut,
+                  end = dplyr::case_when(end<=startCut & {{depChoice}} ~ NA,
+                                         start>=endCut & {{depChoice}} ~ NA,
+                                         end>=endCut & {{depChoice}} ~ endCut,
                                          .default = end)) %>%
     dplyr::filter(!is.na(start))
 
   package$data$observations <- package$data$observations %>%
-    dplyr::filter(timestamp>=startCut & timestamp<=endCut)
+    dplyr::filter(!deploymentID %in% deps |
+                    (timestamp>=startCut &
+                       timestamp<=endCut &
+                       deploymentID %in% deps))
 
   if("media" %in% names(package$data)){
     package$data$media <- package$data$media %>%
-      dplyr::filter(timestamp>=startCut & timestamp<=endCut)
+      dplyr::filter(!deploymentID %in% deps |
+                      (timestamp>=startCut &
+                         timestamp<=endCut &
+                         deploymentID %in% deps))
   }
   package
 }
@@ -1360,10 +1369,10 @@ rem <- function(parameters){
   parameters["density", "se"] <- se
   if("cv" %in% names(parameters))
     parameters["density", "cv"] <- cv
-  if("ucl95" %in% names(parameters))
-    parameters["density", "ucl95"] <- ci[1]
   if("lcl95" %in% names(parameters))
-    parameters["density", "lcl95"] <- ci[2]
+    parameters["density", "lcl95"] <- ci[1]
+  if("ucl95" %in% names(parameters))
+    parameters["density", "ucl95"] <- ci[2]
   parameters["density", "unit"] <- "n/km2"
 
   parameters
@@ -1439,20 +1448,25 @@ rem_estimate <- function(package,
   species <- select_species(package, species)
   message(paste("Analysing", species))
 
+  message("Fitting radius model...")
   if(is.null(radius_model))
     radius_model <- fit_detmodel(radius~1, package, species,
-                                 order=0, truncation=12)
+                                 order=0, truncation="5%")
 
+  message("Fitting angle model...")
   if(is.null(angle_model))
     angle_model <- fit_detmodel(angle~1, package, species,
                                 order=0, unit="radian")
 
+  message("Fitting speed model...")
   if(is.null(speed_model))
     speed_model <- fit_speedmodel(package, species)
 
+  message("Fitting activity model...")
   if(is.null(activity_model))
     activity_model <- fit_actmodel(package, species, reps)
 
+  message("Calculating density...")
   trdat <- get_traprate_data(package, species)
   parameters <- get_parameter_table(trdat,
                                     radius_model,
@@ -1468,6 +1482,7 @@ rem_estimate <- function(package,
                   active_speed_unit = "km/hour",
                   overall_speed_unit = "km/day")
 
+  message("DONE")
   list(species=species, data=trdat, estimates=estimates,
        speed_model=speed_model, activity_model=activity_model,
        radius_model=radius_model, angle_model=angle_model)

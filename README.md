@@ -103,11 +103,12 @@ pkg <- read_camtrapDP("/path/to/your/folder/datapackage.json") # Mac
 
 ### <a id="ScheduleChecking"></a>Checking the deployment schedule
 
-This line provides a visualisation of the deployment schedules. It can
-quickly highlight any incorrect dates, or help you decide where to split
-the data if you only want to analyse a subset of the deployments. Black
-lines indicate the period of operation of each deployment and red ticks
-indicate the time at which each observation occurred.
+This line provides an interactive visualisation of the deployment
+schedules. It can quickly highlight any incorrect dates, or help you
+decide where to split the data if you only want to analyse a subset of
+the deployments. Black lines indicate the period of operation of each
+deployment and orange bars indicate the time at which each observation
+occurred.
 
 ``` r
 plot_deployment_schedule(pkg)
@@ -163,6 +164,26 @@ subpkg <- subset_deployments(pkg, locationName != "S01")
 
 After subsetting, check your sub-package to verify correct selection, as
 [above](#ScheduleChecking).
+
+### Time-slicing deployments
+
+Use this function to take a time slice of the data. Observations outside
+start and/or end times are discarded, and deployment start and/or end
+times are rest to those times if they fall outside the slice.
+Optionally, you can restrict the slicing to a subset of deployments,
+selected on the basis of information in the deployments table. Here are
+some examples:
+
+``` r
+# Slices all deployments to the interval between 9 Oct and 26 Oct mid-day
+subpkg <- slice_camtrap_dp(pkg,
+                           start = "2017/10/09 12:00:00",
+                           end = "2017/10/26 12:00:00")
+# Slices just the deployment at location S02 to finish on 27 Oct mid-day
+subpkg <- slice_camtrap_dp(pkg,
+                           end = "2017/10/27 12:00:00",
+                           depChoice = locationName=="S02")
+```
 
 ### Correcting timestamps
 
@@ -304,14 +325,14 @@ compenent name to the result object spearated with a \$ sign, like this:
 res_vul$estimates
 ```
 
-    ##                  estimate          se        cv       lcl95      ucl95  n
-    ## radius          3.3516525  0.78550867 0.2343646  1.81205547  4.8912495 13
-    ## angle          44.9831275  9.42829597 0.2095963 26.50366740 63.4625876 15
-    ## active_speed    1.3414083  0.60283473 0.4494044  0.15985224  2.5229644  6
-    ## activity_level  0.2451959  0.07576557 0.3090002  0.09669538  0.3936964 15
-    ## overall_speed   7.8937874  4.30515733 0.5453855 -0.54432099 16.3318957 NA
-    ## trap_rate       0.3829885  0.05192633 0.1355819  0.28942768  0.4376289  3
-    ## density        16.3286340 12.44404218 0.7620994  4.33449423 61.5122025 NA
+    ##                  estimate         se         cv       lcl95      ucl95  n
+    ## radius          4.6552400 0.35422329 0.07609131  3.96096233  5.3495176 14
+    ## angle          44.9831275 9.42829597 0.20959628 26.50366740 63.4625876 15
+    ## active_speed    1.3414083 0.60283473 0.44940435  0.15985224  2.5229644  6
+    ## activity_level  0.2451959 0.05814392 0.23713250  0.13123382  0.3591580 15
+    ## overall_speed   7.8937874 4.01107017 0.50813000  0.03208984 15.7554849 NA
+    ## trap_rate       0.4124492 0.04306442 0.10441146  0.32006762  0.4550903  3
+    ## density        12.6605171 6.67989141 0.52761600  4.79312715 33.4413608 NA
     ##                   unit
     ## radius               m
     ## angle           degree
@@ -363,19 +384,19 @@ Component model fits can be evaluated by inspecting diagnostic plots:
 plot(res_vul$activity_model)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
 
 ``` r
 plot(res_vul$radius_model, pdf=TRUE)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-22-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-23-2.png)<!-- -->
 
 ``` r
 plot(res_vul$angle_model)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-22-3.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-23-3.png)<!-- -->
 
 ## General R tips
 
