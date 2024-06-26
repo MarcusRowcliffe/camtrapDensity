@@ -733,7 +733,7 @@ fit_speedmodel <- function(package,
 
   if(nrow(obs) == 0) stop("There are no usable speed data")
 
-  res <- sbm(formula, obs, ...)
+  res <- sbd::sbm(formula, obs, ...)
   res$unit <- paste(distUnit, timeUnit, sep="/")
   res
 }

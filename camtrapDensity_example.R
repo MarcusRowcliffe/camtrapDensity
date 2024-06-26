@@ -1,3 +1,4 @@
+remove.packages("camtrapDensity")
 # See https://github.com/MarcusRowcliffe/camtrapDensity for detailed instructions
 
 # 1. INITIAL SETUP
@@ -15,11 +16,10 @@ library(lubridate)
 # 3. LOAD DATA
 # Assumes data are in the root project directory and Windows OS.
 # Delete the "." for Mac.
-pkg <- read_camtrapDP("./datapackage.json")
+pkg <- read_camtrapDP("datapackage_V1.0/datapackage.json")
 
 # 4. SUBSET DEPLOYMENTS (OPTIONAL)
-# Selects only deployments occuring within 2023
-# Edit date as necessary
+# e.g. Selects only deployments occuring within 2023
 subpkg <- subset_deployments(pkg, start > ymd("2023-01-01") &
                                end < ymd("2024-01-01"))
 
@@ -27,15 +27,16 @@ subpkg <- subset_deployments(pkg, start > ymd("2023-01-01") &
 plot_deployment_schedule(pkg)
 
 # 6. CHECK DEPLOYMENT CALIBRATION MODELS
-pkg_chk <- check_deployment_models(subpkg)
+pkg_chk <- check_deployment_models(pkg)
 
 # 7. REM ANALYSIS
 res <- rem_estimate(pkg_chk, check_deployments=FALSE)
 
-# 8. EVALUATE MODEL FITS
+# 8. EVALUATE DATA DISTRIBUTIONS AND MODEL FITS
 plot(res$activity_model)
 plot(res$radius_model, pdf=TRUE)
 plot(res$angle_model)
+hist(res$speed_model)
 
 # 9. EXTRACT MODEL ESTIMATES
 res$estimates
