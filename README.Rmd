@@ -37,7 +37,7 @@ You can now add lines of code to the script window from the examples below, edit
 Install `camtrapDensity`, `camptraptor` and the other necessary supporting packages by running this code. You only need to run this code once for the initial install, although it may be necessary to re-install packages when important updates are released from time to time:
   
 ``` {r eval=FALSE}
-install.packages(c("devtools", "dply", "tidyr", "jsonlite", "lubridate"))
+install.packages(c("devtools", "tidyverse"))
 devtools::install_github("inbo/camtraptor")
 devtools::install_github("MarcusRowcliffe/camtrapDensity")
 ```
