@@ -32,7 +32,7 @@ per-location observation counts and camera time.
 }
 \examples{
   \dontrun{
-    pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+    pkg <- read_camtrapDP("./datapackage/datapackage.json")
     }
   data(pkg)
   trdata <- get_traprate_data(pkg, species="Vulpes vulpes")

@@ -64,16 +64,13 @@ This allows you to access multiple datapackages from a single project. Alternati
   
 ``` {r eval=FALSE}
 # Data are in the project directory
-pkg <- read_camtrapDP("./datapackage.json") # Windows
-pkg <- read_camtrapDP("/datapackage.json") # Mac
+pkg <- read_camtrapDP("datapackage.json")
 
 # Data are in a subdirectory of the project directory
-pkg <- read_camtrapDP("./your_local_directory/datapackage.json") # Windows
-pkg <- read_camtrapDP("/your_local_directory/datapackage.json") # Mac
+pkg <- read_camtrapDP("your_local_directory/datapackage.json")
 
 # Data are outside the project directory (requires full path)
 pkg <- read_camtrapDP("C:/path/to/your/folder/datapackage.json") # Windows
-pkg <- read_camtrapDP("/path/to/your/folder/datapackage.json") # Mac
 ```
 ``` {r echo=FALSE}
 pkg <- camtrapDensity::read_camtrapDP("./datapackage_V1.0/datapackage.json")

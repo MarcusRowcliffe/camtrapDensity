@@ -33,5 +33,5 @@ The folder must contain three csv files: deployments.csv, media.csv
 }
 }
 \examples{
-  \dontrun{pkg <- camtraptor::read_camtrap_dp_csv("./data")}
+  \dontrun{pkg <- read_camtrap_dp_csv("./data")}
 }

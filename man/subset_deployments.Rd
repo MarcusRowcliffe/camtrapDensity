@@ -26,7 +26,7 @@ now provided in filter_camtrap_dp.
 \examples{
 # subset excluding a location and including only October 2017
   \dontrun{
-    pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+    pkg <- read_camtrapDP("./datapackage/datapackage.json")
     }
   data(pkg)
   subpkg <- subset_deployments(pkg,

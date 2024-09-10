@@ -48,7 +48,7 @@ Input dataframe param must contain field \code{unit}, and at least one
 }
 \examples{
   \dontrun{
-    pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+    pkg <- read_camtrapDP("./datapackage/datapackage.json")
     }
   data(pkg)
   sp <- "Vulpes vulpes"

@@ -27,7 +27,7 @@ NULL
 #'   \item{observations: }{observationID, deploymentID, sequenceID, mediaID, timestamp, scientificName, count, speed, radius, angle}
 #' }
 #' @examples
-#'   \dontrun{pkg <- camtraptor::read_camtrap_dp_csv("./data")}
+#'   \dontrun{pkg <- read_camtrap_dp_csv("./data")}
 #' @export
 #'
 #'
@@ -229,7 +229,7 @@ read_camtrapDP <- function(file, resort=FALSE){
 #' @param ... Additional arguments passed to
 #'   \code{\link[leaflet]{addCircleMarkers}}
 #' @examples
-#'   \dontrun{pkg <- camtraptor::read_camtrapDP("./data/datapackage.json")}
+#'   \dontrun{pkg <- read_camtrapDP("./data/datapackage.json")}
 #'   data(pkg)
 #'   map_deployments(pkg)
 #' @export
@@ -261,7 +261,7 @@ map_deployments <- function(pkg, basemap=c("street", "satellite"), ...){
 #' @param minSize Minimum point size to plot.
 #' @param maxSize Maximum point size to plot.
 #' @examples
-#'   \dontrun{pkg <- camtraptor::read_camtrapDP("./data/datapackage.json")}
+#'   \dontrun{pkg <- read_camtrapDP("./data/datapackage.json")}
 #'   data(pkg)
 #'   map_traprate(pkg, species="Vulpes vulpes")
 #' @export
@@ -318,7 +318,7 @@ map_traprates <- function(pkg, species=NULL, basemap=c("street", "satellite"),
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @examples
-#'   \dontrun{pkg <- camtraptor::read_camtrapDP("./data/datapackage.json")}
+#'   \dontrun{pkg <- read_camtrapDP("./data/datapackage.json")}
 #'   data(pkg)
 #'   plot_deployment_schedule(pkg)
 #' @export
@@ -366,7 +366,7 @@ plot_deployment_schedule <- function(package){
 #' @examples
 #' # subset excluding a location and including only October 2017
 #'   \dontrun{
-#'     pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+#'     pkg <- read_camtrapDP("./datapackage/datapackage.json")
 #'     }
 #'   data(pkg)
 #'   subpkg <- subset_deployments(pkg,
@@ -407,7 +407,7 @@ subset_deployments <- function(package, choice){
 #'  data tables reduced according to the choice criteria.
 #' @examples
 #'   \dontrun{
-#'     pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+#'     pkg <- read_camtrapDP("./datapackage/datapackage.json")
 #'     }
 #'   data(pkg)
 #' # Slicing the whole package to mid October 2017
@@ -491,7 +491,7 @@ slice_camtrap_dp <- function(package,
 #'  than one deployment the function does not run.
 #' @examples
 #' \dontrun{
-#'   pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+#'   pkg <- read_camtrapDP("./datapackage/datapackage.json")
 #' }
 #' data(pkg)
 #' pkg_corrected <- correct_time(pkg,
@@ -559,7 +559,7 @@ correct_time <- function(package, depID=NULL, locName=NULL, wrongTime, rightTime
 #' @return A character vector of one or more scientific species names.
 #' @examples
 #'   \dontrun{
-#'     pkg <- camtraptor::read_camtrapDP("./data/datapackage.json")
+#'     pkg <- read_camtrapDP("./data/datapackage.json")
 #'     select_species(pkg)
 #'     # If provided, a valid species name is simply passed through
 #'     select_species(pkg, "Vulpes vulpes")
@@ -611,7 +611,7 @@ select_species <- function(package, species=NULL){
 #'  added to deployments and observations data.
 #' @examples
 #'   \dontrun{
-#'     pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+#'     pkg <- read_camtrapDP("./datapackage/datapackage.json")
 #'     pkg_checked <- check_deployment_models(pkg)
 #'   }
 #' @export
@@ -708,7 +708,7 @@ get_agouti_url <- function(package, obsChoice){
 #'  \code{devtools::source_url("https://raw.githubusercontent.com/MarcusRowcliffe/sbd/master/sbd.r")}
 #' @examples
 #'   \dontrun{
-#'     pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+#'     pkg <- read_camtrapDP("./datapackage/datapackage.json")
 #'   }
 #'   data(pkg)
 #'   \dontrun{
@@ -763,7 +763,7 @@ fit_speedmodel <- function(package,
 #' @seealso \code{\link[activity]{fitact}}
 #' @examples
 #'   \dontrun{
-#'     pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+#'     pkg <- read_camtrapDP("./datapackage/datapackage.json")
 #'   }
 #'   data(pkg)
 #'   \dontrun{
@@ -836,7 +836,7 @@ fit_actmodel <- function(package,
 #' @seealso \code{\link[Distance]{ds}}
 #' @examples
 #'   \dontrun{
-#'     pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+#'     pkg <- read_camtrapDP("./datapackage/datapackage.json")
 #'     }
 #'   data(pkg)
 #'   \dontrun{
@@ -942,7 +942,7 @@ fit_detmodel <- function(formula,
 #' }
 #' @examples
 #'   \dontrun{
-#'     pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+#'     pkg <- read_camtrapDP("./datapackage/datapackage.json")
 #'     }
 #'   data(pkg)
 #'   \dontrun{
@@ -1002,7 +1002,7 @@ get_traprate_data <- function(package, species=NULL,
 #'   - \code{unit}: the unit of the estimate
 #' @examples
 #'   \dontrun{
-#'     pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+#'     pkg <- read_camtrapDP("./datapackage/datapackage.json")
 #'     }
 #'   data(pkg)
 #'   trdata <- get_traprate_data(pkg, species="Vulpes vulpes")
@@ -1115,7 +1115,7 @@ lnorm_confint <- function(estimate, se, percent=95){
 #' }
 #' @examples
 #'   \dontrun{
-#'     pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+#'     pkg <- read_camtrapDP("./datapackage/datapackage.json")
 #'     }
 #'   data(pkg)
 #'   sp <- "Vulpes vulpes"
@@ -1266,7 +1266,7 @@ get_multiplier <- function(unitIN, unitOUT){
 #'
 #' @examples
 #'   \dontrun{
-#'     pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+#'     pkg <- read_camtrapDP("./datapackage/datapackage.json")
 #'     }
 #'   data(pkg)
 #'   sp <- "Vulpes vulpes"
@@ -1333,7 +1333,7 @@ convert_units <- function(param,
 #'  its errors.
 #' @examples
 #'   \dontrun{
-#'     pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+#'     pkg <- read_camtrapDP("./datapackage/datapackage.json")
 #'     }
 #'   data(pkg)
 #'   sp <- "Vulpes vulpes"
@@ -1409,7 +1409,7 @@ rem <- function(parameters){
 #' @examples
 #'   # Load data
 #'   \dontrun{
-#'     pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+#'     pkg <- read_camtrapDP("./datapackage/datapackage.json")
 #'     }
 #'   data(pkg)
 #'   # Sense check deployment schedules

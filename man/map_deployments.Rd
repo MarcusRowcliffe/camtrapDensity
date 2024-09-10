@@ -20,7 +20,7 @@ Creates an OpenStreetMap street or satellite map over-plotted with
 deployment locations.
 }
 \examples{
-  \dontrun{pkg <- camtraptor::read_camtrapDP("./data/datapackage.json")}
+  \dontrun{pkg <- read_camtrapDP("./data/datapackage.json")}
   data(pkg)
   map_deployments(pkg)
 }

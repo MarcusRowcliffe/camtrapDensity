@@ -32,7 +32,7 @@ deployment locations, with points sized in proportion to trap rate for a
 given species.
 }
 \examples{
-  \dontrun{pkg <- camtraptor::read_camtrapDP("./data/datapackage.json")}
+  \dontrun{pkg <- read_camtrapDP("./data/datapackage.json")}
   data(pkg)
   map_traprate(pkg, species="Vulpes vulpes")
 }

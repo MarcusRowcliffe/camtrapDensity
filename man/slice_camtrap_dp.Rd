@@ -31,7 +31,7 @@ unchanged).
 }
 \examples{
   \dontrun{
-    pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+    pkg <- read_camtrapDP("./datapackage/datapackage.json")
     }
   data(pkg)
 # Slicing the whole package to mid October 2017

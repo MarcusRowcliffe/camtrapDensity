@@ -58,7 +58,7 @@ and time in seconds.
 \examples{
   # Load data
   \dontrun{
-    pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+    pkg <- read_camtrapDP("./datapackage/datapackage.json")
     }
   data(pkg)
   # Sense check deployment schedules

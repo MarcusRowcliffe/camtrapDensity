@@ -58,7 +58,7 @@ detection angle, speed and activity level.
 }
 \examples{
   \dontrun{
-    pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+    pkg <- read_camtrapDP("./datapackage/datapackage.json")
     }
   data(pkg)
   sp <- "Vulpes vulpes"
