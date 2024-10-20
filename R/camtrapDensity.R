@@ -1026,7 +1026,7 @@ get_trap_rate <- function(traprate_data, strata=NULL, reps=999){
   sampled_traprate <- function(){
     i <- if(is.null(strata))
       sample(1:nrow(traprate_data), replace=TRUE) else
-        as.vector(sapply(strata$stratumID, function(stratum){
+        unlist(sapply(strata$stratumID, function(stratum){
           sample(which(traprate_data$stratumID==stratum), replace=TRUE)
         }))
     traprate(traprate_data[i, ])
