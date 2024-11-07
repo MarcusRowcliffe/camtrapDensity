@@ -209,10 +209,10 @@ sp <- "Vulpes vulpes"
 Then model fitting might look like this:
 
 ```{r eval=FALSE}
-smod <- fit_speedmodel(pkg, species=sp)
-pmod <- fit_actmodel(pkg, reps=100, species=sp)
-rmod <- fit_detmodel(radius~1, pkg, order=0, species=sp, truncation=6)
-amod <- fit_detmodel(angle~1, pkg, order=0, unit="radian", species=sp)
+smod <- fit_speedmodel(pkg_chk, species=sp)
+pmod <- fit_actmodel(pkg_chk, reps=100, species=sp)
+rmod <- fit_detmodel(radius~1, pkg_chk, order=0, species=sp, truncation=6)
+amod <- fit_detmodel(angle~1, pkg_chk, order=0, unit="radian", species=sp)
 res_vul <- rem_estimate(pkg_chk, check_deployments=F, species=sp,
                         radius_model = rmod,
                         angle_model = amod,
