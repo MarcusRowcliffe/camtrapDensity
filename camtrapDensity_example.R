@@ -47,8 +47,9 @@ plot(res$radius_model, pdf=TRUE)
 plot(res$angle_model)
 hist(res$speed_model)
 
-# 8. EXTRACT MODEL ESTIMATES
-res$estimates
+# 8. EXTRACT MODEL ESTIMATES / EXPORT CSV FOR SHARING
+res$estimates # inspect
+write_rem_csv(res) # export
 
 # 9. SAVE WORKSPACE FOR FUTURE REFERENCE
 save.image()

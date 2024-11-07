@@ -263,7 +263,7 @@ map_deployments <- function(pkg, basemap=c("street", "satellite"), ...){
 #' @examples
 #'   \dontrun{pkg <- read_camtrapDP("./data/datapackage.json")}
 #'   data(pkg)
-#'   map_traprate(pkg, species="Vulpes vulpes")
+#'   map_traprates(pkg, species="Vulpes vulpes")
 #' @export
 #'
 #'
@@ -276,7 +276,6 @@ map_traprates <- function(pkg, species=NULL, basemap=c("street", "satellite"),
   basemap <- match.arg(basemap)
   trdat <- pkg %>%
     get_traprate_data(species=species) %>%
-    dplyr::left_join(pkg$data$deployments, by="locationName") %>%
     dplyr::mutate(tr = 100 * n/effort,
            sz = szfunc(tr, max(tr)),
            col = ifelse(tr==0, "red", "blue"))
@@ -659,7 +658,7 @@ check_deployment_models <- function(package){
 #' Gets a set Agouti sequences URLs.
 #'
 #' Obtains web addresses for sequences of selected observations, based
-#' on criteria defined unsing fields in the observations table.
+#' on criteria defined using fields in the observations table.
 #'
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
@@ -668,15 +667,15 @@ check_deployment_models <- function(package){
 #' @return A dataframe of Agouti URLs.
 #' @examples
 #'   data(pkg)
-#'   get_agouti_url(pkg, speed<0.01)
+#'   get_agouti_url(pkg, speed>1)
 #'
 get_agouti_url <- function(package, obsChoice){
-  seqIDs <- chkg$data$observations %>%
+  seqIDs <- package$data$observations %>%
     dplyr::filter({{obsChoice}}) %>%
     dplyr::select(sequenceID) %>%
     dplyr::pull()
   address <- file.path("https://www.agouti.eu/#/project",
-                       chkg$project$id,
+                       package$project$id,
                        "annotate/sequence",
                        seqIDs)
   data.frame(address = unique(address))
@@ -967,7 +966,10 @@ get_traprate_data <- function(package, species=NULL,
     dplyr::left_join(dep, by="deploymentID") %>%
     dplyr::left_join(eff, by="deploymentID") %>%
     dplyr::group_by(locationName) %>%
-    dplyr::summarise(n = sum(n), effort=sum(effort)) %>%
+    dplyr::summarise(latitude = mean(latitude),
+                     longitude = mean(longitude),
+                     n = sum(n),
+                     effort=sum(effort)) %>%
     dplyr::mutate(effort_unit = unit,
                   scientificName = paste(species, collapse="|"))
 
@@ -981,6 +983,8 @@ get_traprate_data <- function(package, species=NULL,
   }
   res
 }
+
+
 #' Get average trap rate from REM data
 #'
 #' Calculates average trap rate and its bootstrapped error from a table of
@@ -1196,7 +1200,7 @@ get_parameter_table <- function(traprate_data,
 #'  and output types must match.
 #'
 #' @examples
-#'   get_multiplier(c("m", "m/s"), c("km", "km/d"))
+#'   get_multiplier(c("m", "m/second"), c("km", "km/day"))
 #' @export
 #'
 get_multiplier <- function(unitIN, unitOUT){
@@ -1483,7 +1487,71 @@ rem_estimate <- function(package,
                   overall_speed_unit = "km/day")
 
   message("DONE")
-  list(species=species, data=trdat, estimates=estimates,
+  list(project = package$project$title, datapackage = package$name,
+       samplingDesign = package$project$samplingDesign,
+       start = package$temporal$start, end = package$temporal$end,
+       species=species, data=trdat, estimates=estimates,
        speed_model=speed_model, activity_model=activity_model,
        radius_model=radius_model, angle_model=angle_model)
+}
+
+
+#' Write REM results to csv file
+#'
+#' Writes one or more REM estimate tables to a single csv file, with
+#' identifying columns added for project, datapackage, project dates and
+#' species. Input must be REM analysis object(s) created using
+#' \code{\link{rem_estimatel}}. The resulting file name is taken from the
+#' project and current date, and the file is saved to the working directory.
+#'
+#' @param ... One or more REM analysis objects, separated by commas.
+#' @return None - creates a csv file.
+#' @examples
+#'  \dontrun{
+#'    foxREM <- rem_estimate(pkg_checked, check_deployments=FALSE, species="Vulpes vulpes")
+#'    hhogREM <- rem_estimate(pkg_checked, check_deployments=FALSE, species="Erinaceus europaeus")
+#'    write_rem_csv(foxREM, hhogREM)
+#'    }
+#' @export
+#'
+write_rem_csv <- function(...){
+  remlist <- list(...)
+  classes <- unlist(lapply(remlist, function(x)
+    class(x)[1]))
+  rqd <- c("project", "datapackage", "samplingDesign",
+           "start", "end", "species", "estimates", "data")
+  got_rqd <- unlist(
+    lapply(remlist, function(x)
+      all(rqd %in% names(x)))
+  )
+
+  if(!all(got_rqd) | !all(classes == "list"))
+    stop("All objects passed to write_rem_csv must be rem analysis objects created using camtrapDensity::rem_estimate Vx.x or greater")
+
+  get_table <- function(rem){
+    rem_est <- tibble::rownames_to_column(rem$estimates, "parameter")
+    cbind(projectName = rem$project,
+          datapackage = rem$datapackage,
+          samplingDesign = rem$samplingDesign,
+          minLatitude = min(rem$data$latitude),
+          maxLatitude = max(rem$data$latitude),
+          minLongitude = min(rem$data$longitude),
+          maxLongitude = max(rem$data$longitude),
+          start = rem$start,
+          end = rem$end,
+          effort = sum(rem$data$effort),
+          effortUnit = rem$data$effort_unit[1],
+          species=rem$species,
+          nObservations = sum(rem$data$n),
+          rem_est)
+  }
+  est <- lapply(remlist, get_table) %>%
+    dplyr::bind_rows()
+  dt <- substr(gsub("\\D", "", Sys.time()), 1, 14)
+  file <- unique(est$project) %>%
+    paste(collapse="_")
+  file <- gsub(" ", "-", file)
+  file <- paste0(file, "_", dt, ".csv")
+  write.csv(est, file, row.names = FALSE)
+  print(paste("Data written to", normalizePath(file, "/")))
 }
