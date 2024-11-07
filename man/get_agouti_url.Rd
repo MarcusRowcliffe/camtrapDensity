@@ -18,10 +18,10 @@ A dataframe of Agouti URLs.
 }
 \description{
 Obtains web addresses for sequences of selected observations, based
-on criteria defined unsing fields in the observations table.
+on criteria defined using fields in the observations table.
 }
 \examples{
   data(pkg)
-  get_agouti_url(pkg, speed<0.01)
+  get_agouti_url(pkg, speed>1)
 
 }

@@ -263,7 +263,7 @@ map_deployments <- function(pkg, basemap=c("street", "satellite"), ...){
 #' @examples
 #'   \dontrun{pkg <- read_camtrapDP("./data/datapackage.json")}
 #'   data(pkg)
-#'   map_traprate(pkg, species="Vulpes vulpes")
+#'   map_traprates(pkg, species="Vulpes vulpes")
 #' @export
 #'
 #'
@@ -276,7 +276,6 @@ map_traprates <- function(pkg, species=NULL, basemap=c("street", "satellite"),
   basemap <- match.arg(basemap)
   trdat <- pkg %>%
     get_traprate_data(species=species) %>%
-    dplyr::left_join(pkg$data$deployments, by="locationName") %>%
     dplyr::mutate(tr = 100 * n/effort,
            sz = szfunc(tr, max(tr)),
            col = ifelse(tr==0, "red", "blue"))
@@ -659,7 +658,7 @@ check_deployment_models <- function(package){
 #' Gets a set Agouti sequences URLs.
 #'
 #' Obtains web addresses for sequences of selected observations, based
-#' on criteria defined unsing fields in the observations table.
+#' on criteria defined using fields in the observations table.
 #'
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
@@ -668,15 +667,15 @@ check_deployment_models <- function(package){
 #' @return A dataframe of Agouti URLs.
 #' @examples
 #'   data(pkg)
-#'   get_agouti_url(pkg, speed<0.01)
+#'   get_agouti_url(pkg, speed>1)
 #'
 get_agouti_url <- function(package, obsChoice){
-  seqIDs <- chkg$data$observations %>%
+  seqIDs <- package$data$observations %>%
     dplyr::filter({{obsChoice}}) %>%
     dplyr::select(sequenceID) %>%
     dplyr::pull()
   address <- file.path("https://www.agouti.eu/#/project",
-                       chkg$project$id,
+                       package$project$id,
                        "annotate/sequence",
                        seqIDs)
   data.frame(address = unique(address))
@@ -967,7 +966,10 @@ get_traprate_data <- function(package, species=NULL,
     dplyr::left_join(dep, by="deploymentID") %>%
     dplyr::left_join(eff, by="deploymentID") %>%
     dplyr::group_by(locationName) %>%
-    dplyr::summarise(n = sum(n), effort=sum(effort)) %>%
+    dplyr::summarise(latitude = mean(latitude),
+                     longitude = mean(longitude),
+                     n = sum(n),
+                     effort=sum(effort)) %>%
     dplyr::mutate(effort_unit = unit,
                   scientificName = paste(species, collapse="|"))
 
@@ -981,6 +983,8 @@ get_traprate_data <- function(package, species=NULL,
   }
   res
 }
+
+
 #' Get average trap rate from REM data
 #'
 #' Calculates average trap rate and its bootstrapped error from a table of
@@ -1196,7 +1200,7 @@ get_parameter_table <- function(traprate_data,
 #'  and output types must match.
 #'
 #' @examples
-#'   get_multiplier(c("m", "m/s"), c("km", "km/d"))
+#'   get_multiplier(c("m", "m/second"), c("km", "km/day"))
 #' @export
 #'
 get_multiplier <- function(unitIN, unitOUT){
@@ -1484,6 +1488,7 @@ rem_estimate <- function(package,
 
   message("DONE")
   list(project = package$project$title, datapackage = package$name,
+       samplingDesign = package$project$samplingDesign,
        start = package$temporal$start, end = package$temporal$end,
        species=species, data=trdat, estimates=estimates,
        speed_model=speed_model, activity_model=activity_model,
@@ -1513,7 +1518,8 @@ write_rem_csv <- function(...){
   remlist <- list(...)
   classes <- unlist(lapply(remlist, function(x)
     class(x)[1]))
-  rqd <- c("project", "datapackage", "start", "end", "estimates")
+  rqd <- c("project", "datapackage", "samplingDesign",
+           "start", "end", "species", "estimates", "data")
   got_rqd <- unlist(
     lapply(remlist, function(x)
       all(rqd %in% names(x)))
@@ -1524,11 +1530,19 @@ write_rem_csv <- function(...){
 
   get_table <- function(rem){
     rem_est <- tibble::rownames_to_column(rem$estimates, "parameter")
-    cbind(project = rem$project,
+    cbind(projectName = rem$project,
           datapackage = rem$datapackage,
+          samplingDesign = rem$samplingDesign,
+          minLatitude = min(rem$data$latitude),
+          maxLatitude = max(rem$data$latitude),
+          minLongitude = min(rem$data$longitude),
+          maxLongitude = max(rem$data$longitude),
           start = rem$start,
           end = rem$end,
+          effort = sum(rem$data$effort),
+          effortUnit = rem$data$effort_unit[1],
           species=rem$species,
+          nObservations = sum(rem$data$n),
           rem_est)
   }
   est <- lapply(remlist, get_table) %>%
