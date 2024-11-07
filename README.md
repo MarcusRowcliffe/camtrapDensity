@@ -111,7 +111,8 @@ occurred.
 plot_deployment_schedule(pkg)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+<div class="plotly html-widget html-fill-item" id="htmlwidget-d30ed1095c90bdac3f90" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-d30ed1095c90bdac3f90">{"x":{"data":[{"x":[3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,1,1,1,1,4,4],"y":[1507804655,1507841809,1507856923,1508036890,1508183309,1508267880,1508269801,1508642068,1508642068,1508711345,1508733482,1508892657,1508821855,1509045090,1509045090,1509214658,1506967603,1506967603,1507007824,1507835504,1507806575,1508390591],"text":["deploymentID: 672fa539-f04c-4f82-b14b-cdeb5bef6f44<br />timestamp: 2017-10-12 10:37:35","deploymentID: 672fa539-f04c-4f82-b14b-cdeb5bef6f44<br />timestamp: 2017-10-12 20:56:49","deploymentID: 672fa539-f04c-4f82-b14b-cdeb5bef6f44<br />timestamp: 2017-10-13 01:08:43","deploymentID: 672fa539-f04c-4f82-b14b-cdeb5bef6f44<br />timestamp: 2017-10-15 03:08:10","deploymentID: 672fa539-f04c-4f82-b14b-cdeb5bef6f44<br />timestamp: 2017-10-16 19:48:29","deploymentID: 672fa539-f04c-4f82-b14b-cdeb5bef6f44<br />timestamp: 2017-10-17 19:18:00","deploymentID: 672fa539-f04c-4f82-b14b-cdeb5bef6f44<br />timestamp: 2017-10-17 19:50:01","deploymentID: 672fa539-f04c-4f82-b14b-cdeb5bef6f44<br />timestamp: 2017-10-22 03:14:28","deploymentID: 672fa539-f04c-4f82-b14b-cdeb5bef6f44<br />timestamp: 2017-10-22 03:14:28","deploymentID: 672fa539-f04c-4f82-b14b-cdeb5bef6f44<br />timestamp: 2017-10-22 22:29:05","deploymentID: 672fa539-f04c-4f82-b14b-cdeb5bef6f44<br />timestamp: 2017-10-23 04:38:02","deploymentID: 672fa539-f04c-4f82-b14b-cdeb5bef6f44<br />timestamp: 2017-10-25 00:50:57","deploymentID: c95a566f-e75e-4e7b-a905-0479c8770da3<br />timestamp: 2017-10-24 05:10:55","deploymentID: c95a566f-e75e-4e7b-a905-0479c8770da3<br />timestamp: 2017-10-26 19:11:30","deploymentID: c95a566f-e75e-4e7b-a905-0479c8770da3<br />timestamp: 2017-10-26 19:11:30","deploymentID: c95a566f-e75e-4e7b-a905-0479c8770da3<br />timestamp: 2017-10-28 18:17:38","deploymentID: d2f2e1f1-c8c5-4a04-9f58-4ac84f55843a<br />timestamp: 2017-10-02 18:06:43","deploymentID: d2f2e1f1-c8c5-4a04-9f58-4ac84f55843a<br />timestamp: 2017-10-02 18:06:43","deploymentID: d2f2e1f1-c8c5-4a04-9f58-4ac84f55843a<br />timestamp: 2017-10-03 05:17:04","deploymentID: d2f2e1f1-c8c5-4a04-9f58-4ac84f55843a<br />timestamp: 2017-10-12 19:11:44","deploymentID: d35f7b1b-ada3-4d15-b235-63452acd5a37<br />timestamp: 2017-10-12 11:09:35","deploymentID: d35f7b1b-ada3-4d15-b235-63452acd5a37<br />timestamp: 2017-10-19 05:23:11"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(238,154,73,1)","opacity":1,"size":5.6692913385826778,"symbol":"line-ew-open","line":{"width":1.8897637795275593,"color":"rgba(238,154,73,1)"}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,1,null,2,2,null,3,3,null,4,4],"y":[1506967603,1507835506,null,1508821855,1509214658,null,1507804655,1508892657,null,1507806575,1508390592],"text":["deploymentID: d2f2e1f1-c8c5-4a04-9f58-4ac84f55843a<br />start: 2017-10-02 18:06:43<br />deploymentID: 1<br />end: 1507835506","deploymentID: d2f2e1f1-c8c5-4a04-9f58-4ac84f55843a<br />start: 2017-10-02 18:06:43<br />deploymentID: 1<br />end: 1507835506",null,"deploymentID: c95a566f-e75e-4e7b-a905-0479c8770da3<br />start: 2017-10-24 05:10:55<br />deploymentID: 2<br />end: 1509214658","deploymentID: c95a566f-e75e-4e7b-a905-0479c8770da3<br />start: 2017-10-24 05:10:55<br />deploymentID: 2<br />end: 1509214658",null,"deploymentID: 672fa539-f04c-4f82-b14b-cdeb5bef6f44<br />start: 2017-10-12 10:37:35<br />deploymentID: 3<br />end: 1508892657","deploymentID: 672fa539-f04c-4f82-b14b-cdeb5bef6f44<br />start: 2017-10-12 10:37:35<br />deploymentID: 3<br />end: 1508892657",null,"deploymentID: d35f7b1b-ada3-4d15-b235-63452acd5a37<br />start: 2017-10-12 11:09:35<br />deploymentID: 4<br />end: 1508390592","deploymentID: d35f7b1b-ada3-4d15-b235-63452acd5a37<br />start: 2017-10-12 11:09:35<br />deploymentID: 4<br />end: 1508390592"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.228310502283104,"r":7.3059360730593621,"b":46.027397260273986,"l":69.406392694063939},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,4.5999999999999996],"tickmode":"array","ticktext":["S01","S02","S03","S03"],"tickvals":[1,2,3,4],"categoryorder":"array","categoryarray":["S01","S02","S03","S03"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-90,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176002,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"Location","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[1506855250.25,1509327010.75],"tickmode":"array","ticktext":["2017/10/02","2017/10/09","2017/10/16","2017/10/23","2017/10/30"],"tickvals":[1506902400,1507507200,1508112000,1508716800,1509321600],"categoryorder":"array","categoryarray":["2017/10/02","2017/10/09","2017/10/16","2017/10/23","2017/10/30"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176002,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":[],"font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.8897637795275593,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"2ec85f2b76b":{"x":{},"y":{},"type":"scatter"},"2ec815551488":{"x":{},"y":{},"xend":{},"yend":{}}},"cur_data":"2ec85f2b76b","visdat":{"2ec85f2b76b":["function (y) ","x"],"2ec815551488":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 
 ### Mapping deployments
 
@@ -121,7 +122,8 @@ You can create a map of deployments using this code:
 map_deployments(pkg)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+<div class="leaflet html-widget html-fill-item" id="htmlwidget-65f66deddbb9e260e944" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-65f66deddbb9e260e944">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org/copyright/\">OpenStreetMap<\/a>,  <a href=\"https://opendatacommons.org/licenses/odbl/\">ODbL<\/a>"}]},{"method":"addCircleMarkers","args":[[51.53373644524688,51.53459069801548,51.53643262599534,51.53373644524688],[-0.1498603820800782,-0.1538944244384766,-0.1497745513916016,-0.1498603820800782],10,null,null,{"interactive":true,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":0.5,"fill":true,"fillColor":"#03F","fillOpacity":0.2},null,null,["S03","S02","S01","S03"],null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"limits":{"lat":[51.53373644524688,51.53643262599534],"lng":[-0.1538944244384766,-0.1497745513916016]}},"evals":[],"jsHooks":[]}</script>
 
 You can plot the same map but with point diameter proportional to
 deployment-specific trap rate for a given species like this (use
@@ -131,7 +133,8 @@ scientific names):
 map_traprates(pkg, species="Vulpes vulpes")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+<div class="leaflet html-widget html-fill-item" id="htmlwidget-1793fd1b1e1e17947806" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-1793fd1b1e1e17947806">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"https://openstreetmap.org/copyright/\">OpenStreetMap<\/a>,  <a href=\"https://opendatacommons.org/licenses/odbl/\">ODbL<\/a>"}]},{"method":"addCircleMarkers","args":[[51.53643262599534,51.53459069801548,51.53373644524688],[-0.1497745513916016,-0.1538944244384766,-0.1498603820800782],[15.71492943335834,21.72919402346724,25],null,null,{"interactive":true,"className":"","stroke":true,"color":["blue","blue","blue"],"weight":0,"opacity":0.5,"fill":true,"fillColor":["blue","blue","blue"],"fillOpacity":1},null,null,["S01: 29.9 (3 records)","S02: 44 (2 records)","S03: 51.7 (10 records)"],null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addLegend","args":[{"colors":["red; width:6px; height:6px; border:0px solid red; border-radius:50%","blue; width:23.0298231481482px; height:23.0298231481482px; border:0px solid blue; border-radius:50%","blue; width:40.0596462962963px; height:40.0596462962963px; border:0px solid blue; border-radius:50%","blue; width:57.0894694444444px; height:57.0894694444444px; border:0px solid blue; border-radius:50%"],"labels":[0,20,40,60],"na_color":null,"na_label":"NA","opacity":1,"position":"topright","type":"unknown","title":"Records/100 days","extra":null,"layerId":null,"className":"info legend","group":null}]}],"limits":{"lat":[51.53373644524688,51.53643262599534],"lng":[-0.1538944244384766,-0.1497745513916016]}},"evals":[],"jsHooks":[]}</script>
 
 ### Subsetting deployments
 
@@ -322,14 +325,14 @@ compenent name to the result object spearated with a \$ sign, like this:
 res_vul$estimates
 ```
 
-    ##                  estimate         se         cv      lcl95      ucl95  n
-    ## radius          4.6552400 0.35422329 0.07609131  3.9609623  5.3495176 14
-    ## angle          44.9831275 9.42829597 0.20959628 26.5036674 63.4625876 15
-    ## active_speed    1.3414083 0.60283473 0.44940435  0.1598522  2.5229644  6
-    ## activity_level  0.2451959 0.03733501 0.15226603  0.1720193  0.3183725 15
-    ## overall_speed   7.8937874 3.74559351 0.47449891  0.5524241 15.2351506 NA
-    ## trap_rate       0.4124492 0.05159412 0.12509207  0.3200676  0.4747539  3
-    ## density        12.6605171 6.33124648 0.50007803  5.0153818 31.9594201 NA
+    ##                  estimate         se         cv       lcl95      ucl95  n
+    ## radius          4.6552400 0.35422329 0.07609131  3.96096233  5.3495176 14
+    ## angle          44.9831275 9.42829597 0.20959628 26.50366740 63.4625876 15
+    ## active_speed    1.3414083 0.60283473 0.44940435  0.15985224  2.5229644  6
+    ## activity_level  0.2451959 0.07722717 0.31496112  0.09383063  0.3965611 15
+    ## overall_speed   7.8937874 4.33199069 0.54878482 -0.59691438 16.3844891 NA
+    ## trap_rate       0.4124492 0.03886234 0.09422335  0.34975936  0.4550903  3
+    ## density        12.6605171 7.15429698 0.56508726  4.51191572 35.5256402 NA
     ##                   unit
     ## radius               m
     ## angle           degree
@@ -361,12 +364,12 @@ species to which this applies:
 res_vul$data
 ```
 
-    ## # A tibble: 3 × 5
-    ##   locationName     n effort effort_unit scientificName
-    ##   <chr>        <int>  <dbl> <chr>       <chr>         
-    ## 1 S01              3  10.0  day         Vulpes vulpes 
-    ## 2 S02              2   4.55 day         Vulpes vulpes 
-    ## 3 S03             10  19.4  day         Vulpes vulpes
+    ## # A tibble: 3 × 7
+    ##   locationName latitude longitude     n effort effort_unit scientificName
+    ##   <chr>           <dbl>     <dbl> <int>  <dbl> <chr>       <chr>         
+    ## 1 S01              51.5    -0.150     3  10.0  day         Vulpes vulpes 
+    ## 2 S02              51.5    -0.154     2   4.55 day         Vulpes vulpes 
+    ## 3 S03              51.5    -0.150    10  19.4  day         Vulpes vulpes
 
 To save a results table to an external file, run this (a file named as
 indicated will be created in your project directory):
