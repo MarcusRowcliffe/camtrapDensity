@@ -34,5 +34,5 @@ given species.
 \examples{
   \dontrun{pkg <- read_camtrapDP("./data/datapackage.json")}
   data(pkg)
-  map_traprate(pkg, species="Vulpes vulpes")
+  map_traprates(pkg, species="Vulpes vulpes")
 }

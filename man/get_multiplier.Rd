@@ -29,5 +29,5 @@ Possible \code{unitIN} and \code{unitOUT} values are "cm", "m", "km"
  and output types must match.
 }
 \examples{
-  get_multiplier(c("m", "m/s"), c("km", "km/d"))
+  get_multiplier(c("m", "m/second"), c("km", "km/day"))
 }
