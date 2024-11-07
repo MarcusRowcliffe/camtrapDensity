@@ -39,13 +39,7 @@ plot_deployment_schedule(subpkg)
 pkg_chk <- check_deployment_models(pkg)
 
 # 6. REM ANALYSIS
-res1 <- rem_estimate(pkg,
-                            check_deployments=FALSE,
-                            species="Vulpes vulpes")
-res2 <- rem_estimate(pkg,
-                                 check_deployments=FALSE,
-                                 species="Erinaceus europaeus")
-write_rem_csv(res1, res2)
+res <- rem_estimate(pkg_chk, check_deployments=FALSE)
 
 # 7. EVALUATE DATA DISTRIBUTIONS AND MODEL FITS
 plot(res$activity_model)
@@ -53,8 +47,9 @@ plot(res$radius_model, pdf=TRUE)
 plot(res$angle_model)
 hist(res$speed_model)
 
-# 8. EXTRACT MODEL ESTIMATES
-res$estimates
+# 8. EXTRACT MODEL ESTIMATES / EXPORT CSV FOR SHARING
+res$estimates # inspect
+write_rem_csv(res) # export
 
 # 9. SAVE WORKSPACE FOR FUTURE REFERENCE
 save.image()
