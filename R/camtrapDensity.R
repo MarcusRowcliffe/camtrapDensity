@@ -1483,7 +1483,61 @@ rem_estimate <- function(package,
                   overall_speed_unit = "km/day")
 
   message("DONE")
-  list(species=species, data=trdat, estimates=estimates,
+  list(project = package$project$title, datapackage = package$name,
+       start = package$temporal$start, end = package$temporal$end,
+       species=species, data=trdat, estimates=estimates,
        speed_model=speed_model, activity_model=activity_model,
        radius_model=radius_model, angle_model=angle_model)
+}
+
+
+#' Write REM results to csv file
+#'
+#' Writes one or more REM estimate tables to a single csv file, with
+#' identifying columns added for project, datapackage, project dates and
+#' species. Input must be REM analysis object(s) created using
+#' \code{\link{rem_estimatel}}. The resulting file name is taken from the
+#' project and current date, and the file is saved to the working directory.
+#'
+#' @param ... One or more REM analysis objects, separated by commas.
+#' @return None - creates a csv file.
+#' @examples
+#'  \dontrun{
+#'    foxREM <- rem_estimate(pkg_checked, check_deployments=FALSE, species="Vulpes vulpes")
+#'    hhogREM <- rem_estimate(pkg_checked, check_deployments=FALSE, species="Erinaceus europaeus")
+#'    write_rem_csv(foxREM, hhogREM)
+#'    }
+#' @export
+#'
+write_rem_csv <- function(...){
+  remlist <- list(...)
+  classes <- unlist(lapply(remlist, function(x)
+    class(x)[1]))
+  rqd <- c("project", "datapackage", "start", "end", "estimates")
+  got_rqd <- unlist(
+    lapply(remlist, function(x)
+      all(rqd %in% names(x)))
+  )
+
+  if(!all(got_rqd) | !all(classes == "list"))
+    stop("All objects passed to write_rem_csv must be rem analysis objects created using camtrapDensity::rem_estimate Vx.x or greater")
+
+  get_table <- function(rem){
+    rem_est <- tibble::rownames_to_column(rem$estimates, "parameter")
+    cbind(project = rem$project,
+          datapackage = rem$datapackage,
+          start = rem$start,
+          end = rem$end,
+          species=rem$species,
+          rem_est)
+  }
+  est <- lapply(remlist, get_table) %>%
+    dplyr::bind_rows()
+  dt <- substr(gsub("\\D", "", Sys.time()), 1, 14)
+  file <- unique(est$project) %>%
+    paste(collapse="_")
+  file <- gsub(" ", "-", file)
+  file <- paste0(file, "_", dt, ".csv")
+  write.csv(est, file, row.names = FALSE)
+  print(paste("Data written to", normalizePath(file, "/")))
 }

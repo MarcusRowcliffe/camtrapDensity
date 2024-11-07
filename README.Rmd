@@ -249,6 +249,14 @@ To save a results table to an external file, run this  (a file named as indicate
 write.csv(res_vul$estimates, "vulpes_REM_results.csv")
 ```
 
+You can also use this convenience function to save results with additional information about the species and project, including the option to save a single data table of results for multiple species:
+
+```{r eval=FALSE}
+write_rem_csv(res_vul, res_cer, res_cap)
+```
+
+Here, three objects are provided separated by commas, but it could be any number. Each should be an object created as output from a call to `rem_estimate`.
+
 Component model fits can be evaluated by inspecting diagnostic plots:
 
 ```{r}

@@ -39,7 +39,13 @@ plot_deployment_schedule(subpkg)
 pkg_chk <- check_deployment_models(pkg)
 
 # 6. REM ANALYSIS
-res <- rem_estimate(pkg_chk, check_deployments=FALSE)
+res1 <- rem_estimate(pkg,
+                            check_deployments=FALSE,
+                            species="Vulpes vulpes")
+res2 <- rem_estimate(pkg,
+                                 check_deployments=FALSE,
+                                 species="Erinaceus europaeus")
+write_rem_csv(res1, res2)
 
 # 7. EVALUATE DATA DISTRIBUTIONS AND MODEL FITS
 plot(res$activity_model)
