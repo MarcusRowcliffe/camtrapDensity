@@ -14,10 +14,11 @@ None - creates a csv file.
 }
 \description{
 Writes one or more REM estimate tables to a single csv file, with
-identifying columns added for project, datapackage, project dates and
-species. Input must be REM analysis object(s) created using
-\code{\link{rem_estimatel}}. The resulting file name is taken from the
-project and current date, and the file is saved to the working directory.
+identifying columns added for project, datapackage, sampling design,
+sampling effort, project location, project dates and species. Input
+must be REM analysis object(s) created using \code{\link{rem_estimate}}.
+The resulting file name is taken from the project and current date, and
+the file is saved to the working directory.
 }
 \examples{
  \dontrun{

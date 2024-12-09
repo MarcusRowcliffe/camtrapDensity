@@ -425,8 +425,8 @@ slice_camtrap_dp <- function(package,
                          timestamp<=endCut &
                          deploymentID %in% deps))
   }
-  package$temporal$start <- as_date(min(package$data$deployments$start))
-  package$temporal$end <- as_date(max(package$data$deployments$end))
+  package$temporal$start <- lubridate::as_date(min(package$data$deployments$start))
+  package$temporal$end <- lubridate::as_date(max(package$data$deployments$end))
   package
 }
 
