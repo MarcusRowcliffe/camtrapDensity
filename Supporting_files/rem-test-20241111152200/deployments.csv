@@ -1,0 +1,5 @@
+deploymentID,locationID,locationName,latitude,longitude,coordinateUncertainty,deploymentStart,deploymentEnd,setupBy,cameraID,cameraModel,cameraDelay,cameraHeight,cameraDepth,cameraTilt,cameraHeading,detectionDistance,timestampIssues,baitUse,featureType,habitat,deploymentGroups,deploymentTags,deploymentComments
+672fa539-f04c-4f82-b14b-cdeb5bef6f44,202fb9dc-4760-4dfb-acd9-986bcb381480,S03,51.53373644524688,-0.14986038208007815,,2017-10-12T11:37:35+01:00,2017-10-25T01:50:57+01:00,,,,,,,,,,,,,,,,
+c95a566f-e75e-4e7b-a905-0479c8770da3,359d460a-b4c5-49ea-8006-3ec2e3d62286,S02,51.53459069801548,-0.1538944244384766,,2017-10-24T06:10:55+01:00,2017-10-28T19:17:38+01:00,,,,,,,,,,,,,,,,
+d2f2e1f1-c8c5-4a04-9f58-4ac84f55843a,ce495c8f-840d-4eb7-bc97-8aaffcf20b04,S01,51.53643262599534,-0.1497745513916016,,2017-10-02T19:06:43+01:00,2017-10-12T20:11:46+01:00,,,,,,,,,,,,,,,,
+d35f7b1b-ada3-4d15-b235-63452acd5a37,202fb9dc-4760-4dfb-acd9-986bcb381480,S03,51.53373644524688,-0.14986038208007815,,2017-10-12T12:09:35+01:00,2017-10-19T06:23:12+01:00,,,,,,,,,,,,,,,,
