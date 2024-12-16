@@ -18,15 +18,17 @@ library(lubridate)
 pkg <- read_camtrapDP("datapackage_V1.0/datapackage.json")
 plot_deployment_schedule(pkg)
 
-# 4. SUBSET DEPLOYMENTS (IF NECESSARY)
+# 4. SUBSET/SLICE DATAPACKAGE (IF NECESSARY)
 # e.g. Selects only deployments occuring within 2023
-subpkg <- subset_deployments(pkg, start > ymd("2023-01-01") &
-                               end < ymd("2024-01-01"))
+subpkg <- subset_deployments(pkg, start > ymd("2017-10-09") &
+                               end < ymd("2017-10-26"))
+# e.g. Selects only deployments not at a given location
+subpkg <- subset_deployments(pkg, locationName!="S02")
 # e.g. Slices all deployments to given date range
 subpkg <- slice_camtrap_dp(pkg,
                            start = "2017/10/09",
                            end = "2017/10/26")
-# e.g. Slices deployment at location S02 to end at the given time
+# e.g. Slices deployment at given location to end at given time
 subpkg <- slice_camtrap_dp(pkg,
                            end = "2017/10/27 16:45:00",
                            depChoice = locationName=="S02")

@@ -349,6 +349,40 @@ plot_deployment_schedule <- function(package){
   plotly::ggplotly(plt)
 }
 
+#' Subset a camera trap datapackage deployments
+#'
+#' Select a subset of deployments from a datapackage defined by
+#' a choice based on columns in the deployments table.
+#'
+#' @param package Camera trap data package object, as returned by
+#'   \code{\link[camtraptor]{read_camtrap_dp}}.
+#' @param choice A logical expression using column names from the
+#'  deployments table.
+#' @return As for \code{\link[camtraptor]{read_camtrap_dp}}, with all
+#'  data tables reduced according to the choice criteria at the deployment
+#'  level.
+#' @examples
+#' # subset excluding a location and including only October 2017
+#'   \dontrun{
+#'     pkg <- camtraptor::read_camtrapDP("./datapackage/datapackage.json")
+#'     }
+#'   data(pkg)
+#'   subpkg <- subset_deployments(pkg,
+#'                                locationName != "S01" &
+#'                                start >= as.POSIXct("2017-10-01", tz="UTC") &
+#'                                end <= as.POSIXct("2017-10-31", tz="UTC"))
+#' @export
+#'
+subset_deployments <- function(package, choice){
+  out <- package
+  out$data$deployments <- dplyr::filter(out$data$deployments, {{choice}})
+  usedeps <- out$data$deployments$deploymentID
+  out$data$media <- dplyr::filter(package$data$media,
+                                  deploymentID %in% usedeps)
+  out$data$observations <- dplyr::filter(package$data$observations,
+                                         deploymentID %in% usedeps)
+  out
+}
 
 #' Take a time slice of a data package
 #'
