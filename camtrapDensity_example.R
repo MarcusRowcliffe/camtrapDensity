@@ -30,7 +30,6 @@ subpkg <- slice_camtrap_dp(pkg,
 subpkg <- slice_camtrap_dp(pkg,
                            end = "2017/10/27 16:45:00",
                            depChoice = locationName=="S02")
-plot_deployment_schedule(subpkg)
 
 # recheck deployment schedule of filtered datapackage
 plot_deployment_schedule(subpkg)
