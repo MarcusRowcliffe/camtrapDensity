@@ -19,8 +19,8 @@ plot_deployment_schedule(pkg)
 
 # 4. SUBSET/SLICE DATAPACKAGE (IF NECESSARY)
 # e.g. Selects only deployments occuring within a given date range
-subpkg <- subset_deployments(pkg, start > ymd("2017-10-09") &
-                               end < ymd("2017-10-26"))
+subpkg <- subset_deployments(pkg, start > lubridate::ymd("2017-10-09") &
+                               end < lubridate::ymd("2017-10-26"))
 # e.g. Selects only deployments not at a given location
 subpkg <- subset_deployments(pkg, locationName!="S02")
 # e.g. Slices all deployments to given date range
@@ -39,7 +39,10 @@ plot_deployment_schedule(subpkg)
 pkg_chk <- check_deployment_models(pkg)
 
 # 6. REM ANALYSIS
+# various options
+res <- rem_estimate(pkg)
 res <- rem_estimate(pkg_chk, check_deployments=FALSE)
+res <- rem_estimate(subpkg, species="Vulpes vulpes")
 
 # 7. EVALUATE DATA DISTRIBUTIONS AND MODEL FITS
 plot(res$activity_model)
