@@ -11,7 +11,6 @@ devtools::install_github("MarcusRowcliffe/camtrapDensity")
 # At the beginning of each session
 library(camtrapDensity)
 library(camtraptor)
-library(lubridate)
 
 # 3. LOAD DATA
 # Assumes data are in a subdirectory of root project directory.
@@ -19,7 +18,7 @@ pkg <- read_camtrapDP("datapackage_V1.0/datapackage.json")
 plot_deployment_schedule(pkg)
 
 # 4. SUBSET/SLICE DATAPACKAGE (IF NECESSARY)
-# e.g. Selects only deployments occuring within 2023
+# e.g. Selects only deployments occuring within a given date range
 subpkg <- subset_deployments(pkg, start > ymd("2017-10-09") &
                                end < ymd("2017-10-26"))
 # e.g. Selects only deployments not at a given location
@@ -30,7 +29,7 @@ subpkg <- slice_camtrap_dp(pkg,
                            end = "2017/10/26")
 # e.g. Slices deployment at given location to end at given time
 subpkg <- slice_camtrap_dp(pkg,
-                           end = "2017/10/27 16:45:00",
+                           end = "2017/10/23 16:45:00",
                            depChoice = locationName=="S02")
 
 # recheck deployment schedule of filtered datapackage

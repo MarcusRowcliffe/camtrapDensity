@@ -374,14 +374,15 @@ plot_deployment_schedule <- function(package){
 #' @export
 #'
 subset_deployments <- function(package, choice){
-  out <- package
-  out$data$deployments <- dplyr::filter(out$data$deployments, {{choice}})
-  usedeps <- out$data$deployments$deploymentID
-  out$data$media <- dplyr::filter(package$data$media,
-                                  deploymentID %in% usedeps)
-  out$data$observations <- dplyr::filter(package$data$observations,
-                                         deploymentID %in% usedeps)
-  out
+  package$data$deployments <- dplyr::filter(package$data$deployments, {{choice}})
+  usedeps <- package$data$deployments$deploymentID
+  package$data$media <- dplyr::filter(package$data$media,
+                                      deploymentID %in% usedeps)
+  package$data$observations <- dplyr::filter(package$data$observations,
+                                             deploymentID %in% usedeps)
+  package$temporal$start <- lubridate::as_date(min(package$data$deployments$start))
+  package$temporal$end <- lubridate::as_date(max(package$data$deployments$end))
+  package
 }
 
 #' Take a time slice of a data package
