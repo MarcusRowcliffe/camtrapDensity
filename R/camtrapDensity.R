@@ -155,58 +155,62 @@ read_camtrapDP <- function(file, resort=FALSE){
 
     # Extract media observations with fileName and timestamp added from media,
     # sort media chronologically within events if specified
-    medobs <- observations %>%
-      dplyr::filter(observationLevel == "media") %>%
-      dplyr::left_join(dplyr::select(media, mediaID, fileName, timestamp), by="mediaID")
-    if(resort){
-      id <- medobs$individualID
-      i <- c(0, cumsum(head(id, -1) != tail(id, -1)))
-      filenm <- with(medobs, substr(fileName,
-                                    1+regexpr("-", fileName),
-                                    nchar(fileName)))
-      medobs <- dplyr::arrange(medobs, i, filenm)
+    if(!any(observations$observationlevel=="media")){
+      medobs <- NULL
+    } else{
+      medobs <- observations %>%
+        dplyr::filter(observationLevel == "media") %>%
+        dplyr::left_join(dplyr::select(media, mediaID, fileName, timestamp), by="mediaID")
+      if(resort){
+        id <- medobs$individualID
+        i <- c(0, cumsum(head(id, -1) != tail(id, -1)))
+        filenm <- with(medobs, substr(fileName,
+                                      1+regexpr("-", fileName),
+                                      nchar(fileName)))
+        medobs <- dplyr::arrange(medobs, i, filenm)
+      }
+
+      # Add stepwise distances, time differences and image counter
+      r1 <- head(medobs$individualPositionRadius, -1)
+      r2 <- tail(medobs$individualPositionRadius, -1)
+      a1 <- head(medobs$individualPositionAngle, -1)
+      a2 <- tail(medobs$individualPositionAngle, -1)
+      t1 <- head(medobs$timestamp, -1)
+      t2 <- tail(medobs$timestamp, -1)
+      id1 <- head(medobs$individualID, -1)
+      id2 <- tail(medobs$individualID, -1)
+      dist <- sqrt(r1^2 + r2^2 - 2*r1*r2*cos(a2-a1))
+      tdiff <- as.numeric(difftime(t2, t1, units="secs"))
+      dist[id1!=id2] <- NA
+      tdiff[id1!=id2] <- NA
+      medobs$dist <- c(NA, dist)
+      medobs$tdiff <- c(NA, tdiff)
+      medobs$imgCount <- sequence(table(cumsum(c(0, id2!=id1))))
+
+      # Summarise events for distance traveled, time difference,
+      # number of steps, first position radius and angle
+      evobs <- medobs %>%
+        dplyr::group_by(individualID) %>%
+        dplyr::summarise(dist = sum(dist, na.rm=TRUE),
+                         tdiff = sum(tdiff, na.rm=TRUE),
+                         steps = which(media$mediaID==mediaID[imgCount==max(imgCount)]) -
+                           which(media$mediaID == mediaID[imgCount==1]),
+                         radius = individualPositionRadius[imgCount==1],
+                         angle = individualPositionAngle[imgCount==1])
+
+      # Calculate speed, substituting mean step duration for zero time differences
+      secs_per_img <- mean(evobs$tdiff / evobs$steps, na.rm=TRUE)
+      evobs <- evobs %>%
+        dplyr::mutate(tdiff = dplyr::if_else(tdiff==0, secs_per_img * steps, tdiff),
+                      speed = dplyr::if_else(steps>0, dist/tdiff, NA))
+
+      # Add newly calculated radius, angle, speed etc to event observations
+      observations <- observations %>%
+        dplyr::filter(observationLevel=="event") %>%
+        dplyr::select(-individualPositionRadius, -individualPositionAngle, -individualSpeed) %>%
+        dplyr::left_join(evobs, by="individualID") %>%
+        dplyr::mutate(timestamp = eventStart)
     }
-
-    # Add stepwise distances, time differences and image counter
-    r1 <- head(medobs$individualPositionRadius, -1)
-    r2 <- tail(medobs$individualPositionRadius, -1)
-    a1 <- head(medobs$individualPositionAngle, -1)
-    a2 <- tail(medobs$individualPositionAngle, -1)
-    t1 <- head(medobs$timestamp, -1)
-    t2 <- tail(medobs$timestamp, -1)
-    id1 <- head(medobs$individualID, -1)
-    id2 <- tail(medobs$individualID, -1)
-    dist <- sqrt(r1^2 + r2^2 - 2*r1*r2*cos(a2-a1))
-    tdiff <- as.numeric(difftime(t2, t1, units="secs"))
-    dist[id1!=id2] <- NA
-    tdiff[id1!=id2] <- NA
-    medobs$dist <- c(NA, dist)
-    medobs$tdiff <- c(NA, tdiff)
-    medobs$imgCount <- sequence(table(cumsum(c(0, id2!=id1))))
-
-    # Summarise events for distance traveled, time difference,
-    # number of steps, first position radius and angle
-    evobs <- medobs %>%
-      dplyr::group_by(individualID) %>%
-      dplyr::summarise(dist = sum(dist, na.rm=TRUE),
-                       tdiff = sum(tdiff, na.rm=TRUE),
-                       steps = which(media$mediaID==mediaID[imgCount==max(imgCount)]) -
-                         which(media$mediaID == mediaID[imgCount==1]),
-                       radius = individualPositionRadius[imgCount==1],
-                       angle = individualPositionAngle[imgCount==1])
-
-    # Calculate speed, substituting mean step duration for zero time differences
-    secs_per_img <- mean(evobs$tdiff / evobs$steps, na.rm=TRUE)
-    evobs <- evobs %>%
-      dplyr::mutate(tdiff = dplyr::if_else(tdiff==0, secs_per_img * steps, tdiff),
-                    speed = dplyr::if_else(steps>0, dist/tdiff, NA))
-
-    # Add newly calculated radius, angle, speed etc to event observations
-    observations <- observations %>%
-      dplyr::filter(observationLevel=="event") %>%
-      dplyr::select(-individualPositionRadius, -individualPositionAngle, -individualSpeed) %>%
-      dplyr::left_join(evobs, by="individualID") %>%
-      dplyr::mutate(timestamp = eventStart)
 
     # Add data tables to output
     res$data <- list(deployments=deployments,
