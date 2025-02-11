@@ -4,7 +4,7 @@
 \alias{subset_deployments}
 \title{Subset a camera trap datapackage deployments}
 \usage{
-subset_deployments(package, choice)
+subset_deployments(package, choice, suffix = "")
 }
 \arguments{
 \item{package}{Camera trap data package object, as returned by
@@ -12,6 +12,8 @@ subset_deployments(package, choice)
 
 \item{choice}{A logical expression using column names from the
 deployments table.}
+
+\item{suffix}{A character value to be added to the package name.}
 }
 \value{
 As for \code{\link[camtraptor]{read_camtrap_dp}}, with all

@@ -455,6 +455,7 @@ plot_deployment_schedule <- function(package){
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @param choice A logical expression using column names from the
 #'  deployments table.
+#' @param suffix A character value to be added to the package name.
 #' @return As for \code{\link[camtraptor]{read_camtrap_dp}}, with all
 #'  data tables reduced according to the choice criteria at the deployment
 #'  level.
@@ -470,7 +471,8 @@ plot_deployment_schedule <- function(package){
 #'                                end <= as.POSIXct("2017-10-31", tz="UTC"))
 #' @export
 #'
-subset_deployments <- function(package, choice){
+subset_deployments <- function(package, choice, suffix=""){
+  package$name <- paste(package$name, suffix, sep="-")
   package$data$deployments <- dplyr::filter(package$data$deployments, {{choice}})
   usedeps <- package$data$deployments$deploymentID
   package$data$media <- dplyr::filter(package$data$media,
