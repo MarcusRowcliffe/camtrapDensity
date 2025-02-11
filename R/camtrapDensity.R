@@ -500,6 +500,7 @@ subset_deployments <- function(package, choice, suffix=""){
 #'   time range within which to slice the package.
 #' @param depChoice A logical expression using column names from the
 #'  deployments table defining which deployments to slice.
+#' @param suffix A character value to be added to the package name.
 #' @return As for \code{\link[camtraptor]{read_camtrap_dp}}, with all
 #'  data tables reduced according to the choice criteria.
 #' @examples
@@ -520,7 +521,10 @@ subset_deployments <- function(package, choice, suffix=""){
 slice_camtrap_dp <- function(package,
                              start = NULL,
                              end = NULL,
-                             depChoice = NULL){
+                             depChoice = NULL,
+                             suffix = ""){
+
+  package$name <- paste(package$name, suffix, sep="-")
 
   if(missing(depChoice)) depChoice <- TRUE
   deps <- package$data$deployments %>%
