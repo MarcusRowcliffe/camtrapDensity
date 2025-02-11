@@ -88,138 +88,231 @@ read_camtrap_dp_csv <- function(folder,
   )
 }
 
-#' Read Camtrap DP data
+#' Read a Camptrap DP datapackage
 #'
-#' Reads data from a Camtrap DP datapackage Agouti export in either V0.1 or V1.
-#' If data V0.1, uses camtraptor::read_camtrap_dp. If data are V1, effectively
-#' down-versions to V0.1, and recalculates speeds. Positions are reordered
-#' correctly before calculating speed (not always the case in raw output).
-#' Observations with zero time difference (hence infinite speed) impute time
-#' for speed calculation from average frame rate.
+#' Reads the metadata and csv files from a Camtrap DP version 1 datapackage
+#' as exported from Agouti.
 #'
 #' @param file Path to a datapackage.json file.
-#' @param resort Logical defining whether to re-sort sequences (see details).
-#' @return As for \code{\link[camtraptor]{read_camtrap_dp}} with the addition
-#'  of $data$positions table, containing the original media observations.
-#' @details Occasionally, images may be mis-ordered within sequences when
-#'  timestamps of adjacent images are equal, leading to mis-specification of
-#'  speeds and initial positions. To fix this, \code{resort} can be set TRUE,
-#'  and images will be rearranged according to original file name in the
-#'  positions table, before recalculating speeds and initial positions in the
-#'  observations table. Note that this only works if the fileName field of the
-#'  $data$media table has preserved the original alphanumeric file name following
-#'  the upload time suffix (e.g. "20231019073014-IMG0001.JPG").
+#' @param media Logical defining whether to read media table.
+#' @param recalc Logical defining whether to recalculate event; if \code{TRUE},
+#'  calls \code{\link{recalc_events}}.
+#' @param addV0 Logical defining whether to add camtrapDP version 0 fields, for
+#'  compatibility with functions using this data model.
+#' @param dtFormat Character format used to read date-time fields, passed to
+#'  \code{\link[lubridate]{parse_date_time}}
+#' @return A list of data package metadata components and a \code{data}
+#'  component with dataframes: \code{deployments}, \code{media},
+#'  \code{observations} (containing event observations) and \code{positions}
+#'  (containing media observations). If the \code{media} argument is FALSE,
+#'  the \code{media} component is NULL. The \code{positions} may also be NULL
+#'  if there are no media observations in the input.
 #' @examples
 #'   \dontrun{pkg <- read_camtrapDP("./data/datapackage.json")}
 #' @export
-#'
-#'
-read_camtrapDP <- function(file, resort=FALSE){
-
-  convert_date <- function(x){
-    x <- paste0(substr(x, 1, 22), substr(x, 24, 25))
-    as.POSIXct(x, format="%FT%T%z", tz="UTC")
-  }
-
-  # Read json and add directory / taxonomicIDReference
+read_camtrapDP <- function(file,
+                           media=TRUE, #whether to load media table
+                           recalc=TRUE, # whether to recalculate event observation measures
+                           addV0=TRUE, # whether to add version 0 fields
+                           dtFormat="YmdHMSz"){ # date-time format, passed to parse_date_time
+  # Read json and add directory to metadata
   dir <- normalizePath(dirname(file), "/")
-  res <- jsonlite::read_json(file)
-  res$directory <- dir
-  res$taxonomic <- lapply(res$taxonomic, function(x)
+  mdata <- jsonlite::read_json(file)
+  mdata$directory <- dir
+
+  # Read and modify csv data files
+  dep <- read.csv(file.path(dir, "deployments.csv")) %>%
+    dplyr::mutate(deploymentStart = lubridate::parse_date_time(deploymentStart, dtFormat),
+                  deploymentEnd = lubridate::parse_date_time(deploymentEnd, dtFormat))
+  gaps <- with(dep,
+               is.na(deploymentStart) | is.na(deploymentEnd) |
+                 is.na(latitude) | is.na(longitude))
+  if(any(gaps)) stop(
+    paste(c("These deployments have missing dates and/or positions:",
+            dep$deploymentID[gaps]), collapse="\n"))
+
+  med <- if(media){
+    read.csv(file.path(dir, "media.csv")) %>%
+      dplyr::mutate(timestamp = lubridate::parse_date_time(timestamp, dtFormat))
+  } else NULL
+
+  obs <- read.csv(file.path(dir, "observations.csv")) %>%
+    dplyr::mutate(eventStart = lubridate::parse_date_time(eventStart, dtFormat),
+                  eventEnd = lubridate::parse_date_time(eventEnd, dtFormat),
+                  classificationTimestamp = lubridate::parse_date_time(classificationTimestamp, dtFormat))
+  evobs <- dplyr::filter(obs, observationLevel=="event")
+  medobs <- dplyr::filter(obs, observationLevel=="media")
+
+  data <- list(deployments=dep,
+               media=med,
+               observations=evobs,
+               positions=medobs)
+  pkg <- c(mdata, data=list(data))
+  if(recalc) pkg <- recalc_events(pkg)
+  if(addV0) pkg <- downversion_camtrapDP(pkg)
+  return(pkg)
+}
+
+#' Merge Camtrap DP datapackages
+#'
+#' Merges a list of several Camtrap DP datapackages into a single datapackage.
+#'
+#' @param pkgs A list of camera trap data packages, as returned by
+#'   \code{\link{read_camtrapDP}}.
+#' @return A single datapackage with component dataframes merged.
+#' @details Original datapackage metadata are stored in named top-level
+#'  components of the output list, along with a single data component with
+#'  the usual dataframes merged across datapackages, and additional
+#'  \code{packageName} fields indicating the datapackage from which data row
+#'  originates.
+#' @examples
+#'   \dontrun{bigpkg <- merge_camtrapDP(list(pkg1, pkg2))}
+#' @export
+merge_camtrapDP <- function(pkgs){
+  ids <- unlist(lapply(pkgs, function(pkg) pkg$id))
+  names <- unlist(lapply(pkgs, function(pkg) pkg$name))
+  pkgs[[1]]$directory
+  mdats <- lapply(pkgs, function(pkg) within(pkg, rm(data)))
+  names(mdats) <- names
+
+  deps <- lapply(pkgs, function(pkg) pkg$data$deployments)
+  meds <- lapply(pkgs, function(pkg) pkg$data$media)
+  obss <- lapply(pkgs, function(pkg) pkg$data$observations)
+  poss <- lapply(pkgs, function(pkg) pkg$data$positions)
+
+  nrow2 <- function(x) if(is.null(x)) 0 else nrow(x)
+  ndeps <- unlist(lapply(deps, nrow))
+  nmeds <- unlist(lapply(meds, nrow2))
+  nobss <- unlist(lapply(obss, nrow))
+  nposs <- unlist(lapply(poss, nrow2))
+
+  f <- function(d) if(nrow(d)==0) NULL else d
+  obss <- lapply(obss, f)
+  poss <- lapply(poss, f)
+
+  deps <- deps %>%
+    dplyr::bind_rows() %>%
+    dplyr::mutate(packageName = rep(names, ndeps),
+                  packageID = rep(ids, ndeps))
+  meds <- meds %>%
+    dplyr::bind_rows() %>%
+    dplyr::mutate(packageName = rep(names, nmeds),
+                  packageID = rep(ids, nmeds))
+  obss <- obss %>%
+    dplyr::bind_rows() %>%
+    dplyr::mutate(packageName = rep(names, nobss),
+                  packageID = rep(ids, nobss))
+  poss <- poss %>%
+    dplyr::bind_rows() %>%
+    dplyr::mutate(packageName = rep(names, nposs),
+                  packageID = rep(ids, nposs))
+
+  data <- list(deployments = deps,
+               media = meds,
+               observations = obss,
+               positions = poss)
+  c(mdats, data=list(data))
+}
+
+#' Downversion Camtrap DP datapackage
+#'
+#' Downversions a Cmatrap DP datapackage to V0 by duplicating dataframe fields
+#' whose names differ between versions with V0 fields created in addition to
+#' existing V1 fields.
+#'
+#' @param pkg Camera trap data package list, as returned by
+#'   \code{\link{read_camtrapDP}}.
+#' @return A duplicate of the original package with the addition of duplicate
+#'  of fields with V0 fieldnames to data.
+#' @examples
+#'   \dontrun{pkgV0 <- downversion_camtrapDP(pkgV1)}
+#' @export
+downversion_camtrapDP <- function(pkg){
+  pkg$taxonomic <- lapply(pkg$taxonomic, function(x)
     c(x, taxonIDReference=dirname(x$taxonID)))
 
-  # Check version and use camtraptor if V0, otherwise bespoke
-  version <- substr(basename(dirname(res$profile)), 1, 1)
-  if(version == "0"){
-    res <- camtraptor::read_camtrap_dp(file)
-  } else{
-    # Read and modify csv files
-    deployments <- read.csv(file.path(dir, "deployments.csv")) %>%
-      dplyr::rename(start = deploymentStart, end = deploymentEnd) %>%
-      dplyr::mutate(start = convert_date(start),
-                    end = convert_date(end))
-    gaps <- with(deployments,
-                is.na(start) | is.na(end) | is.na(latitude) | is.na(longitude))
-    if(any(gaps)) stop(
-      paste(c("These deployments have missing dates and/or positions:",
-              deployments$deploymentID[gaps]), collapse="\n"))
+  pkg$data$deployments <- pkg$data$deployments %>%
+    dplyr::mutate(start = deploymentStart,
+                  end = deploymentEnd)
 
-    media <- read.csv(file.path(dir, "media.csv")) %>%
-      dplyr::arrange(deploymentID, timestamp) %>%
-      dplyr::mutate(timestamp = convert_date(timestamp))
-
-    observations <- read.csv(file.path(dir, "observations.csv")) %>%
-      dplyr::rename(sequenceID = eventID) %>%
-      dplyr::mutate(eventStart = convert_date(eventStart),
-                    eventEnd = convert_date(eventEnd))
-
-    # Extract media observations with fileName and timestamp added from media,
-    # sort media chronologically within events if specified
-    if(!any(observations$observationlevel=="media")){
-      medobs <- NULL
-    } else{
-      medobs <- observations %>%
-        dplyr::filter(observationLevel == "media") %>%
-        dplyr::left_join(dplyr::select(media, mediaID, fileName, timestamp), by="mediaID")
-      if(resort){
-        id <- medobs$individualID
-        i <- c(0, cumsum(head(id, -1) != tail(id, -1)))
-        filenm <- with(medobs, substr(fileName,
-                                      1+regexpr("-", fileName),
-                                      nchar(fileName)))
-        medobs <- dplyr::arrange(medobs, i, filenm)
-      }
-
-      # Add stepwise distances, time differences and image counter
-      r1 <- head(medobs$individualPositionRadius, -1)
-      r2 <- tail(medobs$individualPositionRadius, -1)
-      a1 <- head(medobs$individualPositionAngle, -1)
-      a2 <- tail(medobs$individualPositionAngle, -1)
-      t1 <- head(medobs$timestamp, -1)
-      t2 <- tail(medobs$timestamp, -1)
-      id1 <- head(medobs$individualID, -1)
-      id2 <- tail(medobs$individualID, -1)
-      dist <- sqrt(r1^2 + r2^2 - 2*r1*r2*cos(a2-a1))
-      tdiff <- as.numeric(difftime(t2, t1, units="secs"))
-      dist[id1!=id2] <- NA
-      tdiff[id1!=id2] <- NA
-      medobs$dist <- c(NA, dist)
-      medobs$tdiff <- c(NA, tdiff)
-      medobs$imgCount <- sequence(table(cumsum(c(0, id2!=id1))))
-
-      # Summarise events for distance traveled, time difference,
-      # number of steps, first position radius and angle
-      evobs <- medobs %>%
-        dplyr::group_by(individualID) %>%
-        dplyr::summarise(dist = sum(dist, na.rm=TRUE),
-                         tdiff = sum(tdiff, na.rm=TRUE),
-                         steps = which(media$mediaID==mediaID[imgCount==max(imgCount)]) -
-                           which(media$mediaID == mediaID[imgCount==1]),
-                         radius = individualPositionRadius[imgCount==1],
-                         angle = individualPositionAngle[imgCount==1])
-
-      # Calculate speed, substituting mean step duration for zero time differences
-      secs_per_img <- mean(evobs$tdiff / evobs$steps, na.rm=TRUE)
-      evobs <- evobs %>%
-        dplyr::mutate(tdiff = dplyr::if_else(tdiff==0, secs_per_img * steps, tdiff),
-                      speed = dplyr::if_else(steps>0, dist/tdiff, NA))
-
-      # Add newly calculated radius, angle, speed etc to event observations
-      observations <- observations %>%
-        dplyr::filter(observationLevel=="event") %>%
-        dplyr::select(-individualPositionRadius, -individualPositionAngle, -individualSpeed) %>%
-        dplyr::left_join(evobs, by="individualID") %>%
-        dplyr::mutate(timestamp = eventStart)
-    }
-
-    # Add data tables to output
-    res$data <- list(deployments=deployments,
-                     media=media,
-                     observations=observations,
-                     positions=medobs)
+  if(!is.null(pkg$data$media)){
+    pkg$data$media <- pkg$data$media %>%
+      dplyr::mutate(seqenceID = sub("sequenceID:", "", mediaComments))
   }
 
-  return(res)
+  pkg$data$observations <- pkg$data$observations %>%
+    dplyr::mutate(timestamp = eventStart,
+                  radius = individualPositionRadius,
+                  angle = individualPositionAngle,
+                  speed = individualSpeed,
+                  sequenceID = eventID)
+  pkg
+}
+
+#' Recalculate event observations
+#'
+#' Recalculates event observation values (individualPositionRadius,
+#' individualPositionAngle, individualSpeed) from media observations.
+#'
+#' @param pkg Camera trap data package list, as returned by
+#'   \code{\link{read_camtrapDP}}.
+#' @return A duplicate of the original package with event observation values
+#'  recalculated.
+#' @details The process requires \code{media} data and fails if this is not
+#'  available in the datapackage. The datapackage should also contain
+#'  positions data, but the original package is simply returned unmodified if
+#'  the \code{positions} data table contains no data. In recalculating speeds,
+#'  observations with zero time difference (hence infinite speed) impute time
+#'  elapsed from average frame rate.
+#' @examples
+#'   \dontrun{pkg2 <- recalc_events(pkg2)}
+#' @export
+recalc_events <- function(pkg){
+  if(is.null(pkg$data$media))
+    stop("Media table is required to recalculate events")
+  medobs <- pkg$data$positions
+  if(nrow(medobs)>0){
+    # Add stepwise distances, time differences and image counter
+    r1 <- head(medobs$individualPositionRadius, -1)
+    r2 <- tail(medobs$individualPositionRadius, -1)
+    a1 <- head(medobs$individualPositionAngle, -1)
+    a2 <- tail(medobs$individualPositionAngle, -1)
+    t1 <- head(medobs$eventStart, -1)
+    t2 <- tail(medobs$eventStart, -1)
+    id1 <- head(medobs$individualID, -1)
+    id2 <- tail(medobs$individualID, -1)
+    dist <- sqrt(r1^2 + r2^2 - 2*r1*r2*cos(a2-a1))
+    tdiff <- as.numeric(difftime(t2, t1, units="secs"))
+    dist[id1!=id2] <- NA
+    tdiff[id1!=id2] <- NA
+    medobs$dist <- c(NA, dist)
+    medobs$tdiff <- c(NA, tdiff)
+    medobs$imgCount <- sequence(table(cumsum(c(0, id2!=id1))))
+
+    # Summarise events for distance traveled, time difference,
+    # number of steps, first position radius and angle
+    medID <- pkg$data$media$mediaID
+    evobs <- medobs %>%
+      dplyr::group_by(individualID) %>%
+      dplyr::summarise(dist = sum(dist, na.rm=TRUE),
+                       tdiff = sum(tdiff, na.rm=TRUE),
+                       steps = which(medID==mediaID[imgCount==max(imgCount)]) -
+                         which(medID == mediaID[imgCount==1]),
+                       individualPositionRadius = individualPositionRadius[imgCount==1],
+                       individualPositionAngle = individualPositionAngle[imgCount==1])
+
+    # Calculate speed, substituting mean step duration for zero time differences
+    secs_per_img <- mean(evobs$tdiff / evobs$steps, na.rm=TRUE)
+    evobs <- evobs %>%
+      dplyr::mutate(tdiff = dplyr::if_else(tdiff==0, secs_per_img * steps, tdiff),
+                    individualSpeed = dplyr::if_else(steps>0, dist/tdiff, NA))
+
+    # Add newly calculated radius, angle, speed etc to event observations
+    pkg$data$observations <- pkg$data$observations %>%
+      dplyr::select(-individualPositionRadius, -individualPositionAngle, -individualSpeed) %>%
+      dplyr::left_join(evobs, by="individualID")
+  }
+  return(pkg)
 }
 
 #' Plot a map of deployments
@@ -227,7 +320,7 @@ read_camtrapDP <- function(file, resort=FALSE){
 #' Creates an OpenStreetMap street or satellite map over-plotted with
 #' deployment locations.
 #'
-#' @param package Camera trap data package object, as returned by
+#' @param pkg Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @param basemap Basemap to plot, street (default) or satellite
 #' @param ... Additional arguments passed to
@@ -256,7 +349,7 @@ map_deployments <- function(pkg, basemap=c("street", "satellite"), ...){
 #' deployment locations, with points sized in proportion to trap rate for a
 #' given species.
 #'
-#' @param package Camera trap data package object, as returned by
+#' @param pkg Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @param species A character string indicating species subset to analyse.
 #'   Use scientific names. If NULL runs select_species to get user input;
@@ -932,7 +1025,7 @@ fit_detmodel <- function(formula,
 #' @param package Camera trap data package object, as returned by
 #'   \code{\link[camtraptor]{read_camtrap_dp}}.
 #' @param species A character string indicating species subset to extract
-#'   data for; if NULL runs acode{select_species} to get user input.
+#'   data for; if NULL runs \code{select_species} to get user input.
 #' @param unit The time unit in which to return camera effort.
 #' @return A tibble with columns:
 #' \itemize{
@@ -1147,7 +1240,7 @@ get_parameter_table <- function(traprate_data,
   # Get parameters and SEs
   rad <- radius_model$edd
   ang <- angle_model$edd * 2
-  spd <- dplyr::select(speed_model$estimate, all_of(c("est", "se")))
+  spd <- dplyr::select(speed_model$estimate, dplyr::all_of(c("est", "se")))
   act <- activity_model@act[1:2]
   names(act) <- names(spd) <- dimnames(rad)[[2]]
   res <- data.frame(rbind(rad, ang, spd, act))
@@ -1558,6 +1651,6 @@ write_rem_csv <- function(...){
     paste(collapse="_")
   file <- gsub(" ", "-", file)
   file <- paste0(file, "_", dt, ".csv")
-  write.csv(est, file, row.names = FALSE)
+  utils::write.csv(est, file, row.names = FALSE)
   print(paste("Data written to", normalizePath(file, "/")))
 }

@@ -15,7 +15,7 @@ get_traprate_data(
 \code{\link[camtraptor]{read_camtrap_dp}}.}
 
 \item{species}{A character string indicating species subset to extract
-data for; if NULL runs acode{select_species} to get user input.}
+data for; if NULL runs \code{select_species} to get user input.}
 
 \item{unit}{The time unit in which to return camera effort.}
 }

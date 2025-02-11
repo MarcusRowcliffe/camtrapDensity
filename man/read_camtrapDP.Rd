@@ -2,36 +2,41 @@
 % Please edit documentation in R/camtrapDensity.R
 \name{read_camtrapDP}
 \alias{read_camtrapDP}
-\title{Read Camtrap DP data}
+\title{Read a Camptrap DP datapackage}
 \usage{
-read_camtrapDP(file, resort = FALSE)
+read_camtrapDP(
+  file,
+  media = TRUE,
+  recalc = TRUE,
+  addV0 = TRUE,
+  dtFormat = "YmdHMSz"
+)
 }
 \arguments{
 \item{file}{Path to a datapackage.json file.}
 
-\item{resort}{Logical defining whether to re-sort sequences (see details).}
+\item{media}{Logical defining whether to read media table.}
+
+\item{recalc}{Logical defining whether to recalculate event; if \code{TRUE},
+calls \code{\link{recalc_events}}.}
+
+\item{addV0}{Logical defining whether to add camtrapDP version 0 fields, for
+compatibility with functions using this data model.}
+
+\item{dtFormat}{Character format used to read date-time fields, passed to
+\code{\link[lubridate]{parse_date_time}}}
 }
 \value{
-As for \code{\link[camtraptor]{read_camtrap_dp}} with the addition
- of $data$positions table, containing the original media observations.
+A list of data package metadata components and a \code{data}
+ component with dataframes: \code{deployments}, \code{media},
+ \code{observations} (containing event observations) and \code{positions}
+ (containing media observations). If the \code{media} argument is FALSE,
+ the \code{media} component is NULL. The \code{positions} may also be NULL
+ if there are no media observations in the input.
 }
 \description{
-Reads data from a Camtrap DP datapackage Agouti export in either V0.1 or V1.
-If data V0.1, uses camtraptor::read_camtrap_dp. If data are V1, effectively
-down-versions to V0.1, and recalculates speeds. Positions are reordered
-correctly before calculating speed (not always the case in raw output).
-Observations with zero time difference (hence infinite speed) impute time
-for speed calculation from average frame rate.
-}
-\details{
-Occasionally, images may be mis-ordered within sequences when
- timestamps of adjacent images are equal, leading to mis-specification of
- speeds and initial positions. To fix this, \code{resort} can be set TRUE,
- and images will be rearranged according to original file name in the
- positions table, before recalculating speeds and initial positions in the
- observations table. Note that this only works if the fileName field of the
- $data$media table has preserved the original alphanumeric file name following
- the upload time suffix (e.g. "20231019073014-IMG0001.JPG").
+Reads the metadata and csv files from a Camtrap DP version 1 datapackage
+as exported from Agouti.
 }
 \examples{
   \dontrun{pkg <- read_camtrapDP("./data/datapackage.json")}
