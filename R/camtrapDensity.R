@@ -617,8 +617,9 @@ select_species <- function(package, species=NULL){
 #' @export
 #'
 check_deployment_models <- function(package){
+  if(!dir.exists(package$directory)) stop("The specified folder does not exist.")
   plot_folder <- file.path(package$directory, "positioning_plots")
-  if(!dir.exists(plot_folder)) stop("The specified folder does not exist.")
+  if(!dir.exists(plot_folder)) dir.create(plot_folder)
   plot_dirs <- list.dirs(plot_folder, recursive=FALSE)
   plots <- file.path(plot_dirs, "ratio.jpeg") %>%
     lapply(jpeg::readJPEG)
