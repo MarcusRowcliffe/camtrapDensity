@@ -542,6 +542,8 @@ correct_time <- function(package, depID=NULL, locName=NULL, wrongTime, rightTime
       dplyr::mutate(timestamp = dplyr::if_else(deploymentID==depID,
                                                timestamp + td,
                                                timestamp))
+  package$temporal$start <- lubridate::as_date(min(package$data$deployments$start))
+  package$temporal$end <- lubridate::as_date(max(package$data$deployments$end))
   package
 }
 
