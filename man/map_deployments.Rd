@@ -7,13 +7,13 @@
 map_deployments(pkg, basemap = c("street", "satellite"), ...)
 }
 \arguments{
+\item{pkg}{Camera trap data package object, as returned by
+\code{\link[camtraptor]{read_camtrap_dp}}.}
+
 \item{basemap}{Basemap to plot, street (default) or satellite}
 
 \item{...}{Additional arguments passed to
 \code{\link[leaflet]{addCircleMarkers}}}
-
-\item{package}{Camera trap data package object, as returned by
-\code{\link[camtraptor]{read_camtrap_dp}}.}
 }
 \description{
 Creates an OpenStreetMap street or satellite map over-plotted with

@@ -13,6 +13,9 @@ map_traprates(
 )
 }
 \arguments{
+\item{pkg}{Camera trap data package object, as returned by
+\code{\link[camtraptor]{read_camtrap_dp}}.}
+
 \item{species}{A character string indicating species subset to analyse.
 Use scientific names. If NULL runs select_species to get user input;
 if all uses all data.}
@@ -22,9 +25,6 @@ if all uses all data.}
 \item{maxSize}{Maximum point size to plot.}
 
 \item{minSize}{Minimum point size to plot.}
-
-\item{package}{Camera trap data package object, as returned by
-\code{\link[camtraptor]{read_camtrap_dp}}.}
 }
 \description{
 Creates an OpenStreetMap street or satellite map over-plotted with
