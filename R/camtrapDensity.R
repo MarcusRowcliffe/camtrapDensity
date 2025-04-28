@@ -475,8 +475,9 @@ subset_deployments <- function(package, choice, suffix=""){
   package$name <- paste(package$name, suffix, sep="-")
   package$data$deployments <- dplyr::filter(package$data$deployments, {{choice}})
   usedeps <- package$data$deployments$deploymentID
-  package$data$media <- dplyr::filter(package$data$media,
-                                      deploymentID %in% usedeps)
+  if(!is.null(package$data$media))
+     package$data$media<- dplyr::filter(package$data$media,
+                                        deploymentID %in% usedeps)
   package$data$observations <- dplyr::filter(package$data$observations,
                                              deploymentID %in% usedeps)
   package$temporal$start <- lubridate::as_date(min(package$data$deployments$start))
