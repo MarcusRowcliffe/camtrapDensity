@@ -557,7 +557,7 @@ slice_camtrap_dp <- function(package,
                        timestamp<=endCut &
                        deploymentID %in% deps))
 
-  if("media" %in% names(package$data)){
+  if(!is.null(package$data$media)){
     package$data$media <- package$data$media %>%
       dplyr::filter(!deploymentID %in% deps |
                       (timestamp>=startCut &
