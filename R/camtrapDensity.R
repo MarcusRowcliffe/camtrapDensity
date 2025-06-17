@@ -840,12 +840,13 @@ fit_speedmodel <- function(package,
   timeUnit <- match.arg(timeUnit)
   varnms <- all.vars(formula)
   species <- select_species(package, species)
-  obs <- package$data$observations %>%
+  obs <- package$data$observations
+  if("useDeployment" %in% names(obs))
+    obs <- dplyr::filter(obs, useDeployment==TRUE)
+  obs <- obs %>%
     dplyr::select(dplyr::all_of(c("scientificName", varnms))) %>%
     dplyr::filter(scientificName %in% !!species & speed>0.01 & speed<10) %>%
     tidyr::drop_na()
-  if("useDeployment" %in% names(obs))
-    obs <- dplyr::filter(obs, useDeployment==TRUE)
 
   if(nrow(obs) == 0) stop("There are no usable speed data")
 
