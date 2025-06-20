@@ -475,11 +475,14 @@ subset_deployments <- function(package, choice, suffix=""){
   package$name <- paste(package$name, suffix, sep="-")
   package$data$deployments <- dplyr::filter(package$data$deployments, {{choice}})
   usedeps <- package$data$deployments$deploymentID
-  if(!is.null(package$data$media))
-     package$data$media<- dplyr::filter(package$data$media,
-                                        deploymentID %in% usedeps)
   package$data$observations <- dplyr::filter(package$data$observations,
                                              deploymentID %in% usedeps)
+  if(!is.null(package$data$media))
+    package$data$media<- dplyr::filter(package$data$media,
+                                       deploymentID %in% usedeps)
+  if(!is.null(package$data$positions))
+    package$data$positions<- dplyr::filter(package$data$positions,
+                                           deploymentID %in% usedeps)
   package$temporal$start <- lubridate::as_date(min(package$data$deployments$start))
   package$temporal$end <- lubridate::as_date(max(package$data$deployments$end))
   package
@@ -562,6 +565,13 @@ slice_camtrap_dp <- function(package,
       dplyr::filter(!deploymentID %in% deps |
                       (timestamp>=startCut &
                          timestamp<=endCut &
+                         deploymentID %in% deps))
+  }
+  if(!is.null(package$data$positions)){
+    package$data$positions <- package$data$positions %>%
+      dplyr::filter(!deploymentID %in% deps |
+                      (eventStart >= startCut &
+                         eventStart <= endCut &
                          deploymentID %in% deps))
   }
   package$temporal$start <- lubridate::as_date(min(package$data$deployments$start))
