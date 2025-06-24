@@ -153,6 +153,83 @@ read_camtrapDP <- function(file,
   return(pkg)
 }
 
+#' Format POSIX as text
+#'
+#' Formats POSIX date-time data as character with "T" date-time separator
+#' and numeric timezone suffix. Fails if input data are not POSIX.
+#'
+#' @param x A vector of POSIX data
+#' @result A vector of character date-time representations
+#' @export
+format_datetime <- function(x){
+  if(!lubridate::is.POSIXt(x))
+    stop("x is not posix") else{
+      res <- format(x, "%Y-%m-%dT%H:%M:%S%z")
+      return(gsub("([+-]\\d{2})(\\d{2})$", "\\1:\\2", res))
+    }
+}
+
+#' Write Camtrap DP datapackage
+#'
+#' Writes a Camtrap DP datapackage to disk.
+#'
+#' @param pkg A camtrap DP data package object, as created by
+#'   \code{\link{read_camtrapDP}}.
+#' @param dir A character string giving path to a directory to which to save
+#' @param media Whether or not to write media data (if present)
+#' @param plots Whether or not to copy positioning plots (if present)
+#' @details The save directory (dir) is created and must not already exist.
+#'  If dir is null (default), a directory is created in the current working
+#'  with the original directory name plus suffix "-saved".
+#' @examples
+#'   \dontrun{
+#'     write_camtrapDP(pkg)
+#'     write_camtrapDP(pkg, "./new_directory/saved_datapackage")
+#'   }
+#' @export
+write_camtrapDP <- function(pkg,
+                            dir = NULL,
+                            media = TRUE,
+                            plots = TRUE){
+  if(is.null(dir))
+    dir <- file.path(getwd(), paste(basename(pkg$dir), "saved", sep="-"))
+  if(dir.exists(dir))
+    stop("Directory already exists") else{
+      dir.create(dir)
+      jsonlite::write_json(pkg[!names(pkg) == "data"],
+                           file.path(dir, "datapackage.json"),
+                           pretty = TRUE,
+                           digits = NA,
+                           auto_unbox = TRUE)
+
+      pkg$data$deployments %>%
+        dplyr::mutate(deploymentStart = format_datetime(deploymentStart),
+                      deploymentEnd = format_datetime(deploymentEnd)) %>%
+        write.csv(file.path(dir, "deployments.csv"), row.names = FALSE)
+
+      poss_additions <- c("dist", "tdiff", "steps", "timestamp",
+                          "radius", "angle", "speed", "sequenceID")
+      pkg$data$observations %>%
+        dplyr::select(-any_of(poss_additions)) %>%
+        dplyr::bind_rows(pkg$data$positions) %>%
+        dplyr::mutate(eventStart = format_datetime(eventStart),
+                      eventEnd = format_datetime(eventEnd),
+                      classificationTimestamp = format_datetime(classificationTimestamp)) %>%
+        write.csv(file.path(dir, "observations.csv"), row.names = FALSE)
+
+      if(media){
+        pkg$data$media %>%
+          dplyr::mutate(timestamp = format_datetime(timestamp)) %>%
+          write.csv(file.path(dir, "media.csv"), row.names = FALSE)
+      }
+
+      plotsDir <- file.path(pkg$directory, "positioning_plots")
+      if(plots & dir.exists(plotsDir))
+        fs::dir_copy(plotsDir, dir)
+      print(paste("Data package written to", dir))
+    }
+}
+
 #' Merge Camtrap DP datapackages
 #'
 #' Merges a list of several Camtrap DP datapackages into a single datapackage.
