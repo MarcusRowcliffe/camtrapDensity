@@ -1008,7 +1008,7 @@ fit_detmodel <- function(formula,
   if(length(covars)==0)
     newdata <- data.frame(x=0) else{
       if(is.null(newdata)){
-        newdata <- dat %>% dplyr::select(dplyr::all_of(covars)) %>%
+        newdata <- mod$data %>% dplyr::select(dplyr::all_of(covars)) %>%
           lapply(function(x)
             if(is.numeric(x)) mean(x, na.rm=T) else sort(unique(x)))  %>%
           expand.grid()
