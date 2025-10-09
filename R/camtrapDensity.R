@@ -440,7 +440,8 @@ plot_deployment_schedule <- function(package){
                                                  yend = .data$end)) +
     ggplot2::scale_x_discrete(labels=depdat$locationName) +
     ggplot2::scale_y_datetime(date_labels="%Y/%m/%d") +
-    ggplot2::labs(x="Location", y=ggplot2::element_blank()) +
+    ggplot2::labs(x="Location") +
+    ggplot2::theme(axis.title.y = ggplot2::element_blank()) +
     ggplot2::theme_classic() +
     ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 90, vjust=0.5))
   plotly::ggplotly(plt)

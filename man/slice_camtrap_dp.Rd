@@ -4,7 +4,13 @@
 \alias{slice_camtrap_dp}
 \title{Take a time slice of a data package}
 \usage{
-slice_camtrap_dp(package, start = NULL, end = NULL, depChoice = NULL)
+slice_camtrap_dp(
+  package,
+  start = NULL,
+  end = NULL,
+  depChoice = NULL,
+  suffix = ""
+)
 }
 \arguments{
 \item{package}{Camera trap data package object, as returned by
@@ -15,6 +21,8 @@ time range within which to slice the package.}
 
 \item{depChoice}{A logical expression using column names from the
 deployments table defining which deployments to slice.}
+
+\item{suffix}{A character value to be added to the package name.}
 }
 \value{
 As for \code{\link[camtraptor]{read_camtrap_dp}}, with all
