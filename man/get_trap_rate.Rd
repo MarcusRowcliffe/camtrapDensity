@@ -4,7 +4,7 @@
 \alias{get_trap_rate}
 \title{Get average trap rate from REM data}
 \usage{
-get_trap_rate(traprate_data, strata = NULL, reps = 999)
+get_trap_rate(traprate_data, strata = NULL, reps = 999, seed = 42)
 }
 \arguments{
 \item{traprate_data}{A dataframe containing (at least) columns \code{n} and
@@ -16,6 +16,8 @@ get_trap_rate(traprate_data, strata = NULL, reps = 999)
 \code{stratumID} and \code{area}.}
 
 \item{reps}{The number of bootstrap replicates to run.}
+
+\item{seed}{Integer seed for reproducible bootstrap; `NULL` to skip setting a seed. Default 42.}
 }
 \value{
 A dataframe with columns:

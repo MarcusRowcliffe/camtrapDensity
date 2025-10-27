@@ -12,6 +12,7 @@ fit_speedmodel(
   reps = 1000,
   distUnit = c("m", "km", "cm"),
   timeUnit = c("second", "minute", "hour", "day"),
+  seed = 42,
   ...
 )
 }
@@ -31,6 +32,8 @@ if NULL runs select_species to get user input; if all uses all data.}
 \item{distUnit}{A character string indicating distance unit of speed observations.}
 
 \item{timeUnit}{A character string indicating time unit of speed observations.}
+
+\item{seed}{Integer seed for reproducible fitting; `NULL` to skip setting a seed. Default 42.}
 
 \item{...}{Other parameters passed to \code{sbm} for covariate modelling (see details).}
 }

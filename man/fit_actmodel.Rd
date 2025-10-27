@@ -9,6 +9,7 @@ fit_actmodel(
   species = NULL,
   reps = 999,
   obsdef = c("individual", "sequence"),
+  seed = 42,
   ...
 )
 }
@@ -22,6 +23,8 @@ if NULL runs select_species to get user input.}
 \item{reps}{Number of bootstrap replicates to run.}
 
 \item{obsdef}{Observation definition, either individual or sequence.}
+
+\item{seed}{Integer seed for reproducible fitting; `NULL` to skip setting a seed. Default 42.}
 
 \item{...}{Arguments passed to \code{\link[activity]{fitact}}.}
 }

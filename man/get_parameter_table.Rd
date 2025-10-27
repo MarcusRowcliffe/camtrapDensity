@@ -11,7 +11,8 @@ get_parameter_table(
   speed_model,
   activity_model,
   strata = NULL,
-  reps = 999
+  reps = 999,
+  seed = 42
 )
 }
 \arguments{
@@ -30,6 +31,8 @@ returned by \code{\link{get_traprate_data}}.}
 
 \item{reps}{Number of bootstrap replicates for estimating trap rate error
 (see \code{\link{get_trap_rate}})}
+
+\item{seed}{Integer seed passed to \code{get_trap_rate} for reproducible bootstrapping; `NULL` to skip setting a seed. Default 42.}
 }
 \value{
 A dataframe of unit-harmonised parameter estimates with rows:
