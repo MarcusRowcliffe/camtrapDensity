@@ -804,7 +804,6 @@ get_agouti_url <- function(package, obsChoice){
 #' @param reps Number of random draws to use for standard calculation.
 #' @param distUnit A character string indicating distance unit of speed observations.
 #' @param timeUnit A character string indicating time unit of speed observations.
-#' @param seed Integer seed for reproducible fitting; `NULL` to skip setting a seed. Default 42.
 #' @param ... Other parameters passed to \code{sbm} for covariate modelling (see details).
 #' @return List with elements:
 #' \itemize{
@@ -837,7 +836,6 @@ fit_speedmodel <- function(package,
                            reps = 1000,
                            distUnit = c("m", "km", "cm"),
                            timeUnit = c("second", "minute", "hour", "day"),
-                           seed = 42,
                            ...){
   distUnit <- match.arg(distUnit)
   timeUnit <- match.arg(timeUnit)
@@ -853,8 +851,7 @@ fit_speedmodel <- function(package,
 
   if(nrow(obs) == 0) stop("There are no usable speed data")
 
-  # sbd::sbm may perform random sampling internally; evaluate with seed
-  res <- .with_seed(seed, sbd::sbm(formula, obs, ...))
+  res <- sbd::sbm(formula, obs, ...)
   res$unit <- paste(distUnit, timeUnit, sep="/")
   res
 }
@@ -1527,7 +1524,8 @@ rem <- function(parameters){
 #'   \code{\link[activity]{fitact}} or \code{\link{fit_actmodel}}.
 #' @param strata A dataframe of stratum areas, passed to \code{\link{get_trap_rate}}.
 #' @param reps Number of bootstrap replicates for error estimation.
-#' @param seed Integer seed for reproducible internal model fitting and bootstrapping; `NULL` to skip setting a seed. Default 42.
+#' @param seed Integer seed for reproducible activity model fitting and
+#'   bootstrapping; `NULL` to skip setting a seed. Default 42.
 #' @return A dataframe containing estimates and their errors for density and
 #'   all contributing parameters.
 #' @examples
@@ -1585,7 +1583,7 @@ rem_estimate <- function(package,
 
   message("Fitting speed model...")
   if(is.null(speed_model))
-    speed_model <- fit_speedmodel(package, species, seed = seed)
+    speed_model <- fit_speedmodel(package, species)
 
   message("Fitting activity model...")
   if(is.null(activity_model))

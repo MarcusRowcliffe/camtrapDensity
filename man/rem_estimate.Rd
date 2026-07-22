@@ -45,7 +45,8 @@ if NULL runs \code{\link{select_species}} to get user input.}
 
 \item{reps}{Number of bootstrap replicates for error estimation.}
 
-\item{seed}{Integer seed for reproducible internal model fitting and bootstrapping; `NULL` to skip setting a seed. Default 42.}
+\item{seed}{Integer seed for reproducible activity model fitting and
+bootstrapping; `NULL` to skip setting a seed. Default 42.}
 }
 \value{
 A dataframe containing estimates and their errors for density and

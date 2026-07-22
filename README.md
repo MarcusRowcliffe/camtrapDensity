@@ -455,7 +455,7 @@ operations accept a `seed` argument. By default the package uses a
 fixed seed of 42 so repeated analyses produce identical results unless
 you explicitly set a different seed. The following functions accept a
 `seed` argument (default 42): `rem_estimate`, `get_parameter_table`,
-`get_trap_rate`, `fit_actmodel`, and `fit_speedmodel`.
+`get_trap_rate`, and `fit_actmodel`.
 
 If you pass `seed = NULL` the function will not change the global RNG
 state and randomness will behave as usual. The package sets the seed
