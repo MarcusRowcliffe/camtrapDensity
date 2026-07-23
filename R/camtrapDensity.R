@@ -867,6 +867,7 @@ fit_speedmodel <- function(package,
 #'   if NULL runs select_species to get user input.
 #' @param obsdef Observation definition, either individual or sequence.
 #' @param reps Number of bootstrap replicates to run.
+#' @param seed Integer seed for reproducible fitting; `NULL` to skip setting a seed. Default 42.
 #' @param ... Arguments passed to \code{\link[activity]{fitact}}.
 #' @return An `actmod` list.
 #' @seealso \code{\link[activity]{fitact}}
@@ -888,6 +889,7 @@ fit_actmodel <- function(package,
                          species=NULL,
                          reps=999,
                          obsdef=c("individual", "sequence"),
+                         seed = 42,
                          ...){
   obsdef <- match.arg(obsdef)
   species <- select_species(package, species)
@@ -913,8 +915,8 @@ fit_actmodel <- function(package,
       .$solar %>%
       + timeshift %>%
       activity::wrap()
-      activity::fitact(obs$solartime,
-                       adj = 1.5, sample = "data", reps = reps, ...)
+      .with_seed(seed, activity::fitact(obs$solartime,
+                       adj = 1.5, sample = "data", reps = reps, ...))
   } else
     NULL
 }
@@ -1107,6 +1109,7 @@ get_traprate_data <- function(package, species=NULL,
 #' @param strata A dataframe with one row per stratum, and columns
 #'   \code{stratumID} and \code{area}.
 #' @param reps The number of bootstrap replicates to run.
+#' @param seed Integer seed for reproducible bootstrap; `NULL` to skip setting a seed. Default 42.
 #' @return A dataframe with columns:
 #'   - \code{estimate}: average trap rate
 #'   - \code{se}: standard error
@@ -1123,7 +1126,7 @@ get_traprate_data <- function(package, species=NULL,
 #'   get_trap_rate(trdata)
 #' @export
 #'
-get_trap_rate <- function(traprate_data, strata=NULL, reps=999){
+get_trap_rate <- function(traprate_data, strata=NULL, reps=999, seed = 42){
 
   traprate <- function(dat){
     if(is.null(strata)){
@@ -1157,7 +1160,8 @@ get_trap_rate <- function(traprate_data, strata=NULL, reps=999){
       stop("Not all strata in traprate_data are present in strata")
   }
 
-  tr_sample <- replicate(reps, sampled_traprate())
+  # run bootstrap replicates with a reproducible seed
+  tr_sample <- .with_seed(seed, replicate(reps, sampled_traprate()))
   est <- traprate(traprate_data)
   se <- sd(tr_sample)
   cv <- se/est
@@ -1208,6 +1212,7 @@ lnorm_confint <- function(estimate, se, percent=95){
 #' @param strata A dataframe of stratum information passed to \code{\link{get_trap_rate}}
 #' @param reps Number of bootstrap replicates for estimating trap rate error
 #'   (see \code{\link{get_trap_rate}})
+#' @param seed Integer seed passed to \code{get_trap_rate} for reproducible bootstrapping; `NULL` to skip setting a seed. Default 42.
 #' @return A dataframe of unit-harmonised parameter estimates with rows:
 #' \itemize{
 #'   \item{\code{radius}: detection radius}
@@ -1247,7 +1252,8 @@ get_parameter_table <- function(traprate_data,
                                 speed_model,
                                 activity_model,
                                 strata = NULL,
-                                reps = 999){
+                                reps = 999,
+                                seed = 42){
 
   # Get parameters and SEs
   rad <- radius_model$edd
@@ -1283,7 +1289,7 @@ get_parameter_table <- function(traprate_data,
                      "overall_speed")
 
   # Add trap rate, including correction for any truncation of radius model
-  traprate <- get_trap_rate(traprate_data, strata, reps)
+  traprate <- get_trap_rate(traprate_data, strata, reps, seed = seed)
   j <- c("estimate", "se", "lcl95", "ucl95")
   traprate[, j] <- traprate[, j] * radius_model$proportion_used
   res <- rbind(res, traprate)
@@ -1518,6 +1524,8 @@ rem <- function(parameters){
 #'   \code{\link[activity]{fitact}} or \code{\link{fit_actmodel}}.
 #' @param strata A dataframe of stratum areas, passed to \code{\link{get_trap_rate}}.
 #' @param reps Number of bootstrap replicates for error estimation.
+#' @param seed Integer seed for reproducible activity model fitting and
+#'   bootstrapping; `NULL` to skip setting a seed. Default 42.
 #' @return A dataframe containing estimates and their errors for density and
 #'   all contributing parameters.
 #' @examples
@@ -1556,7 +1564,8 @@ rem_estimate <- function(package,
                          speed_model=NULL,
                          activity_model=NULL,
                          strata=NULL,
-                         reps=999){
+                         reps=999,
+                         seed = 42){
 
   if(check_deployments) package <- check_deployment_models(package)
   species <- select_species(package, species)
@@ -1578,7 +1587,7 @@ rem_estimate <- function(package,
 
   message("Fitting activity model...")
   if(is.null(activity_model))
-    activity_model <- fit_actmodel(package, species, reps)
+    activity_model <- fit_actmodel(package, species, reps, seed = seed)
 
   message("Calculating density...")
   trdat <- get_traprate_data(package, species)
@@ -1588,7 +1597,8 @@ rem_estimate <- function(package,
                                     speed_model,
                                     activity_model,
                                     strata,
-                                    reps)
+                                    reps,
+                                    seed = seed)
 
   estimates <- rem(parameters) %>%
     convert_units(radius_unit = "m",

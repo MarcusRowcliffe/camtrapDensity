@@ -447,3 +447,18 @@ options, run the function name preceded by a question mark, e.g.
 ``` r
 ?rem_estimate
 ```
+
+## Deterministic seeding
+
+To make analyses reproducible, several functions that perform random
+operations accept a `seed` argument. By default the package uses a
+fixed seed of 42 so repeated analyses produce identical results unless
+you explicitly set a different seed. The following functions accept a
+`seed` argument (default 42): `rem_estimate`, `get_parameter_table`,
+`get_trap_rate`, and `fit_actmodel`.
+
+If you pass `seed = NULL` the function will not change the global RNG
+state and randomness will behave as usual. The package sets the seed
+only locally while performing internal sampling, and restores the
+previous RNG state on exit so your global RNG is not changed by these
+functions.

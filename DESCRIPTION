@@ -2,6 +2,7 @@ Package: camtrapDensity
 Type: Package
 Title: Density Estimation Functions for camtrapDP Data
 Version: 0.1.16
+Authors@R: person(given = "Marcus", family = "Rowcliffe", role = c("aut", "cre"), email = "marcus.rowcliffe@ioz.ac.uk")
 Author: Marcus Rowcliffe
 Maintainer: Marcus Rowcliffe <marcus.rowcliffe@ioz.ac.uk>
 Description: Currently provides functions for working with camtrapDP format data
@@ -26,5 +27,7 @@ Imports:
     rlang,
     tibble,
     tidyr
+Suggests:
+    testthat
 LazyData: true
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
