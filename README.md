@@ -1,8 +1,3 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
 camtrapDensity
 ================
 
@@ -60,8 +55,8 @@ packages when important updates are released from time to time:
 
 ``` r
 install.packages(c("devtools", "tidyverse"))
-devtools::install_github("inbo/camtraptor")
-devtools::install_github("MarcusRowcliffe/camtrapDensity")
+pak::pak("inbo/camtraptor")
+pak::pak("MarcusRowcliffe/camtrapDensity")
 ```
 
 ## Example usage
@@ -116,7 +111,8 @@ occurred.
 plot_deployment_schedule(pkg)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+<div class="plotly html-widget html-fill-item" id="htmlwidget-c1101d63a02aaa91b9e9" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-c1101d63a02aaa91b9e9">{"x":{"data":[{"x":[1,1,1,1,3,3,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4],"y":[1506967603,1506967603,1507007824,1507835504,1507806575,1508390591,1508821855,1509045090,1509214658,1507804655,1507841809,1507856923,1508036890,1508183309,1508267880,1508269801,1508642068,1508642068,1508711345,1508733482,1508892657],"text":["deploymentID: 0d620d0e-5da8-42e6-bcf2-56c11fb3d08e<br />timestamp: 2017-10-02 18:06:43","deploymentID: 0d620d0e-5da8-42e6-bcf2-56c11fb3d08e<br />timestamp: 2017-10-02 18:06:43","deploymentID: 0d620d0e-5da8-42e6-bcf2-56c11fb3d08e<br />timestamp: 2017-10-03 05:17:04","deploymentID: 0d620d0e-5da8-42e6-bcf2-56c11fb3d08e<br />timestamp: 2017-10-12 19:11:44","deploymentID: 6c920a31-cf07-496f-aa4f-846a428f450a<br />timestamp: 2017-10-12 11:09:35","deploymentID: 6c920a31-cf07-496f-aa4f-846a428f450a<br />timestamp: 2017-10-19 05:23:11","deploymentID: c95a566f-e75e-4e7b-a905-0479c8770da3<br />timestamp: 2017-10-24 05:10:55","deploymentID: c95a566f-e75e-4e7b-a905-0479c8770da3<br />timestamp: 2017-10-26 19:11:30","deploymentID: c95a566f-e75e-4e7b-a905-0479c8770da3<br />timestamp: 2017-10-28 18:17:38","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-12 10:37:35","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-12 20:56:49","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-13 01:08:43","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-15 03:08:10","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-16 19:48:29","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-17 19:18:00","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-17 19:50:01","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-22 03:14:28","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-22 03:14:28","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-22 22:29:05","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-23 04:38:02","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-25 00:50:57"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(238,154,73,1)","opacity":1,"size":5.6692913385826778,"symbol":"line-ew-open","line":{"width":1.8897637795275593,"color":"rgba(238,154,73,1)"}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,1,null,2,2,null,3,3,null,4,4],"y":[1506967603,1507835506,null,1508821855,1509214658,null,1507806575,1508390592,null,1507804655,1508892657],"text":["deploymentID: 0d620d0e-5da8-42e6-bcf2-56c11fb3d08e<br />start: 2017-10-02 18:06:43<br />deploymentID: 1<br />end: 1507835506","deploymentID: 0d620d0e-5da8-42e6-bcf2-56c11fb3d08e<br />start: 2017-10-02 18:06:43<br />deploymentID: 1<br />end: 1507835506",null,"deploymentID: c95a566f-e75e-4e7b-a905-0479c8770da3<br />start: 2017-10-24 05:10:55<br />deploymentID: 2<br />end: 1509214658","deploymentID: c95a566f-e75e-4e7b-a905-0479c8770da3<br />start: 2017-10-24 05:10:55<br />deploymentID: 2<br />end: 1509214658",null,"deploymentID: 6c920a31-cf07-496f-aa4f-846a428f450a<br />start: 2017-10-12 11:09:35<br />deploymentID: 3<br />end: 1508390592","deploymentID: 6c920a31-cf07-496f-aa4f-846a428f450a<br />start: 2017-10-12 11:09:35<br />deploymentID: 3<br />end: 1508390592",null,"deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />start: 2017-10-12 10:37:35<br />deploymentID: 4<br />end: 1508892657","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />start: 2017-10-12 10:37:35<br />deploymentID: 4<br />end: 1508892657"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":23.305936073059364,"r":7.3059360730593621,"b":43.105022831050235,"l":84.018264840182667},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,4.5999999999999996],"tickmode":"array","ticktext":["S01","S02","S03","S03"],"tickvals":[1,2,3,4],"categoryorder":"array","categoryarray":["S01","S02","S03","S03"],"nticks":null,"ticks":"outside","tickcolor":"rgba(0,0,0,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498},"tickangle":-90,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176002,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"Location","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[1506855250.25,1509327010.75],"tickmode":"array","ticktext":["2017/10/02","2017/10/09","2017/10/16","2017/10/23","2017/10/30"],"tickvals":[1506902400,1507507200,1508112000,1508716800,1509321600],"categoryorder":"array","categoryarray":["2017/10/02","2017/10/09","2017/10/16","2017/10/23","2017/10/30"],"nticks":null,"ticks":"outside","tickcolor":"rgba(0,0,0,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176002,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"timestamp","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.8897637795275593,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"b8063e96549":{"x":{},"y":{},"type":"scatter"},"b8012419bf":{"x":{},"y":{},"xend":{},"yend":{}}},"cur_data":"b8063e96549","visdat":{"b8063e96549":["function (y) ","x"],"b8012419bf":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 
 ### Mapping deployments
 
@@ -126,7 +122,8 @@ You can create a map of deployments using this code:
 map_deployments(pkg)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+<div class="leaflet html-widget html-fill-item" id="htmlwidget-dcd12db9a5b9808e4435" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-dcd12db9a5b9808e4435">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["OpenTopoMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircleMarkers","args":[[51.53643,51.53374,51.53459,51.53374],[-0.14977,-0.14986,-0.15389,-0.14986],10,null,null,{"interactive":true,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":0.5,"fill":true,"fillColor":"#03F","fillOpacity":0.2},null,null,["S01","S03","S02","S03"],null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"limits":{"lat":[51.53374,51.53643],"lng":[-0.15389,-0.14977]}},"evals":[],"jsHooks":[]}</script>
 
 You can plot the same map but with point diameter proportional to
 deployment-specific trap rate for a given species like this (use
@@ -136,7 +133,8 @@ scientific names):
 map_traprates(pkg, species="Vulpes vulpes")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+<div class="leaflet html-widget html-fill-item" id="htmlwidget-ac58a293544c858ac279" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-ac58a293544c858ac279">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["OpenTopoMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircleMarkers","args":[[51.53643,51.53459,51.53374],[-0.14977,-0.15389,-0.14986],[15.71492943335834,21.72919402346724,25],null,null,{"interactive":true,"className":"","stroke":true,"color":["blue","blue","blue"],"weight":0,"opacity":0.5,"fill":true,"fillColor":["blue","blue","blue"],"fillOpacity":1},null,null,["S01: 29.9 (3 records)","S02: 44 (2 records)","S03: 51.7 (10 records)"],null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addLegend","args":[{"colors":["red; width:6px; height:6px; border:0px solid red; border-radius:50%","blue; width:23.0298231481482px; height:23.0298231481482px; border:0px solid blue; border-radius:50%","blue; width:40.0596462962963px; height:40.0596462962963px; border:0px solid blue; border-radius:50%","blue; width:57.0894694444444px; height:57.0894694444444px; border:0px solid blue; border-radius:50%"],"labels":[0,20,40,60],"na_color":null,"na_label":"NA","opacity":1,"position":"topright","type":"unknown","title":"Records/100 days","extra":null,"layerId":null,"className":"info legend","group":null}]}],"limits":{"lat":[51.53374,51.53643],"lng":[-0.15389,-0.14977]}},"evals":[],"jsHooks":[]}</script>
 
 ### Subsetting deployments
 
@@ -327,14 +325,14 @@ compenent name to the result object spearated with a \$ sign, like this:
 res_vul$estimates
 ```
 
-    ##                  estimate         se         cv       lcl95      ucl95  n
-    ## radius          4.6552400 0.35422329 0.07609131  3.96096233  5.3495176 14
-    ## angle          44.9831275 9.42829597 0.20959628 26.50366740 63.4625876 15
-    ## active_speed    1.3414083 0.60283473 0.44940435  0.15985224  2.5229644  6
-    ## activity_level  0.2451959 0.08110215 0.33076471  0.08623568  0.4041561 15
-    ## overall_speed   7.8937874 4.40477269 0.55800498 -0.73956710 16.5271418 NA
-    ## trap_rate       0.4124492 0.08184820 0.19844434  0.28421515  0.4805953  3
-    ## density        12.6605171 7.59663220 0.60002543  4.27003937 37.5379897 NA
+    ##                  estimate          se        cv      lcl95      ucl95  n
+    ## radius          4.1783732  0.88573571 0.2119810  2.4423312  5.9144152  4
+    ## angle          44.4312270 11.28197392 0.2539199 22.3185581 66.5438959  5
+    ## active_speed    3.0792649  0.76463024 0.2483158  1.5805896  4.5779401  4
+    ## activity_level  0.2451959  0.03668991 0.1496351  0.1732837  0.3171081 15
+    ## overall_speed  18.1205531  5.25344249 0.2899162  7.8238058 28.4173004 NA
+    ## trap_rate       0.3535279  0.04529400 0.1281200  0.2510017  0.3900774  3
+    ## density         5.2851597  2.04990211 0.3878600  2.5375110 11.0079972 NA
     ##                   unit
     ## radius               m
     ## angle           degree
@@ -447,18 +445,3 @@ options, run the function name preceded by a question mark, e.g.
 ``` r
 ?rem_estimate
 ```
-
-## Deterministic seeding
-
-To make analyses reproducible, several functions that perform random
-operations accept a `seed` argument. By default the package uses a
-fixed seed of 42 so repeated analyses produce identical results unless
-you explicitly set a different seed. The following functions accept a
-`seed` argument (default 42): `rem_estimate`, `get_parameter_table`,
-`get_trap_rate`, and `fit_actmodel`.
-
-If you pass `seed = NULL` the function will not change the global RNG
-state and randomness will behave as usual. The package sets the seed
-only locally while performing internal sampling, and restores the
-previous RNG state on exit so your global RNG is not changed by these
-functions.

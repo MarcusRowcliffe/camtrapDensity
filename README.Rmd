@@ -38,8 +38,8 @@ Install `camtrapDensity`, `camptraptor` and the other necessary supporting packa
   
 ``` {r eval=FALSE}
 install.packages(c("devtools", "tidyverse"))
-devtools::install_github("inbo/camtraptor")
-devtools::install_github("MarcusRowcliffe/camtrapDensity")
+pak::pak("inbo/camtraptor")
+pak::pak("MarcusRowcliffe/camtrapDensity")
 ```
 
 ## Example usage
@@ -71,9 +71,6 @@ pkg <- read_camtrapDP("your_local_directory/datapackage.json")
 
 # Data are outside the project directory (requires full path)
 pkg <- read_camtrapDP("C:/path/to/your/folder/datapackage.json") # Windows
-```
-``` {r echo=FALSE}
-pkg <- camtrapDensity::read_camtrapDP("./datapackage_V1.0/datapackage.json")
 ```
 
 ### <a id="ScheduleChecking"></a>Checking the deployment schedule
