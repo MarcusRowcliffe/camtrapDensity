@@ -335,9 +335,11 @@ recalc_events <- function(pkg){
 map_deployments <- function(pkg, basemap=c("street", "satellite"), ...){
   basemap <- match.arg(basemap)
   map <- leaflet::leaflet(data = pkg$data$deployments)
-  map <- if(basemap == "street")
-    leaflet::addTiles(map) else
-      leaflet::addProviderTiles(map,"Esri.WorldImagery")
+  map <- if(basemap == "street") {
+    leaflet::addProviderTiles(map, "OpenTopoMap") 
+  } else {
+    leaflet::addProviderTiles(map, "Esri.WorldImagery")
+  }
   leaflet::addCircleMarkers(map, lng = ~longitude, lat = ~latitude,
                             popup = ~locationName, ...)
 }
@@ -386,9 +388,11 @@ map_traprates <- function(pkg, species=NULL, basemap=c("street", "satellite"),
                  "; border-radius:50%")
 
   map <- leaflet::leaflet(data = trdat)
-  map <- if(basemap == "street")
-    leaflet::addTiles(map) else
-      leaflet::addProviderTiles(map,"Esri.WorldImagery")
+  map <- if(basemap == "street") {
+    leaflet::addProviderTiles(map, "OpenTopoMap") 
+  } else {
+    leaflet::addProviderTiles(map, "Esri.WorldImagery")
+  }
   leaflet::addCircleMarkers(map, lng = ~longitude, lat = ~latitude,
                             popup = ~paste0(locationName, ": ",
                                             round(tr, 2-floor(log10(tr))),
