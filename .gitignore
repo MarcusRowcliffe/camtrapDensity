@@ -1,0 +1,9 @@
+*.Rproj
+*.Rhistory
+*.RData
+*.Ruserdata
+datapackage_V0.1/
+datapackage_V1.0/
+Supporting_files/
+development.R
+.Rproj.user
