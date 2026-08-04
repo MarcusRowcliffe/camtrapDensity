@@ -13,7 +13,8 @@ rem_estimate(
   speed_model = NULL,
   activity_model = NULL,
   strata = NULL,
-  reps = 999
+  reps = 999,
+  seed = 42
 )
 }
 \arguments{
@@ -43,6 +44,9 @@ if NULL runs \code{\link{select_species}} to get user input.}
 \item{strata}{A dataframe of stratum areas, passed to \code{\link{get_trap_rate}}.}
 
 \item{reps}{Number of bootstrap replicates for error estimation.}
+
+\item{seed}{Integer seed for reproducible activity model fitting and
+bootstrapping; `NULL` to skip setting a seed. Default 42.}
 }
 \value{
 A dataframe containing estimates and their errors for density and
