@@ -1,0 +1,8 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "camtrapDensity"
+
+editor: visual
