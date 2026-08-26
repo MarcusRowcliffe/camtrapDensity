@@ -4,6 +4,8 @@ format: html
 editor: visual
 ---
 
+This vignette demonstrates usage of camtrapDensity, a development R package designed to interface seamlessly with  [camtrapDP](https://tdwg.github.io/camtrap-dp/data/) datapackages generated in [Agouti](https://www.agouti.eu). The package currently provides functions to run single species random encounter models to estimate animal density, including models for the component parameters (speed, activity level and detection zone dimensions). There is also some basic functionality to check and correct the data.
+
 ## Getting started with RStudio {#GettingStarted}
 
 If you don’t already have them, install [R](https://cran.r-project.org) and [RStudio](https://posit.co/download/rstudio-desktop).
@@ -71,7 +73,7 @@ pkg <- read_camtrapDP("C:/path/to/your/folder/datapackage.json") # Windows
 
 This line provides an interactive visualisation of the deployment schedules. It can quickly highlight any incorrect dates, or help you decide where to split the data if you only want to analyse a subset of the deployments. Black lines indicate the period of operation of each deployment and orange bars indicate the time at which each observation occurred.
 
-```{r map, screenshot.force=TRUE}
+```{r}
 plot_deployment_schedule(pkg)
 ```
 
@@ -154,6 +156,7 @@ pkg_corrected <- correct_time(pkg,
 ```
 
 Both examples create a new datapackage object called `pkg_corrected`.
+
 
 ### Checking deployment calibration models  {#CalibrationChecking}
 

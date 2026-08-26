@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.38">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>camtrapDensity</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-ece42c8223ec2bf36298a08f122c9a68.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link href="site_libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
+
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+
+<script src="site_libs/plotly-binding-4.12.0/plotly.js"></script>
+
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+
+<link href="site_libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
+
+<script src="site_libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
+
+<link href="site_libs/plotly-htmlwidgets-css-2.25.2/plotly-htmlwidgets.css" rel="stylesheet">
+
+<script src="site_libs/plotly-main-2.25.2/plotly-latest.min.js"></script>
+
+<link href="site_libs/leaflet-1.3.1/leaflet.css" rel="stylesheet">
+
+<script src="site_libs/leaflet-1.3.1/leaflet.js"></script>
+
+<link href="site_libs/leafletfix-1.0.0/leafletfix.css" rel="stylesheet">
+
+<script src="site_libs/proj4-2.6.2/proj4.min.js"></script>
+
+<script src="site_libs/Proj4Leaflet-1.0.1/proj4leaflet.js"></script>
+
+<link href="site_libs/rstudio_leaflet-1.3.1/rstudio_leaflet.css" rel="stylesheet">
+
+<script src="site_libs/leaflet-binding-2.2.3/leaflet.js"></script>
+
+<script src="site_libs/leaflet-providers-3.0.0/leaflet-providers.js"></script>
+
+<script src="site_libs/leaflet-providers-plugin-2.2.3/leaflet-providers-plugin.js"></script>
+
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">camtrapDensity</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="GettingStarted" class="level2">
+<h2 class="anchored" data-anchor-id="GettingStarted">Getting started with RStudio</h2>
+<p>If you don’t already have them, install <a href="https://cran.r-project.org">R</a> and <a href="https://posit.co/download/rstudio-desktop">RStudio</a>.</p>
+<p>Run analyses within an RStudio project. To set up a new project in RStudio in either a new or an existing project directory, use menu options:</p>
+<p><strong>File &gt; New Project &gt; New OR Existing Directory &gt; Browse &gt; select directory &gt; Open &gt; Create Project</strong></p>
+<p>This creates a file with extension .Rproj in the directory you chose or created. By default, the last project you opened will re-open next time you run RStudio. You can open a different project by double clicking the relevant .Rproj file in your file browser, or by navigating to it from the RStudio menu:</p>
+<p><strong>File &gt; Open Project</strong></p>
+<p>or</p>
+<p><strong>File &gt; Recent Projects</strong></p>
+<p>To start running analyses, open a new R script file:</p>
+<p><strong>File &gt; New File &gt; R Script</strong></p>
+<p>You can now add lines of code to the script window from the examples below, edit them as necessary to fit your own case, and run them to perform the analysis. To run code, move your cursor to the line you want to run, or highlight multiple lines, and press <strong>Ctrl+Enter</strong> (Windows) or <strong>Cmd+Enter</strong> (Mac), or click <strong>Run</strong> at the top of the code pane.</p>
+</section>
+<section id="installing-packages" class="level2">
+<h2 class="anchored" data-anchor-id="installing-packages">Installing packages</h2>
+<p>Install <code>camtrapDensity</code>, <code>camptraptor</code> and the other necessary supporting packages by running this code. You only need to run this code once for the initial install, although it may be necessary to re-install packages when important updates are released from time to time:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"devtools"</span>, <span class="st">"tidyverse"</span>))</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>pak<span class="sc">::</span><span class="fu">pak</span>(<span class="st">"inbo/camtraptor"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>pak<span class="sc">::</span><span class="fu">pak</span>(<span class="st">"MarcusRowcliffe/camtrapDensity"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="example-usage" class="level2">
+<h2 class="anchored" data-anchor-id="example-usage">Example usage</h2>
+<p>Load the required packages at the beginning of each session (each time you close and restart):</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(camtraptor)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(camtrapDensity)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<section id="loading-data" class="level3">
+<h3 class="anchored" data-anchor-id="loading-data">Loading data</h3>
+<p>Having annotated your images in Agouti (including marking animal positions and deployment calibration poles):</p>
+<ol type="1">
+<li>download the data from Agouti;</li>
+<li>open R Studio and create a new project (see <a href="#GettingStarted">above</a>);</li>
+<li>unzip the Agouti download within your project directory.</li>
+</ol>
+<p>This allows you to access multiple datapackages from a single project. Alternatively you can create a new project for each datapackage by reversing steps 2 and 3 above (unzip the data download first, then create a new project in the resulting directory). To load data, use the relevant platform- and case-specific code below (replacing the path before <code>/datapackage.json</code> with your local directories):</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Data are in the project directory</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>pkg <span class="ot">&lt;-</span> <span class="fu">read_camtrapDP</span>(<span class="st">"datapackage.json"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Data are in a subdirectory of the project directory</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>pkg <span class="ot">&lt;-</span> <span class="fu">read_camtrapDP</span>(<span class="st">"your_local_directory/datapackage.json"</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Data are outside the project directory (requires full path)</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>pkg <span class="ot">&lt;-</span> <span class="fu">read_camtrapDP</span>(<span class="st">"C:/path/to/your/folder/datapackage.json"</span>) <span class="co"># Windows</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="ScheduleChecking" class="level3">
+<h3 class="anchored" data-anchor-id="ScheduleChecking">Checking the deployment schedule</h3>
+<p>This line provides an interactive visualisation of the deployment schedules. It can quickly highlight any incorrect dates, or help you decide where to split the data if you only want to analyse a subset of the deployments. Black lines indicate the period of operation of each deployment and orange bars indicate the time at which each observation occurred.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_deployment_schedule</span>(pkg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="plotly html-widget html-fill-item" id="htmlwidget-4fb9bef27c271806b4ba" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-4fb9bef27c271806b4ba">{"x":{"data":[{"x":[1,1,1,1,3,3,2,2,2,4,4,4,4,4,4,4,4,4,4,4,4],"y":[1506967603,1506967603,1507007824,1507835504,1507806575,1508390591,1508821855,1509045090,1509214658,1507804655,1507841809,1507856923,1508036890,1508183309,1508267880,1508269801,1508642068,1508642068,1508711345,1508733482,1508892657],"text":["deploymentID: 0d620d0e-5da8-42e6-bcf2-56c11fb3d08e<br />timestamp: 2017-10-02 18:06:43","deploymentID: 0d620d0e-5da8-42e6-bcf2-56c11fb3d08e<br />timestamp: 2017-10-02 18:06:43","deploymentID: 0d620d0e-5da8-42e6-bcf2-56c11fb3d08e<br />timestamp: 2017-10-03 05:17:04","deploymentID: 0d620d0e-5da8-42e6-bcf2-56c11fb3d08e<br />timestamp: 2017-10-12 19:11:44","deploymentID: 6c920a31-cf07-496f-aa4f-846a428f450a<br />timestamp: 2017-10-12 11:09:35","deploymentID: 6c920a31-cf07-496f-aa4f-846a428f450a<br />timestamp: 2017-10-19 05:23:11","deploymentID: c95a566f-e75e-4e7b-a905-0479c8770da3<br />timestamp: 2017-10-24 05:10:55","deploymentID: c95a566f-e75e-4e7b-a905-0479c8770da3<br />timestamp: 2017-10-26 19:11:30","deploymentID: c95a566f-e75e-4e7b-a905-0479c8770da3<br />timestamp: 2017-10-28 18:17:38","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-12 10:37:35","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-12 20:56:49","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-13 01:08:43","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-15 03:08:10","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-16 19:48:29","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-17 19:18:00","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-17 19:50:01","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-22 03:14:28","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-22 03:14:28","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-22 22:29:05","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-23 04:38:02","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />timestamp: 2017-10-25 00:50:57"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(238,154,73,1)","opacity":1,"size":5.6692913385826778,"symbol":"line-ew-open","line":{"width":1.8897637795275593,"color":"rgba(238,154,73,1)"}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[1,1,null,2,2,null,3,3,null,4,4],"y":[1506967603,1507835506,null,1508821855,1509214658,null,1507806575,1508390592,null,1507804655,1508892657],"text":["deploymentID: 0d620d0e-5da8-42e6-bcf2-56c11fb3d08e<br />start: 2017-10-02 18:06:43<br />deploymentID: 1<br />end: 1507835506","deploymentID: 0d620d0e-5da8-42e6-bcf2-56c11fb3d08e<br />start: 2017-10-02 18:06:43<br />deploymentID: 1<br />end: 1507835506",null,"deploymentID: c95a566f-e75e-4e7b-a905-0479c8770da3<br />start: 2017-10-24 05:10:55<br />deploymentID: 2<br />end: 1509214658","deploymentID: c95a566f-e75e-4e7b-a905-0479c8770da3<br />start: 2017-10-24 05:10:55<br />deploymentID: 2<br />end: 1509214658",null,"deploymentID: 6c920a31-cf07-496f-aa4f-846a428f450a<br />start: 2017-10-12 11:09:35<br />deploymentID: 3<br />end: 1508390592","deploymentID: 6c920a31-cf07-496f-aa4f-846a428f450a<br />start: 2017-10-12 11:09:35<br />deploymentID: 3<br />end: 1508390592",null,"deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />start: 2017-10-12 10:37:35<br />deploymentID: 4<br />end: 1508892657","deploymentID: d6d42e25-be43-4820-909d-708e42219a86<br />start: 2017-10-12 10:37:35<br />deploymentID: 4<br />end: 1508892657"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":23.305936073059364,"r":7.3059360730593621,"b":43.105022831050235,"l":84.018264840182667},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.40000000000000002,4.5999999999999996],"tickmode":"array","ticktext":["S01","S02","S03","S03"],"tickvals":[1,2,3,4],"categoryorder":"array","categoryarray":["S01","S02","S03","S03"],"nticks":null,"ticks":"outside","tickcolor":"rgba(0,0,0,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498},"tickangle":-90,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176002,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"Location","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[1506855250.25,1509327010.75],"tickmode":"array","ticktext":["2017/10/02","2017/10/09","2017/10/16","2017/10/23","2017/10/30"],"tickvals":[1506902400,1507507200,1508112000,1508716800,1509321600],"categoryorder":"array","categoryarray":["2017/10/02","2017/10/09","2017/10/16","2017/10/23","2017/10/30"],"nticks":null,"ticks":"outside","tickcolor":"rgba(0,0,0,1)","ticklen":3.6529680365296811,"tickwidth":0.66417600664176002,"showticklabels":true,"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176002,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"timestamp","font":{"color":"rgba(0,0,0,1)","family":"","size":14.611872146118724}},"hoverformat":".2f"},"shapes":[],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.8897637795275593,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.68949771689498}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"4fec14964cb1":{"x":{},"y":{},"type":"scatter"},"4fec6e5b4299":{"x":{},"y":{},"xend":{},"yend":{}}},"cur_data":"4fec14964cb1","visdat":{"4fec14964cb1":["function (y) ","x"],"4fec6e5b4299":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+<section id="mapping-deployments" class="level3">
+<h3 class="anchored" data-anchor-id="mapping-deployments">Mapping deployments</h3>
+<p>You can create a map of deployments using this code:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">map_deployments</span>(pkg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="leaflet html-widget html-fill-item" id="htmlwidget-4f5c62344bb9e041ee1e" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-4f5c62344bb9e041ee1e">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["OpenTopoMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircleMarkers","args":[[51.53643,51.53374,51.53459,51.53374],[-0.14977,-0.14986,-0.15389,-0.14986],10,null,null,{"interactive":true,"className":"","stroke":true,"color":"#03F","weight":5,"opacity":0.5,"fill":true,"fillColor":"#03F","fillOpacity":0.2},null,null,["S01","S03","S02","S03"],null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"limits":{"lat":[51.53374,51.53643],"lng":[-0.15389,-0.14977]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+<p>You can plot the same map but with point diameter proportional to deployment-specific trap rate for a given species like this (use scientific names):</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">map_traprates</span>(pkg, <span class="at">species=</span><span class="st">"Vulpes vulpes"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="leaflet html-widget html-fill-item" id="htmlwidget-eedb53de2a81e7734787" style="width:100%;height:464px;"></div>
+<script type="application/json" data-for="htmlwidget-eedb53de2a81e7734787">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addProviderTiles","args":["OpenTopoMap",null,null,{"errorTileUrl":"","noWrap":false,"detectRetina":false}]},{"method":"addCircleMarkers","args":[[51.53643,51.53459,51.53374],[-0.14977,-0.15389,-0.14986],[15.71492943335834,21.72919402346724,25],null,null,{"interactive":true,"className":"","stroke":true,"color":["blue","blue","blue"],"weight":0,"opacity":0.5,"fill":true,"fillColor":["blue","blue","blue"],"fillOpacity":1},null,null,["S01: 29.9 (3 records)","S02: 44 (2 records)","S03: 51.7 (10 records)"],null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]},{"method":"addLegend","args":[{"colors":["red; width:6px; height:6px; border:0px solid red; border-radius:50%","blue; width:23.0298231481482px; height:23.0298231481482px; border:0px solid blue; border-radius:50%","blue; width:40.0596462962963px; height:40.0596462962963px; border:0px solid blue; border-radius:50%","blue; width:57.0894694444444px; height:57.0894694444444px; border:0px solid blue; border-radius:50%"],"labels":[0,20,40,60],"na_color":null,"na_label":"NA","opacity":1,"position":"topright","type":"unknown","title":"Records/100 days","extra":null,"layerId":null,"className":"info legend","group":null}]}],"limits":{"lat":[51.53374,51.53643],"lng":[-0.15389,-0.14977]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+</section>
+<section id="subsetting-deployments" class="level3">
+<h3 class="anchored" data-anchor-id="subsetting-deployments">Subsetting deployments</h3>
+<p>Use this function if you want to analyse only a subset of deployments. Commonly useful if your data contains multiple survey seasons and you need to extract one of them for analysis, selecting deployments by date. You can also select or exclude deployments or locations by name. Here are some examples (note that these create a new data object called <code>subpkg</code>):</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only deployments starting after a given date</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>subpkg <span class="ot">&lt;-</span> <span class="fu">subset_deployments</span>(pkg, start <span class="sc">&gt;</span> <span class="fu">ymd</span>(<span class="st">"2017-10-09"</span>))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only deployments ending before a given date</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>subpkg <span class="ot">&lt;-</span> <span class="fu">subset_deployments</span>(pkg, end <span class="sc">&lt;</span> <span class="fu">ymd</span>(<span class="st">"2017-10-23"</span>))</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only deployments occurring between given dates</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>subpkg <span class="ot">&lt;-</span> <span class="fu">subset_deployments</span>(pkg,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>                             start <span class="sc">&gt;</span> <span class="fu">ymd</span>(<span class="st">"2017-10-09"</span>) <span class="sc">&amp;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>                               end <span class="sc">&lt;</span> <span class="fu">ymd</span>(<span class="st">"2017-10-23"</span>) )</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep only deployments at a given set of locations</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>subpkg <span class="ot">&lt;-</span> <span class="fu">subset_deployments</span>(pkg, locationName <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"S01"</span>, <span class="st">"S02"</span>))</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep all deployments except those at a given set of locations</span></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>subpkg <span class="ot">&lt;-</span> <span class="fu">subset_deployments</span>(pkg, <span class="sc">!</span>locationName <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"S01"</span>, <span class="st">"S02"</span>))</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Keep all deployments except those at a given location</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>subpkg <span class="ot">&lt;-</span> <span class="fu">subset_deployments</span>(pkg, locationName <span class="sc">!=</span> <span class="st">"S01"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>After subsetting, check your sub-package to verify correct selection, as <a href="#ScheduleChecking">above</a>.</p>
+</section>
+<section id="time-slicing-deployments" class="level3">
+<h3 class="anchored" data-anchor-id="time-slicing-deployments">Time-slicing deployments</h3>
+<p>Use this function to take a time slice of the data. Observations outside start and/or end times are discarded, and deployment start and/or end times are rest to those times if they fall outside the slice. Optionally, you can restrict the slicing to a subset of deployments, selected on the basis of information in the deployments table. Here are some examples:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Slices all deployments to the interval between 9 Oct and 26 Oct mid-day</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>subpkg <span class="ot">&lt;-</span> <span class="fu">slice_camtrap_dp</span>(pkg,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>                           <span class="at">start =</span> <span class="st">"2017/10/09 12:00:00"</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>                           <span class="at">end =</span> <span class="st">"2017/10/26 12:00:00"</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Slices just the deployment at location S02 to finish on 27 Oct mid-day</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>subpkg <span class="ot">&lt;-</span> <span class="fu">slice_camtrap_dp</span>(pkg,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>                           <span class="at">end =</span> <span class="st">"2017/10/27 12:00:00"</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>                           <span class="at">depChoice =</span> locationName<span class="sc">==</span><span class="st">"S02"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="correcting-timestamps" class="level3">
+<h3 class="anchored" data-anchor-id="correcting-timestamps">Correcting timestamps</h3>
+<p>Sometimes a camera is deployed with date-time set incorrectly. In this case you can correct all the times for this deployment by running the following, with arguments identifying the datapackage (<code>pkg</code>), the deployment to correct (<code>depID</code>), and reference times indicating the amount by which the times are out (<code>wrongTime</code> and <code>rightTime</code>). The next example represents a scenario where the camera spontaneously reset to an arbitrary date-time at the start of a deployment, but it is known when this reset happened (for example <code>rightTime</code> taken from the correct time on the image of an info board at set up, and <code>wrongTime</code> taken from the info strip added by the camera to this image):</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>pkg_corrected <span class="ot">&lt;-</span> <span class="fu">correct_time</span>(pkg,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                              <span class="at">depID =</span> <span class="st">"c95a566f-e75e-4e7b-a905-0479c8770da3"</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">wrongTime =</span> <span class="st">"1970-01-01 00:05:00"</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>                              <span class="at">rightTime =</span> <span class="st">"2023-10-10 14:23:00"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>To find the long deployment ID, you can view the deployment data table and copy the relevant value from the deploymentID column:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">View</span>(pkg<span class="sc">$</span>data<span class="sc">$</span>deployments)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Alternatively, you can change date-times by location name (remembering that a location can include more than one deployment). Also, if you know the time offset required and don’t need to take it from a reference image on a particular date, (for example, you know that when setting the camera the wrong time zone was used, or there was an AM/PM mix up), you can supply times with the desired time offset but an arbitrary date-time. For example, this adds 12 hours to all the timestamps from location S01:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>pkg_corrected <span class="ot">&lt;-</span> <span class="fu">correct_time</span>(pkg,</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                              <span class="at">locName =</span> <span class="st">"S01"</span>,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                              <span class="at">wrongTime =</span> <span class="st">"2000-01-01 00:00:00"</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                              <span class="at">rightTime =</span> <span class="st">"2000-01-01 12:00:00"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Both examples create a new datapackage object called <code>pkg_corrected</code>.</p>
+</section>
+<section id="CalibrationChecking" class="level3">
+<h3 class="anchored" data-anchor-id="CalibrationChecking">Checking deployment calibration models</h3>
+<p>Run the next chunk to show diagnostic plots for the deployment calibration models used to generate animal position and speed data (replacing <code>pkg</code> with the name of a subsetted and/or time-corrected package if necessary). Then follow the interactive instructions to accept or reject each calibration model. See the document “<em>Interpreting deployment model diagnostic plots</em>” for guidance on how to decide, available <a href="http://www.tinyurl.com/CalibrationPlots">here</a>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>pkg_chk <span class="ot">&lt;-</span> <span class="fu">check_deployment_models</span>(pkg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The datapackage called <code>pkg_chk</code> will now keep a record of which deployments have been rejected, and position and speed data from these deployments will be excluded from subsequent analysis, since we expect them to be unreliable.</p>
+</section>
+<section id="estimating-rem-density" class="level3">
+<h3 class="anchored" data-anchor-id="estimating-rem-density">Estimating REM density</h3>
+<p>Density estimation can be run as a single step, most simply like this:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">rem_estimate</span>(pkg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>This will prompt you to choose which species to analyse, and run deployment calibration model checks as <a href="#CalibrationChecking">above</a>. The next line of code is an alternative example that runs the analysis on a datapackage that has already had its deployment calibration models checked (<code>pkg_chk</code>) and switches off calibration model checking (<code>check_deployments=FALSE</code>), avoiding having to do this each time you analyse a different species; it also specifies a species (<code>species = "Vulpes vulpes"</code>), rather than using interactive selection; and it reduces the number of replications used to generate standard errors (<code>reps = 10</code> - this can be useful to speed things up for exploration, but should be left out when generating final results):</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>res_vul <span class="ot">&lt;-</span> <span class="fu">rem_estimate</span>(pkg_chk,</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">check_deployments =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>                        <span class="at">species =</span> <span class="st">"Vulpes vulpes"</span>,</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">reps =</span> <span class="dv">10</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Alternatively, one or more REM component models can be fitted separately before the density estimation step, allowing more flexibility in model choices. In this example all four models (detection radius, detection angle, speed while active and activity level) are fitted first, with species pre-defined. Species can be chosen either interactively:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>sp <span class="ot">&lt;-</span> <span class="fu">select_species</span>(pkg_chk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>or specified directly:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>sp <span class="ot">&lt;-</span> <span class="st">"Vulpes vulpes"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Then model fitting might look like this:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>smod <span class="ot">&lt;-</span> <span class="fu">fit_speedmodel</span>(pkg_chk, <span class="at">species=</span>sp)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>pmod <span class="ot">&lt;-</span> <span class="fu">fit_actmodel</span>(pkg_chk, <span class="at">reps=</span><span class="dv">100</span>, <span class="at">species=</span>sp)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>rmod <span class="ot">&lt;-</span> <span class="fu">fit_detmodel</span>(radius<span class="sc">~</span><span class="dv">1</span>, pkg_chk, <span class="at">order=</span><span class="dv">0</span>, <span class="at">species=</span>sp, <span class="at">truncation=</span><span class="dv">6</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>amod <span class="ot">&lt;-</span> <span class="fu">fit_detmodel</span>(angle<span class="sc">~</span><span class="dv">1</span>, pkg_chk, <span class="at">order=</span><span class="dv">0</span>, <span class="at">unit=</span><span class="st">"radian"</span>, <span class="at">species=</span>sp)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>res_vul <span class="ot">&lt;-</span> <span class="fu">rem_estimate</span>(pkg_chk, <span class="at">check_deployments=</span>F, <span class="at">species=</span>sp,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">radius_model =</span> rmod,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">angle_model =</span> amod,</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>                        <span class="at">speed_model =</span> smod,</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>                        <span class="at">activity_model =</span> pmod)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="understanding-the-output" class="level3">
+<h3 class="anchored" data-anchor-id="understanding-the-output">Understanding the output</h3>
+<p>The output of <code>rem_estimate</code> is a list with components:</p>
+<ul>
+<li><code>estimates</code>: the density estimate and component parameters with their errors</li>
+<li><code>species</code>: the species to which the estimates apply</li>
+<li><code>data</code>: the trap rate data in the form of a table with counts and camera effort for each location</li>
+<li><code>radius_model</code>, <code>angle_model</code>, <code>speed_model</code>, <code>activity_model</code>: the model objects from which parameter estimates were derived.</li>
+</ul>
+<p>You can inspect these list components individually by attaching the compenent name to the result object spearated with a $ sign, like this:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>res_vul<span class="sc">$</span>estimates</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                 estimate          se        cv      lcl95      ucl95  n
+radius          4.1783732  0.88573571 0.2119810  2.4423312  5.9144152  4
+angle          44.4312270 11.28197392 0.2539199 22.3185581 66.5438959  5
+active_speed    3.0792649  0.76463024 0.2483158  1.5805896  4.5779401  4
+activity_level  0.2451959  0.03668991 0.1496351  0.1732837  0.3171081 15
+overall_speed  18.1205531  5.25344249 0.2899162  7.8238058 28.4173004 NA
+trap_rate       0.3535279  0.04529400 0.1281200  0.2510017  0.3900774  3
+density         5.2851597  2.04990211 0.3878600  2.5375110 11.0079972 NA
+                  unit
+radius               m
+angle           degree
+active_speed   km/hour
+activity_level    none
+overall_speed   km/day
+trap_rate        n/day
+density          n/km2</code></pre>
+</div>
+</div>
+<p>This table provides the core results. Rows <code>radius</code> and <code>angle</code> are the effective detection radius and angle respectively. The <code>active_speed</code> row refers to the estimated speed while active. <code>activity_level</code> is the estimated proportion of time spent active. The <code>overall_speed</code> row refers to the product of <code>active_speed</code> and <code>activity_level</code>, giving the overall average speed, or day range. The <code>trap_rate</code> row is the number of animal observations per unit time. <code>density</code> is the estimated number of animals per unit area. Columns contain the estimates, their standard errors (se), coefficients of variation (cv - se as a proportion of the estimate), lower and upper 95% confidence intervals (lcl95 and ucl95), sample sizes (n), and units. Sample size are the numbers of observations available for estimation, except for trap rate, where n is the number of locations.</p>
+<p>Inspecting the trap rate data shows the number of observations available at each location (n), the amounts of camera effort and its unit, and the species to which this applies:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>res_vul<span class="sc">$</span>data</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 7
+  locationName latitude longitude     n effort effort_unit scientificName
+  &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt; &lt;int&gt;  &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;         
+1 S01              51.5    -0.150     3  10.0  day         Vulpes vulpes 
+2 S02              51.5    -0.154     2   4.55 day         Vulpes vulpes 
+3 S03              51.5    -0.150    10  19.4  day         Vulpes vulpes </code></pre>
+</div>
+</div>
+<p>To save a results table to an external file, run this (a file named as indicated will be created in your project directory):</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(res_vul<span class="sc">$</span>estimates, <span class="st">"vulpes_REM_results.csv"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>You can also use this convenience function to save results with additional information about the species and project, including the option to save a single data table of results for multiple species:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rem_csv</span>(res_vul, res_cer, res_cap)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Here, three objects are provided separated by commas, but it could be any number. Each should be an object created as output from a call to <code>rem_estimate</code>.</p>
+<p>Component model fits can be evaluated by inspecting diagnostic plots:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(res_vul<span class="sc">$</span>activity_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="camtrapDensity_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(res_vul<span class="sc">$</span>radius_model, <span class="at">pdf=</span><span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="camtrapDensity_files/figure-html/unnamed-chunk-23-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(res_vul<span class="sc">$</span>angle_model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="camtrapDensity_files/figure-html/unnamed-chunk-23-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="general-r-tips" class="level2">
+<h2 class="anchored" data-anchor-id="general-r-tips">General R tips</h2>
+<p>Once you have fitted one or more REM models in a session, you may want to save your progress so that you don’t have to run again everything next session. To do this, save your workspace image when you exit RStudio. By default, RStudio should prompt you to do this on exit, and automatically reload your work next time you open the project. However, you can save your workspace manually, either using the RStudio menu:</p>
+<p><strong>Session &gt; Save Workspace As &gt; provide a file name &gt; Save</strong></p>
+<p>or by running one of these lines:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">save.image</span>() <span class="co"># Creates a file named .RData in the project directory</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">save.image</span>(<span class="st">"12Feb24.RData"</span>) <span class="co"># Creates a file named 12Feb24.RData</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>At the start of the next session, if you want to load a specific workspace, you can either use the menu:</p>
+<p><strong>Session &gt; Load Workspace &gt; select the required RData file &gt; Open</strong></p>
+<p>or run this line, replacing the text with your file name:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"12Feb24.RData"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>To get help on any function, including details on all the argument options, run the function name preceded by a question mark, e.g.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>?rem_estimate</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
