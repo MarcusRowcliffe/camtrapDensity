@@ -9,5 +9,5 @@ estimate animal density, including models for the component parameters
 (speed, activity level and detection zone dimensions). There is also
 some basic functionality to check and correct the data.
 
-For example usage, see [this
-website](https://github.com/MarcusRowcliffe/camtrapDensity).
+See example usage
+[here](https://MarcusRowcliffe.github.io/camtrapDensity).

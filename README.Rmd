@@ -5,4 +5,4 @@ output: github_document
   
 This is a development R package designed to interface seamlessly with  [camtrapDP](https://tdwg.github.io/camtrap-dp/data/) datapackages generated in [Agouti](https://www.agouti.eu). The package currently provides functions to run single species random encounter models to estimate animal density, including models for the component parameters (speed, activity level and detection zone dimensions). There is also some basic functionality to check and correct the data.
 
-For example usage, see [this website](https://MarcusRowcliffe.github.io/camtrapDensity).
+See example usage [here](https://MarcusRowcliffe.github.io/camtrapDensity).
