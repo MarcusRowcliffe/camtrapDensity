@@ -18,7 +18,7 @@
     "href": "camtrapDensity.html#installing-packages",
     "title": "camtrapDensity",
     "section": "Installing packages",
-    "text": "Installing packages\nInstall camtrapDensity, camptraptor and the other necessary supporting packages by running this code. You only need to run this code once for the initial install, although it may be necessary to re-install packages when important updates are released from time to time:\n\ninstall.packages(c(\"devtools\", \"tidyverse\"))\npak::pak(\"inbo/camtraptor\")\npak::pak(\"MarcusRowcliffe/camtrapDensity\")"
+    "text": "Installing packages\nInstall camtrapDensity, camptraptor and the other supporting packages by running this code. You only need to run this code once for the initial install, although it may be necessary to re-install packages when important updates are released from time to time:\n\ninstall.packages(c(\"pak\", \"tidyverse\"))\npak::pak(\"inbo/camtraptor\")\npak::pak(\"MarcusRowcliffe/camtrapDensity\")"
   },
   {
     "objectID": "camtrapDensity.html#example-usage",
