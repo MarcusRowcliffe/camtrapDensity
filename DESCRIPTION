@@ -1,7 +1,7 @@
 Package: camtrapDensity
 Type: Package
 Title: Density Estimation Functions for camtrapDP Data
-Version: 0.1.17
+Version: 0.1.18
 Authors@R: person(given = "Marcus", family = "Rowcliffe", role = c("aut", "cre"), email = "marcus.rowcliffe@ioz.ac.uk")
 Author: Marcus Rowcliffe
 Maintainer: Marcus Rowcliffe <marcus.rowcliffe@ioz.ac.uk>
