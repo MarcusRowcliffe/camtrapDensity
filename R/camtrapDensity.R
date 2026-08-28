@@ -336,7 +336,7 @@ map_deployments <- function(pkg, basemap=c("street", "satellite"), ...){
   basemap <- match.arg(basemap)
   map <- leaflet::leaflet(data = pkg$data$deployments)
   map <- if(basemap == "street") {
-    leaflet::addProviderTiles(map, "OpenTopoMap") 
+    leaflet::addProviderTiles(map, "OpenTopoMap")
   } else {
     leaflet::addProviderTiles(map, "Esri.WorldImagery")
   }
@@ -389,7 +389,7 @@ map_traprates <- function(pkg, species=NULL, basemap=c("street", "satellite"),
 
   map <- leaflet::leaflet(data = trdat)
   map <- if(basemap == "street") {
-    leaflet::addProviderTiles(map, "OpenTopoMap") 
+    leaflet::addProviderTiles(map, "OpenTopoMap")
   } else {
     leaflet::addProviderTiles(map, "Esri.WorldImagery")
   }
@@ -480,11 +480,14 @@ subset_deployments <- function(package, choice, suffix=""){
   package$name <- paste(package$name, suffix, sep="-")
   package$data$deployments <- dplyr::filter(package$data$deployments, {{choice}})
   usedeps <- package$data$deployments$deploymentID
-  if(!is.null(package$data$media))
-     package$data$media<- dplyr::filter(package$data$media,
-                                        deploymentID %in% usedeps)
   package$data$observations <- dplyr::filter(package$data$observations,
                                              deploymentID %in% usedeps)
+  if(!is.null(package$data$media))
+    package$data$media <- dplyr::filter(package$data$media,
+                                        deploymentID %in% usedeps)
+  if("positions" %in% names(package$data))
+    package$data$positions <- dplyr::filter(package$data$positions,
+                                            deploymentID %in% usedeps)
   package$temporal$start <- lubridate::as_date(min(package$data$deployments$start))
   package$temporal$end <- lubridate::as_date(max(package$data$deployments$end))
   package
