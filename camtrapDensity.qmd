@@ -30,11 +30,11 @@ You can now add lines of code to the script window from the examples below, edit
 
 ## Installing packages
 
-Install `camtrapDensity`, `camptraptor` and the other supporting packages by running this code. You only need to run this code once for the initial install, although it may be necessary to re-install packages when important updates are released from time to time:
+Install `camtrapDensity`, `camptraptor` and the other supporting packages by running this code. You only need to run this code once for the initial install, although it may be necessary to re-install packages when important updates are released from time to time. Note that an earlier version of `camtraptor` is required for the time being:
 
 ```{r eval=FALSE}
 install.packages(c("pak", "tidyverse"))
-pak::pak("inbo/camtraptor")
+pak::pak("inbo/camtraptor@v0.27.0")
 pak::pak("MarcusRowcliffe/camtrapDensity")
 ```
 
