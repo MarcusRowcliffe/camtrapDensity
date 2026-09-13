@@ -288,18 +288,8 @@ To get help on any function, including details on all the argument options, run 
 ?rem_estimate
 ```
 
-
 ## Reproducible sampling
 
-`fit_speedmodel()`, `fit_actmodel()`, `get_trap_rate()`,
-`get_parameter_table()` and `rem_estimate()` use a default `seed = 42` for
-reproducible uncertainty estimates. The seed is applied locally, preserving
-the caller's random-number state. Pass a different seed to choose another
-random sequence, or `seed = NULL` to use the caller's random-number state.
+`fit_speedmodel()`, `fit_actmodel()`, `get_trap_rate()`, `get_parameter_table()` and `rem_estimate()` use a default `seed = 42` for reproducible uncertainty estimates. The seed is applied locally, preserving the caller's random-number state. Pass a different seed to choose another random sequence, or `seed = NULL` to use the caller's random-number state.
 
-Parametric speed models (for example, `pdf = "l"`) have deterministic point
-estimates but use random coefficient draws to calculate standard errors and
-confidence limits. Seeding covers these draws as well as activity fitting
-and trap-rate bootstrapping. `rem_estimate()` forwards its seed when fitting
-speed and activity models internally; models supplied by the caller retain
-their existing estimates.
+Parametric speed models (for example, `pdf = "l"`) have deterministic point estimates but use random coefficient draws to calculate standard errors and confidence limits. Seeding covers these draws as well as activity fitting and trap-rate bootstrapping. `rem_estimate()` forwards its seed when fitting speed and activity models internally; models supplied by the caller retain their existing estimates.

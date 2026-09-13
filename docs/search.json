@@ -33,5 +33,12 @@
     "title": "camtrapDensity",
     "section": "General R tips",
     "text": "General R tips\nOnce you have fitted one or more REM models in a session, you may want to save your progress so that you don’t have to run again everything next session. To do this, save your workspace image when you exit RStudio. By default, RStudio should prompt you to do this on exit, and automatically reload your work next time you open the project. However, you can save your workspace manually, either using the RStudio menu:\nSession &gt; Save Workspace As &gt; provide a file name &gt; Save\nor by running one of these lines:\n\nsave.image() # Creates a file named .RData in the project directory\nsave.image(\"12Feb24.RData\") # Creates a file named 12Feb24.RData\n\nAt the start of the next session, if you want to load a specific workspace, you can either use the menu:\nSession &gt; Load Workspace &gt; select the required RData file &gt; Open\nor run this line, replacing the text with your file name:\n\nload(\"12Feb24.RData\")\n\nTo get help on any function, including details on all the argument options, run the function name preceded by a question mark, e.g.\n\n?rem_estimate"
+  },
+  {
+    "objectID": "camtrapDensity.html#reproducible-sampling",
+    "href": "camtrapDensity.html#reproducible-sampling",
+    "title": "camtrapDensity",
+    "section": "Reproducible sampling",
+    "text": "Reproducible sampling\nfit_speedmodel(), fit_actmodel(), get_trap_rate(), get_parameter_table() and rem_estimate() use a default seed = 42 for reproducible uncertainty estimates. The seed is applied locally, preserving the caller’s random-number state. Pass a different seed to choose another random sequence, or seed = NULL to use the caller’s random-number state.\nParametric speed models (for example, pdf = \"l\") have deterministic point estimates but use random coefficient draws to calculate standard errors and confidence limits. Seeding covers these draws as well as activity fitting and trap-rate bootstrapping. rem_estimate() forwards its seed when fitting speed and activity models internally; models supplied by the caller retain their existing estimates."
   }
 ]
